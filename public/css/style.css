@@ -1,0 +1,10 @@
+body { background: #050510; color: #16ff00; font-family: monospace; margin: 0; overflow: hidden; }
+canvas { display: block; position: absolute; top: 0; left: 0; }
+#loginScreen { position:absolute; top:0; left:0; width:100vw; height:100vh; background:rgba(5,5,16,0.95); z-index:1000; display:flex; flex-direction:column; justify-content:center; align-items:center; }
+input, button { font-family: monospace; font-size: 20px; padding: 10px; margin: 10px; background: #1a1a2e; color: #16ff00; border: 1px solid #16ff00; cursor:pointer; }
+button:hover { background: #16ff00; color: #1a1a2e; }
+#gameUI { position: absolute; width: 100%; top: 0; left: 0; pointer-events: none; z-index: 10; }
+#stats { padding: 15px; font-size: 16px; background: rgba(0,0,0,0.5); display: inline-block; }
+#leaderboard { position: absolute; top: 20px; right: 190px; background: rgba(0,0,0,0.7); padding: 15px; border: 1px solid #9600ff; min-width: 150px; }
+#minimapCanvas { position: absolute; top: 20px; right: 20px; border: 2px solid #16ff00; z-index: 11; background: black; pointer-events: auto; }
+#mutationMenu { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); background: #1a1a2e; border: 2px dashed yellow; padding: 20px; display: none; z-index: 100; pointer-events: auto; }

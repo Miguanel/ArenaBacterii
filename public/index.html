@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Bakteriofagocyty: Ekosystem</title>
+    <style>
+        body { background: #050510; color: #16ff00; font-family: monospace; margin: 0; overflow: hidden; }
+        canvas { display: block; position: absolute; top: 0; left: 0; }
+
+        #loginScreen { position:absolute; top:0; left:0; width:100vw; height:100vh; background:rgba(5,5,16,0.95); z-index:1000; display:flex; flex-direction:column; justify-content:center; align-items:center; }
+        input, button { font-family: monospace; font-size: 16px; padding: 10px; margin: 5px; background: #1a1a2e; color: #16ff00; border: 1px solid #16ff00; cursor:pointer; }
+        button:hover { background: #16ff00; color: #1a1a2e; }
+
+        #gameUI { position: absolute; width: 100%; top: 0; left: 0; pointer-events: none; z-index: 10; }
+        #stats { padding: 15px; font-size: 16px; background: rgba(0,0,0,0.5); display: inline-block; }
+        #leaderboard { position: absolute; top: 20px; right: 190px; background: rgba(0,0,0,0.7); padding: 15px; border: 1px solid #9600ff; min-width: 150px; }
+
+        #mutationMenu { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); background: #1a1a2e; border: 2px dashed yellow; padding: 15px; display: none; z-index: 100; pointer-events: auto; width: 750px; text-align: center;}
+        #editorCanvas { position: relative; border: 1px solid #444; background: #0a0a1a; cursor: crosshair; margin: 5px auto; width: 600px; height: 350px; display: block;}
+
+        /* NOWE STYLE DLA PRZYCISKÓW Z PYTAJNIKAMI */
+        .tools { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-bottom: 5px; }
+        .tool-wrapper { display: inline-flex; border: 1px solid #444; border-radius: 4px; overflow: hidden; background: #1a1a2e; }
+        .tool-wrapper .tool-btn { border: none; margin: 0; border-radius: 0; font-size: 11px; padding: 6px 10px; outline: none; }
+        .tool-wrapper .info-btn { background: #222; color: #ccc; padding: 0 8px; font-size: 12px; font-weight: bold; cursor: help; border-left: 1px solid #444; display: flex; align-items: center; }
+        .tool-wrapper .info-btn:hover { background: #16ff00; color: #000; }
+        .tool-active { background: #16ff00 !important; color: black !important; font-weight: bold; }
+
+        #editorStatsBox { background: rgba(0,0,0,0.8); border: 1px solid #00d4ff; padding: 10px; font-size: 14px; color: #00d4ff; margin-bottom: 10px; }
+
+        /* PŁYWAJĄCY DYMEK Z OPISEM */
+        #cellTooltip { position: fixed; background: rgba(10,10,26,0.95); border: 1px solid #16ff00; color: #ddd; padding: 12px; border-radius: 5px; width: 240px; font-size: 12px; pointer-events: none; display: none; z-index: 2000; text-align: left; line-height: 1.5; box-shadow: 2px 2px 10px rgba(0,0,0,0.8); }
+        #cellTooltip h3 { margin: 0 0 5px 0; font-size: 14px; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+    <div id="cellTooltip"></div>
+
+    <div id="loginScreen">
+        <h1>🔬 KREATOR EKOSYSTEMU</h1>
+        <input type="text" id="strainName" value="Szczep-Alfa">
+        <button onclick="joinGame()">ZAINFEKUJ</button>
+    </div>
+
+    <div id="gameUI">
+        <div id="stats">ATP: <span id="atpDisplay">0</span> | Szczep: <span id="idDisplay">Brak</span></div>
+        <div id="leaderboard"><b>🏆 TOP 5</b><div id="lbList"></div></div>
+        <canvas id="minimapCanvas" width="150" height="150" style="position: absolute; top: 20px; right: 20px; border: 2px solid #16ff00; z-index: 11; background: black; pointer-events: auto;"></canvas>
+    </div>
+
+    <div id="mutationMenu">
+        <h2 style="color:yellow; margin-top:0;">🧬 EDYTOR DNA (DOPŁATA: <span id="blueprintCost">0</span> ATP)</h2>
+
+        <div id="editorStatsBox">
+            🚀 Zwinność: <span id="statSpeed">0</span> | 🛡️ Masa: <span id="statMass">0</span> | 🔫 Broń: <span id="statFire">0</span> | 🛢️ Magazyn: <span id="statStorage">0</span>
+        </div>
+
+        <div class="tools">
+            <div class="tool-wrapper" style="border-color: #16ff00;">
+                <button class="tool-btn tool-active" id="tool_base" onclick="setTool('base')" style="color:#16ff00;">🟢 Rdzeń (+100)</button>
+                <div class="info-btn" onmousemove="showTip(event, 'base')" onmouseleave="hideTip()">?</div>
+            </div>
+            <div class="tool-wrapper" style="border-color: orange;">
+                <button class="tool-btn" id="tool_thruster" onclick="setTool('thruster')" style="color:orange;">🟠 Napęd (+150)</button>
+                <div class="info-btn" onmousemove="showTip(event, 'thruster')" onmouseleave="hideTip()">?</div>
+            </div>
+            <div class="tool-wrapper" style="border-color: #888888;">
+                <button class="tool-btn" id="tool_armor" onclick="setTool('armor')" style="color:#888888;">🛡️ Pancerz (+50)</button>
+                <div class="info-btn" onmousemove="showTip(event, 'armor')" onmouseleave="hideTip()">?</div>
+            </div>
+            <div class="tool-wrapper" style="border-color: #ff00aa;">
+                <button class="tool-btn" id="tool_harvester" onclick="setTool('harvester')" style="color:#ff00aa;">🧲 Macek (+150)</button>
+                <div class="info-btn" onmousemove="showTip(event, 'harvester')" onmouseleave="hideTip()">?</div>
+            </div>
+            <div class="tool-wrapper" style="border-color: #ffcc00;">
+                <button class="tool-btn" id="tool_storage" onclick="setTool('storage')" style="color:#ffcc00;">🛢️ Magazyn (+200)</button>
+                <div class="info-btn" onmousemove="showTip(event, 'storage')" onmouseleave="hideTip()">?</div>
+            </div>
+            <div class="tool-wrapper" style="border-color: cyan;">
+                <button class="tool-btn" id="tool_shooter" onclick="setTool('shooter')" style="color:cyan;">🔵 Wieża (+250)</button>
+                <div class="info-btn" onmousemove="showTip(event, 'shooter')" onmouseleave="hideTip()">?</div>
+            </div>
+            <div class="tool-wrapper" style="border-color: #aaff00;">
+                <button class="tool-btn" id="tool_generator" onclick="setTool('generator')" style="color:#aaff00;">🔋 Reaktor (+300)</button>
+                <div class="info-btn" onmousemove="showTip(event, 'generator')" onmouseleave="hideTip()">?</div>
+            </div>
+            <div class="tool-wrapper" style="border-color: #228B22;">
+                <button class="tool-btn" id="tool_chloroplast" onclick="setTool('chloroplast')" style="color:#228B22;">🌱 Flora (+150)</button>
+                <div class="info-btn" onmousemove="showTip(event, 'chloroplast')" onmouseleave="hideTip()">?</div>
+            </div>
+            <div class="tool-wrapper" style="border-color: #FFFFFF;">
+                <button class="tool-btn" id="tool_filter" onclick="setTool('filter')" style="color:#FFFFFF;">🧼 Detoks (+200)</button>
+                <div class="info-btn" onmousemove="showTip(event, 'filter')" onmouseleave="hideTip()">?</div>
+            </div>
+            <div class="tool-wrapper" style="border-color: #AAAAAA;">
+                <button class="tool-btn" id="tool_spike" onclick="setTool('spike')" style="color:#AAAAAA;">🗡️ Kolec (+250)</button>
+                <div class="info-btn" onmousemove="showTip(event, 'spike')" onmouseleave="hideTip()">?</div>
+            </div>
+            <div class="tool-wrapper" style="border-color: #ff6666;">
+                <button class="tool-btn" id="tool_flesh" onclick="setTool('flesh')" style="color:#ff6666;">🥩 Tkanka (+50)</button>
+                <div class="info-btn" onmousemove="showTip(event, 'flesh')" onmouseleave="hideTip()">?</div>
+            </div>
+            <div class="tool-wrapper" style="border-color: #66ccff;">
+                <button class="tool-btn" id="tool_sensor" onclick="setTool('sensor')" style="color:#66ccff;">📡 Radar (+150)</button>
+                <div class="info-btn" onmousemove="showTip(event, 'sensor')" onmouseleave="hideTip()">?</div>
+            </div>
+
+            <div class="tool-wrapper" style="border-color: #d400ff; margin-left: 10px;">
+                <button class="tool-btn" id="tool_move" onclick="setTool('move')" style="color:#d400ff;">✋ Przesuń</button>
+                <div class="info-btn" onmousemove="showTip(event, 'move')" onmouseleave="hideTip()">?</div>
+            </div>
+            <div class="tool-wrapper" style="border-color: red;">
+                <button class="tool-btn" id="tool_delete" onclick="setTool('delete')" style="color:red;">❌ Usuń</button>
+                <div class="info-btn" onmousemove="showTip(event, 'delete')" onmouseleave="hideTip()">?</div>
+            </div>
+        </div>
+
+        <canvas id="editorCanvas" width="600" height="350"></canvas>
+        <p style="font-size:11px; color:#aaa; margin: 3px;">Kółko Myszki = Zoom | Prawy Przycisk = Przesuń Kamere</p>
+
+        <div style="display:flex; justify-content:space-between; margin-top: 10px;">
+            <button onclick="loadEditor()" style="background: red; color: white;">Cofnij Zmiany</button>
+            <button onclick="saveOrganism()" style="background: #16ff00; color: black; font-weight:bold;">ZAPISZ I WYPŁYŃ</button>
+        </div>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // --- LOGIKA OPISÓW KOMÓREK (TOOLTIPY) ---
+        const tooltipsText = {
+            'base': "<h3 style='color:#16ff00;'>🟢 Rdzeń (Zwykła)</h3><b>HP: 100</b><br>Podstawowa struktura. Wytwarza 1.0 siły ciągu i magazynuje do 2 sztuk minerałów.",
+            'thruster': "<h3 style='color:orange;'>🟠 Napęd (Silnik)</h3><b>HP: 80</b><br>Potężny silnik. Generuje aż 3.0 siły ciągu!",
+            'armor': "<h3 style='color:#888888;'>🛡️ Pancerz</h3><b>HP: 300</b><br>Twardy blok obronny. Redukuje obrażenia od pocisków do 10 HP i doskonale chroni w walce w zwarciu.",
+            'harvester': "<h3 style='color:#ff00aa;'>🧲 Macek Zbierający</h3><b>HP: 100</b><br>Tworzy pole, które zasysa glukozę i minerały z dużej odległości.",
+            'storage': "<h3 style='color:#ffcc00;'>🛢️ Magazyn Minerałów</h3><b>HP: 120</b><br>Przechowuje do 20 minerałów.",
+            'shooter': "<h3 style='color:cyan;'>🔵 Wieża Strzelnicza</h3><b>HP: 100</b><br>Automatycznie strzela we wrogów. <br><br><b>Wymaga:</b> 5 ATP oraz 1 Minerału z magazynu do strzału.",
+            'generator': "<h3 style='color:#aaff00;'>🔋 Reaktor Jądrowy</h3><b>HP: 80</b><br>Nieustannie generuje darmowe ATP dla organizmu.",
+            'chloroplast': "<h3 style='color:#228B22;'>🌱 Flora (Chloroplast)</h3><b>HP: 80</b><br>Produkuje olbrzymie ilości ATP, ale <b>tylko wtedy</b>, gdy jesteś w złotych promieniach słonecznych.",
+            'filter': "<h3 style='color:#FFFFFF;'>🧼 Detoks (Lysosom)</h3><b>HP: 100</b><br>Zapewnia całkowitą odporność na zielone chmury trujące.",
+            'spike': "<h3 style='color:#AAAAAA;'>🗡️ Kolec</h3><b>HP: 150</b><br>Mocno rani i brutalnie odpycha wrogów w walce w zwarciu.",
+            'flesh': "<h3 style='color:#ff6666;'>🥩 Tkanka Odżywcza</h3><b>HP: 50</b><br>Gdy zginie, wyrzuca z siebie aż 5x więcej pożywienia. Stosowana u hodowlanych NPC.",
+            'sensor': "<h3 style='color:#66ccff;'>📡 Sensor Zmysłowy</h3><b>HP: 80</b><br>Wydłuża wzrok wieżyczek i drapieżników o dodatkowe 200px.",
+            'move': "<h3 style='color:#d400ff;'>✋ Przesuń Narząd</h3>Złap i przeciągnij istniejącą komórkę do innego miejsca.",
+            'delete': "<h3 style='color:red;'>❌ Usuń (Amputacja)</h3>Kliknij na komórkę, aby ją usunąć. <b>ATP nie jest zwracane!</b>"
+        };
+
+        const MAX_HP_MAP = { base: 100, thruster: 80, storage: 120, shooter: 100, armor: 300, harvester: 100, generator: 80, chloroplast: 80, filter: 100, spike: 150, flesh: 50, sensor: 80 };
+
+        function showTip(e, type) {
+            const tip = document.getElementById('cellTooltip');
+            tip.innerHTML = tooltipsText[type];
+            tip.style.display = 'block';
+            tip.style.left = (e.clientX + 15) + 'px';
+            tip.style.top = (e.clientY + 15) + 'px';
+        }
+
+        function hideTip() {
+            document.getElementById('cellTooltip').style.display = 'none';
+        }
+
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const mCanvas = document.getElementById('minimapCanvas');
+        const mCtx = mCanvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let socket;
+        let myOwnerId = null;
+        let cameraX = 0; let cameraY = 0;
+
+        let gameState = {};
+        let foodState = [];
+        let mineralState = [];
+        let mapZonesState = { sunbeams: [], toxic: [], dense: [] };
+        let virusState = [];
+        let predatorState = [];
+        let playerPhageState = [];
+        let bunkerState = null;
+        let isGameRunning = false;
+
+        function joinGame() {
+            const name = document.getElementById('strainName').value;
+            document.getElementById('loginScreen').style.display = 'none';
+            socket = io({ auth: { playerName: name } });
+
+            socket.on('spawn', (data) => {
+                myOwnerId = data.ownerId;
+                document.getElementById('idDisplay').innerText = data.species;
+                isGameRunning = true;
+                requestAnimationFrame(draw);
+            });
+
+            socket.on('enterMutationZone', () => { document.getElementById('mutationMenu').style.display = 'block'; loadEditor(); });
+            socket.on('blueprintSaved', () => { document.getElementById('mutationMenu').style.display = 'none'; socket.emit('exitZone'); });
+            socket.on('errorMsg', (msg) => alert(msg));
+
+            socket.on('updateMap', (data) => {
+                if(!data) return;
+                gameState = data.organisms || {};
+                foodState = data.food || [];
+                mineralState = data.minerals || [];
+                mapZonesState = data.zones || { sunbeams: [], toxic: [], dense: [] };
+                virusState = data.viruses || [];
+                predatorState = data.predators || [];
+                playerPhageState = data.playerPhages || [];
+                bunkerState = data.plutoniumZone || null;
+
+                let myOrg = gameState[myOwnerId];
+                if(myOrg) document.getElementById('atpDisplay').innerText = `${Math.floor(myOrg.atp)} (Komórki: ${myOrg.nodes.length})`;
+
+                if(data.leaderboard) {
+                    let lbHTML = "";
+                    data.leaderboard.forEach(e => lbHTML += `<div>${e[0]}: ${e[1]}</div>`);
+                    document.getElementById('lbList').innerHTML = lbHTML;
+                }
+            });
+        }
+
+        window.addEventListener('mousemove', (e) => {
+            if (socket && isGameRunning) socket.emit('chemotaxis', { targetX: e.clientX + cameraX, targetY: e.clientY + cameraY });
+        });
+
+        function getConvexHull(points) {
+            if (points.length < 3) return points;
+            points.sort((a, b) => a.x !== b.x ? a.x - b.x : a.y - b.y);
+            const cross = (o, a, b) => (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+            const lower = [];
+            for (let i = 0; i < points.length; i++) {
+                while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], points[i]) <= 0) lower.pop();
+                lower.push(points[i]);
+            }
+            const upper = [];
+            for (let i = points.length - 1; i >= 0; i--) {
+                while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], points[i]) <= 0) upper.pop();
+                upper.push(points[i]);
+            }
+            upper.pop(); lower.pop();
+            return lower.concat(upper);
+        }
+
+        function draw() {
+            if(!isGameRunning) return;
+            ctx.fillStyle = "#050510"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            let myOrg = gameState[myOwnerId];
+            if (myOrg) {
+                cameraX += (myOrg.x - canvas.width / 2 - cameraX) * 0.1;
+                cameraY += (myOrg.y - canvas.height / 2 - cameraY) * 0.1;
+            }
+
+            ctx.save();
+            ctx.translate(-cameraX, -cameraY);
+
+            ctx.strokeStyle = "#16ff0011"; ctx.lineWidth = 1;
+            for(let i = 0; i <= 3000; i += 200) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 3000); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(3000, i); ctx.stroke(); }
+
+            mapZonesState.dense.forEach(z => {
+                ctx.fillStyle = "rgba(0, 50, 150, 0.15)";
+                ctx.beginPath(); ctx.arc(z.x, z.y, z.r, 0, Math.PI*2); ctx.fill();
+            });
+            mapZonesState.toxic.forEach(z => {
+                let grad = ctx.createRadialGradient(z.x, z.y, 0, z.x, z.y, z.r);
+                grad.addColorStop(0, "rgba(0, 255, 50, 0.3)"); grad.addColorStop(1, "rgba(0, 255, 50, 0)");
+                ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(z.x, z.y, z.r, 0, Math.PI*2); ctx.fill();
+            });
+            mapZonesState.sunbeams.forEach(z => {
+                let grad = ctx.createRadialGradient(z.x, z.y, 0, z.x, z.y, z.r);
+                grad.addColorStop(0, "rgba(255, 255, 100, 0.4)"); grad.addColorStop(1, "rgba(255, 255, 100, 0)");
+                ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(z.x, z.y, z.r, 0, Math.PI*2); ctx.fill();
+            });
+
+            if (bunkerState) {
+                ctx.fillStyle = "rgba(255, 255, 0, 0.1)"; ctx.beginPath(); ctx.arc(bunkerState.x, bunkerState.y, bunkerState.radius, 0, Math.PI*2); ctx.fill();
+                ctx.strokeStyle = "yellow"; ctx.lineWidth = 2; ctx.stroke();
+            }
+
+            for (let id in gameState) {
+                let org = gameState[id];
+
+                let pts = org.nodes.map(n => ({x: n.x, y: n.y}));
+                if (pts.length >= 3) {
+                    let hull = getConvexHull(pts);
+                    ctx.beginPath(); ctx.moveTo(hull[0].x, hull[0].y);
+                    for (let i = 1; i < hull.length; i++) ctx.lineTo(hull[i].x, hull[i].y);
+                    ctx.closePath();
+                    ctx.lineJoin = 'round'; ctx.lineWidth = 35;
+                    ctx.fillStyle = id === myOwnerId ? "rgba(22, 255, 0, 0.15)" : (org.isNPC ? "rgba(200, 0, 255, 0.15)" : "rgba(255, 0, 0, 0.15)");
+                    ctx.strokeStyle = id === myOwnerId ? "rgba(22, 255, 0, 0.3)" : (org.isNPC ? "rgba(200, 0, 255, 0.3)" : "rgba(255, 0, 0, 0.3)");
+                    ctx.stroke(); ctx.fill();
+                }
+
+                org.nodes.forEach((n, idx) => {
+                    if (n.type === 'shooter') ctx.fillStyle = '#00ffff';
+                    else if (n.type === 'thruster') ctx.fillStyle = 'orange';
+                    else if (n.type === 'storage') ctx.fillStyle = '#ffcc00';
+                    else if (n.type === 'armor') ctx.fillStyle = '#888888';
+                    else if (n.type === 'harvester') ctx.fillStyle = '#ff00aa';
+                    else if (n.type === 'generator') ctx.fillStyle = '#aaff00';
+                    else if (n.type === 'chloroplast') ctx.fillStyle = '#228B22';
+                    else if (n.type === 'filter') ctx.fillStyle = '#FFFFFF';
+                    else if (n.type === 'spike') ctx.fillStyle = '#444444';
+                    else if (n.type === 'flesh') ctx.fillStyle = '#ff6666';
+                    else if (n.type === 'sensor') ctx.fillStyle = '#66ccff';
+                    else ctx.fillStyle = '#16ff00';
+
+                    ctx.beginPath(); ctx.arc(n.x, n.y, 14, 0, Math.PI*2); ctx.fill();
+                    ctx.strokeStyle = id === myOwnerId ? "white" : (org.isNPC ? "#ff00ff" : "red");
+                    ctx.lineWidth = id === myOwnerId ? 2 : 1; ctx.stroke();
+
+                    if (n.type === 'harvester') {
+                        ctx.strokeStyle = "rgba(255, 0, 170, 0.1)";
+                        ctx.beginPath(); ctx.arc(n.x, n.y, 70, 0, Math.PI*2); ctx.stroke();
+                    }
+
+                    // --- RYSOWANIE OBRAŻEŃ (PASEK HP) ---
+                    let maxHpForType = MAX_HP_MAP[n.type] || 100;
+                    let hpPercent = n.hp / maxHpForType;
+                    if (hpPercent < 1.0 && hpPercent > 0) {
+                        ctx.strokeStyle = "rgba(255, 0, 0, 0.8)";
+                        ctx.lineWidth = 3;
+                        ctx.beginPath();
+                        ctx.arc(n.x, n.y, 16, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * hpPercent));
+                        ctx.stroke();
+                    }
+
+                    ctx.font = "14px Arial"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+                    let emoji = "";
+                    if (n.type === 'shooter') emoji = '🎯';
+                    else if (n.type === 'thruster') emoji = '🔥';
+                    else if (n.type === 'storage') emoji = '🛢️';
+                    else if (n.type === 'armor') emoji = '🛡️';
+                    else if (n.type === 'harvester') emoji = '🧲';
+                    else if (n.type === 'generator') emoji = '🔋';
+                    else if (n.type === 'chloroplast') emoji = '🌱';
+                    else if (n.type === 'filter') emoji = '🧼';
+                    else if (n.type === 'spike') emoji = '🗡️';
+                    else if (n.type === 'flesh') emoji = '🥩';
+                    else if (n.type === 'sensor') emoji = '📡';
+                    else emoji = '🦠';
+                    ctx.fillText(emoji, n.x, n.y);
+
+                    if (n.minerals > 0.5) {
+                        ctx.fillStyle = "rgba(255, 0, 255, 0.75)";
+                        ctx.beginPath(); ctx.arc(n.x, n.y, Math.min(n.minerals * 1.5, 8), 0, Math.PI*2); ctx.fill();
+                    }
+                });
+
+                if (id === myOwnerId) {
+                    ctx.fillStyle = "rgba(0,0,0,0.8)"; ctx.fillRect(org.x - 20, org.y - 30, 40, 6);
+                    ctx.fillStyle = org.atp >= 200 ? "#ffaa00" : "#ffffff"; ctx.fillRect(org.x - 20, org.y - 30, Math.min((org.atp / 200) * 40, 40), 6);
+                }
+            }
+
+            ctx.fillStyle = "#00d4ff";
+            foodState.forEach(f => { ctx.beginPath(); ctx.arc(f.x, f.y, 3, 0, Math.PI*2); ctx.fill(); });
+
+            ctx.fillStyle = "#ff00ff";
+            mineralState.forEach(m => { ctx.fillRect(m.x - 3, m.y - 3, 6, 6); });
+
+            ctx.fillStyle = "#ff00ff";
+            virusState.forEach(v => { ctx.beginPath(); ctx.moveTo(v.x, v.y - 8); ctx.lineTo(v.x + 6, v.y); ctx.lineTo(v.x, v.y + 8); ctx.lineTo(v.x - 6, v.y); ctx.fill(); });
+
+            ctx.fillStyle = "#00ffff";
+            playerPhageState.forEach(f => { ctx.beginPath(); ctx.moveTo(f.x, f.y - 5); ctx.lineTo(f.x + 15, f.y); ctx.lineTo(f.x, f.y + 5); ctx.lineTo(f.x - 5, f.y); ctx.fill(); });
+
+            ctx.fillStyle = "rgba(255,255,255,0.4)"; ctx.strokeStyle = "white"; ctx.lineWidth = 2;
+            predatorState.forEach(m => { ctx.beginPath(); ctx.arc(m.x, m.y, m.radius, 0, Math.PI*2); ctx.fill(); ctx.stroke(); });
+
+            ctx.restore();
+
+            mCtx.fillStyle = "black"; mCtx.fillRect(0, 0, 150, 150);
+            const scale = 150 / 3000;
+
+            mapZonesState.toxic.forEach(z => { mCtx.fillStyle = "rgba(0, 255, 50, 0.3)"; mCtx.beginPath(); mCtx.arc(z.x * scale, z.y * scale, z.r * scale, 0, Math.PI*2); mCtx.fill(); });
+            mapZonesState.sunbeams.forEach(z => { mCtx.fillStyle = "rgba(255, 255, 100, 0.4)"; mCtx.beginPath(); mCtx.arc(z.x * scale, z.y * scale, z.r * scale, 0, Math.PI*2); mCtx.fill(); });
+
+            for (let id in gameState) {
+                let org = gameState[id];
+                mCtx.fillStyle = (id === myOwnerId) ? "#16ff00" : (org.isNPC ? "purple" : "red");
+                mCtx.fillRect(org.x * scale, org.y * scale, 3, 3);
+            }
+            mCtx.strokeStyle = "white"; mCtx.lineWidth = 1;
+            mCtx.strokeRect(cameraX * scale, cameraY * scale, canvas.width * scale, canvas.height * scale);
+
+            requestAnimationFrame(draw);
+        }
+
+        window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
+    </script>
+    <script src="js/editor.js"></script>
+</body>
+</html>
