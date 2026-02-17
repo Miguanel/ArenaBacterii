@@ -8,7 +8,7 @@ let viruses = [];
 let playerPhages = [];
 const predators = [{ id: 'macro_1', x: 1500, y: 1500, targetX: 1600, targetY: 1600, speed: 1.5, radius: 40 }];
 const plutoniumZone = { x: 1500, y: 800, radius: 100 };
-
+let tickCounter = 0;
 const mapZones = { sunbeams: [], toxic: [], dense: [] };
 
 function spawnResource(arr, specificX = null, specificY = null) {
@@ -443,8 +443,10 @@ function updatePhysics(io) {
     const stats = {};
     for(let id in organisms) { if(!organisms[id].isNPC) stats[organisms[id].species] = Math.floor(organisms[id].atp); }
     const leaderboard = Object.entries(stats).sort((a,b) => b[1]-a[1]).slice(0,5);
-
-    io.emit('updateMap', { organisms, food: glucoseParticles, minerals: mineralParticles, predators, plutoniumZone, viruses, playerPhages, leaderboard, zones: mapZones });
+    tickCounter++;
+    if (tickCounter % 2 === 0) {
+        io.emit('updateMap', { organisms, food: glucoseParticles, minerals: mineralParticles, predators, plutoniumZone, viruses, playerPhages, leaderboard, zones: mapZones });
+    }
 }
 
 function findClosestEnemy(node, range, myOrgId) {

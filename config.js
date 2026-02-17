@@ -3,9 +3,9 @@ module.exports = {
     WORLD_HEIGHT: 3000,
     CANVAS_WIDTH: 800,
     CANVAS_HEIGHT: 600,
-    MAX_GLUCOSE: 400,
-    MAX_MINERALS: 150,
-    MAX_NPCS: 25,
+    MAX_GLUCOSE: 300,
+    MAX_MINERALS: 100,
+    MAX_NPCS: 12,
 
     PHYSICS: {
         FRICTION: 0.82,
