@@ -11,11 +11,27 @@
         input, button { font-family: monospace; font-size: 16px; padding: 10px; margin: 5px; background: #1a1a2e; color: #16ff00; border: 1px solid #16ff00; cursor:pointer; }
         button:hover { background: #16ff00; color: #1a1a2e; }
 
+        /* STYL DLA OPISU GRY NA EKRANIE LOGOWANIA */
+        .intro-box {
+            background: rgba(10, 10, 26, 0.8);
+            border: 1px dashed #16ff00;
+            padding: 20px 30px;
+            margin-bottom: 25px;
+            max-width: 550px;
+            border-radius: 8px;
+            color: #ccc;
+            text-align: center;
+            box-shadow: 0px 0px 15px rgba(22, 255, 0, 0.2);
+        }
+        .intro-box h3 { color: yellow; margin-top: 0; font-size: 20px;}
+        .intro-box ul { text-align: left; margin-bottom: 0; padding-left: 20px; }
+        .intro-box li { margin-bottom: 10px; line-height: 1.4; }
+
         #gameUI { position: absolute; width: 100%; top: 0; left: 0; pointer-events: none; z-index: 10; }
         #stats { padding: 15px; font-size: 16px; background: rgba(0,0,0,0.5); display: inline-block; }
         #leaderboard { position: absolute; top: 20px; right: 190px; background: rgba(0,0,0,0.7); padding: 15px; border: 1px solid #9600ff; min-width: 150px; }
 
-        #mutationMenu { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); background: #1a1a2e; border: 2px dashed yellow; padding: 15px; display: none; z-index: 100; pointer-events: auto; width: 750px; text-align: center;}
+        #mutationMenu { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); background: #1a1a2e; border: 2px dashed yellow; padding: 15px; display: none; z-index: 100; pointer-events: auto; width: 850px; text-align: center;}
         #editorCanvas { position: relative; border: 1px solid #444; background: #0a0a1a; cursor: crosshair; margin: 5px auto; width: 600px; height: 350px; display: block;}
 
         /* NOWE STYLE DLA PRZYCISKÓW Z PYTAJNIKAMI */
@@ -37,9 +53,23 @@
     <div id="cellTooltip"></div>
 
     <div id="loginScreen">
-        <h1>🔬 KREATOR EKOSYSTEMU</h1>
-        <input type="text" id="strainName" value="Szczep-Alfa">
-        <button onclick="joinGame()">ZAINFEKUJ</button>
+        <h1>🔬 B A K T E R I O F A G O C Y T Y</h1>
+
+        <div class="intro-box">
+            <h3>Witaj w probówce!</h3>
+            <p>Zaczynasz jako pojedyncza komórka. Twoim celem jest ewolucja, przetrwanie i zbudowanie potężnego organizmu.</p>
+            <ul>
+                <li>🔵 <b>Jedzenie:</b> Zbieraj niebieską glukozę, aby zdobywać energię (ATP) do ewolucji.</li>
+                <li>🟪 <b>Surowce:</b> Zbieraj fioletowe minerały, by zasilać m.in. wieżyczki obronne.</li>
+                <li>☢️ <b>Bunkier:</b> Wpłyń do <b>żółtej strefy</b> na środku mapy, aby wejść do Edytora DNA. Tam bezpiecznie zmutujesz i w pełni wyleczysz organizm!</li>
+                <li>☠️ <b>Zagrożenia:</b> Uważaj na zielone chmury kwasu, dzikie wirusy oraz brutalne Makrofagi, które pożrą Cię w całości!</li>
+            </ul>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <input type="text" id="strainName" value="Szczep-Alfa" maxlength="15">
+            <button onclick="joinGame()" style="font-size: 18px; font-weight: bold; padding: 10px 20px;">ZAINFEKUJ</button>
+        </div>
     </div>
 
     <div id="gameUI">
@@ -131,19 +161,19 @@
         // --- LOGIKA OPISÓW KOMÓREK (TOOLTIPY) ---
         const tooltipsText = {
             'base': "<h3 style='color:#16ff00;'>🟢 Rdzeń (Zwykła)</h3><b>HP: 100</b><br>Podstawowa struktura. Wytwarza 1.0 siły ciągu i magazynuje do 2 sztuk minerałów.",
-            'thruster': "<h3 style='color:orange;'>🟠 Napęd (Silnik)</h3><b>HP: 80</b><br>Potężny silnik. Generuje aż 3.0 siły ciągu!",
+            'thruster': "<h3 style='color:orange;'>🟠 Napęd (Silnik)</h3><b>HP: 80</b><br>Potężny silnik. Generuje aż 3.0 siły ciągu! Konieczny do ruszania ciężkimi organizmami.",
             'armor': "<h3 style='color:#888888;'>🛡️ Pancerz</h3><b>HP: 300</b><br>Twardy blok obronny. Redukuje obrażenia od pocisków do 10 HP i doskonale chroni w walce w zwarciu.",
-            'harvester': "<h3 style='color:#ff00aa;'>🧲 Macek Zbierający</h3><b>HP: 100</b><br>Tworzy pole, które zasysa glukozę i minerały z dużej odległości.",
-            'storage': "<h3 style='color:#ffcc00;'>🛢️ Magazyn Minerałów</h3><b>HP: 120</b><br>Przechowuje do 20 minerałów.",
+            'harvester': "<h3 style='color:#ff00aa;'>🧲 Macek Zbierający</h3><b>HP: 100</b><br>Tworzy pole, które zasysa glukozę i minerały z ogromnej odległości.",
+            'storage': "<h3 style='color:#ffcc00;'>🛢️ Magazyn Minerałów</h3><b>HP: 120</b><br>Przechowuje do 20 minerałów i zasila połączone ze sobą organy (np. wieżyczki).",
             'shooter': "<h3 style='color:cyan;'>🔵 Wieża Strzelnicza</h3><b>HP: 100</b><br>Automatycznie strzela we wrogów. <br><br><b>Wymaga:</b> 5 ATP oraz 1 Minerału z magazynu do strzału.",
-            'generator': "<h3 style='color:#aaff00;'>🔋 Reaktor Jądrowy</h3><b>HP: 80</b><br>Nieustannie generuje darmowe ATP dla organizmu.",
-            'chloroplast': "<h3 style='color:#228B22;'>🌱 Flora (Chloroplast)</h3><b>HP: 80</b><br>Produkuje olbrzymie ilości ATP, ale <b>tylko wtedy</b>, gdy jesteś w złotych promieniach słonecznych.",
-            'filter': "<h3 style='color:#FFFFFF;'>🧼 Detoks (Lysosom)</h3><b>HP: 100</b><br>Zapewnia całkowitą odporność na zielone chmury trujące.",
-            'spike': "<h3 style='color:#AAAAAA;'>🗡️ Kolec</h3><b>HP: 150</b><br>Mocno rani i brutalnie odpycha wrogów w walce w zwarciu.",
+            'generator': "<h3 style='color:#aaff00;'>🔋 Reaktor Jądrowy</h3><b>HP: 80</b><br>Nieustannie, pasywnie generuje darmowe ATP dla organizmu.",
+            'chloroplast': "<h3 style='color:#228B22;'>🌱 Flora (Chloroplast)</h3><b>HP: 80</b><br>Produkuje olbrzymie ilości ATP, ale <b>tylko wtedy</b>, gdy jesteś w strefie złotych promieni słonecznych.",
+            'filter': "<h3 style='color:#FFFFFF;'>🧼 Detoks (Lysosom)</h3><b>HP: 100</b><br>Zapewnia całkowitą odporność na zielone chmury trujące oraz pożera wirusy dając Ci ATP!",
+            'spike': "<h3 style='color:#AAAAAA;'>🗡️ Kolec</h3><b>HP: 150</b><br>Taran. Mocno rani i brutalnie odpycha wrogów w walce w zwarciu.",
             'flesh': "<h3 style='color:#ff6666;'>🥩 Tkanka Odżywcza</h3><b>HP: 50</b><br>Gdy zginie, wyrzuca z siebie aż 5x więcej pożywienia. Stosowana u hodowlanych NPC.",
             'sensor': "<h3 style='color:#66ccff;'>📡 Sensor Zmysłowy</h3><b>HP: 80</b><br>Wydłuża wzrok wieżyczek i drapieżników o dodatkowe 200px.",
-            'move': "<h3 style='color:#d400ff;'>✋ Przesuń Narząd</h3>Złap i przeciągnij istniejącą komórkę do innego miejsca.",
-            'delete': "<h3 style='color:red;'>❌ Usuń (Amputacja)</h3>Kliknij na komórkę, aby ją usunąć. <b>ATP nie jest zwracane!</b>"
+            'move': "<h3 style='color:#d400ff;'>✋ Przesuń Narząd</h3>Złap i przeciągnij istniejącą komórkę do innego miejsca na siatce.",
+            'delete': "<h3 style='color:red;'>❌ Usuń (Amputacja)</h3>Kliknij na komórkę, aby ją trwale usunąć. <br><b>Uwaga:</b> Wydane ATP nie jest zwracane!"
         };
 
         const MAX_HP_MAP = { base: 100, thruster: 80, storage: 120, shooter: 100, armor: 300, harvester: 100, generator: 80, chloroplast: 80, filter: 100, spike: 150, flesh: 50, sensor: 80 };
@@ -372,18 +402,47 @@
 
             ctx.restore();
 
-            mCtx.fillStyle = "black"; mCtx.fillRect(0, 0, 150, 150);
+            // --- RYSOWANIE MINIMAPY ---
+            mCtx.fillStyle = "black";
+            mCtx.fillRect(0, 0, 150, 150);
             const scale = 150 / 3000;
 
+            // 1. Strefy klimatyczne
             mapZonesState.toxic.forEach(z => { mCtx.fillStyle = "rgba(0, 255, 50, 0.3)"; mCtx.beginPath(); mCtx.arc(z.x * scale, z.y * scale, z.r * scale, 0, Math.PI*2); mCtx.fill(); });
             mapZonesState.sunbeams.forEach(z => { mCtx.fillStyle = "rgba(255, 255, 100, 0.4)"; mCtx.beginPath(); mCtx.arc(z.x * scale, z.y * scale, z.r * scale, 0, Math.PI*2); mCtx.fill(); });
 
+            // 2. BUNKIER (Żółty okrąg)
+            if (bunkerState) {
+                mCtx.fillStyle = "rgba(255, 255, 0, 0.4)";
+                mCtx.beginPath();
+                mCtx.arc(bunkerState.x * scale, bunkerState.y * scale, bunkerState.radius * scale, 0, Math.PI*2);
+                mCtx.fill();
+                mCtx.strokeStyle = "yellow";
+                mCtx.lineWidth = 1;
+                mCtx.stroke();
+            }
+
+            // 3. Organizmy (Gracze i NPC)
             for (let id in gameState) {
                 let org = gameState[id];
-                mCtx.fillStyle = (id === myOwnerId) ? "#16ff00" : (org.isNPC ? "purple" : "red");
-                mCtx.fillRect(org.x * scale, org.y * scale, 3, 3);
+                let minimapX = org.x * scale;
+                let minimapY = org.y * scale;
+
+                if (id === myOwnerId) {
+                    mCtx.fillStyle = "#16ff00"; // Ty (Duży zielony kwadrat)
+                    mCtx.fillRect(minimapX - 2.5, minimapY - 2.5, 5, 5);
+                } else if (org.isNPC) {
+                    mCtx.fillStyle = "purple";  // NPC (Mniejszy fioletowy kwadrat)
+                    mCtx.fillRect(minimapX - 1.5, minimapY - 1.5, 3, 3);
+                } else {
+                    mCtx.fillStyle = "red";     // Inni Gracze (Duży czerwony kwadrat)
+                    mCtx.fillRect(minimapX - 2.5, minimapY - 2.5, 5, 5);
+                }
             }
-            mCtx.strokeStyle = "white"; mCtx.lineWidth = 1;
+
+            // 4. Pole widzenia kamery
+            mCtx.strokeStyle = "white";
+            mCtx.lineWidth = 1;
             mCtx.strokeRect(cameraX * scale, cameraY * scale, canvas.width * scale, canvas.height * scale);
 
             requestAnimationFrame(draw);
