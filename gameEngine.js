@@ -585,6 +585,7 @@ function updatePhysics(io) {
         if (m.y >= config.WORLD_HEIGHT) m.y -= config.WORLD_HEIGHT;
     }
 
+    // --- CLEANUP ŚMIERCI I REKALIBRACJA ---
     for (let id in organisms) {
         let org = organisms[id];
         let nodesDied = false;
@@ -606,7 +607,10 @@ function updatePhysics(io) {
             recenterBlueprint(org);
         }
 
-        if(org.nodes.length === 0 || org.atp <= 0) { delete organisms[id]; }
+        if(org.nodes.length === 0 || org.atp <= 0) {
+            io.to(id).emit('gameOver'); // <--- DODANA LINIJKA: Informujemy gracza o śmierci
+            delete organisms[id];
+        }
     }
 
     const stats = {};

@@ -5,7 +5,11 @@
     <title>Bakteriofagocyty: Ekosystem</title>
     <style>
         body { background: #050510; color: #16ff00; font-family: monospace; margin: 0; overflow: hidden; }
-        canvas { display: block; position: absolute; top: 0; left: 0; }
+        canvas { display: block; position: absolute; top: 0; left: 0; cursor: crosshair; }
+
+        /* Zmieniamy kursor w trybie obserwatora na 'łapkę' */
+        .spectator-cursor { cursor: grab !important; }
+        .spectator-cursor:active { cursor: grabbing !important; }
 
         #loginScreen { position:absolute; top:0; left:0; width:100vw; height:100vh; background:rgba(5,5,16,0.95); z-index:1000; display:flex; flex-direction:column; justify-content:center; align-items:center; }
         input, button { font-family: monospace; font-size: 16px; padding: 10px; margin: 5px; background: #1a1a2e; color: #16ff00; border: 1px solid #16ff00; cursor:pointer; }
@@ -19,6 +23,11 @@
         #gameUI { position: absolute; width: 100%; top: 0; left: 0; pointer-events: none; z-index: 10; }
         #stats { padding: 15px; font-size: 16px; background: rgba(0,0,0,0.5); display: inline-block; }
         #leaderboard { position: absolute; top: 20px; right: 190px; background: rgba(0,0,0,0.7); padding: 15px; border: 1px solid #9600ff; min-width: 150px; }
+
+        /* PANEL OBSERWATORA (PO ŚMIERCI) */
+        #spectatorUI { position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); background: rgba(50, 0, 0, 0.8); border: 2px solid red; padding: 20px; text-align: center; display: none; z-index: 2000; pointer-events: auto; }
+        #spectatorUI h2 { margin: 0 0 10px 0; color: red; text-transform: uppercase; }
+        #spectatorUI p { margin: 0 0 15px 0; color: #fff; font-size: 14px; }
 
         #mutationMenu { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); background: #1a1a2e; border: 2px dashed yellow; padding: 15px; display: none; z-index: 100; pointer-events: auto; width: 850px; text-align: center;}
         #editorCanvas { position: relative; border: 1px solid #444; background: #0a0a1a; cursor: crosshair; margin: 5px auto; width: 600px; height: 350px; display: block;}
@@ -63,6 +72,12 @@
         <canvas id="minimapCanvas" width="150" height="150" style="position: absolute; top: 20px; right: 20px; border: 2px solid #16ff00; z-index: 11; background: black; pointer-events: auto;"></canvas>
     </div>
 
+    <div id="spectatorUI">
+        <h2>💀 TWOJA KOLONIA WYGINĘŁA 💀</h2>
+        <p>Przesuwaj mapę myszką (lub palcem), aby obserwować ekosystem.</p>
+        <button onclick="location.reload()" style="background: red; color: white; border: 1px solid white;">ODRODŹ SIĘ (RESTART)</button>
+    </div>
+
     <div id="mutationMenu">
         <h2 style="color:yellow; margin-top:0;">🧬 EDYTOR DNA (DOPŁATA: <span id="blueprintCost">0</span> ATP)</h2>
         <div id="editorStatsBox">
@@ -98,7 +113,7 @@
     <script>
         const tooltipsText = {
             'base': "<h3 style='color:#16ff00;'>🟢 Rdzeń (Zwykła)</h3><b>HP: 100</b><br>Podstawa. Wytwarza 0.5 siły ciągu (awaryjny napęd) i magazynuje do 2 sztuk minerałów.",
-            'thruster': "<h3 style='color:orange;'>🟠 Napęd (Silnik)</h3><b>HP: 80</b><br>Potężny silnik. Generuje aż 4.0 siły ciągu! Konieczny do sprawnego poruszania.",
+            'thruster': "<h3 style='color:orange;'>🟠 Napęd (Silnik)</h3><b>HP: 80</b><br>Potężny silnik. Generuje aż 3.0 siły ciągu! Konieczny do sprawnego poruszania.",
             'armor': "<h3 style='color:#888888;'>🛡️ Pancerz</h3><b>HP: 300</b><br>Twardy blok obronny. Redukuje obrażenia od pocisków.",
             'harvester': "<h3 style='color:#ff00aa;'>🧲 Macek Zbierający</h3><b>HP: 100</b><br>Zasysa glukozę i minerały z dużej odległości.",
             'storage': "<h3 style='color:#ffcc00;'>🛢️ Magazyn Minerałów</h3><b>HP: 120</b><br>Przechowuje do 20 minerałów.",
@@ -143,6 +158,14 @@
         let bunkerState = null;
         let isGameRunning = false;
 
+        let isSpectator = false;
+
+        // ZMIENNE DLA DRAG & DROP KAMERY
+        let isDragging = false;
+        let lastMouseX = 0;
+        let lastMouseY = 0;
+        let spectatorKeys = { w: false, a: false, s: false, d: false, ArrowUp: false, ArrowLeft: false, ArrowDown: false, ArrowRight: false };
+
         const WORLD_WIDTH = 3000;
         const WORLD_HEIGHT = 3000;
 
@@ -154,9 +177,21 @@
             socket.on('spawn', (data) => {
                 myOwnerId = data.ownerId;
                 document.getElementById('idDisplay').innerText = data.species;
-                myCamX = 1500; myCamY = 1500;
+                myCamX = 1500; myCamY = 800; // Start w bunkrze
+
+                isSpectator = false;
+                document.getElementById('spectatorUI').style.display = 'none';
+                canvas.classList.remove('spectator-cursor');
+
                 isGameRunning = true;
                 requestAnimationFrame(draw);
+            });
+
+            socket.on('gameOver', () => {
+                isSpectator = true;
+                document.getElementById('spectatorUI').style.display = 'block';
+                document.getElementById('atpDisplay').innerText = "MARTWY";
+                canvas.classList.add('spectator-cursor');
             });
 
             socket.on('enterMutationZone', () => { document.getElementById('mutationMenu').style.display = 'block'; loadEditor(); });
@@ -175,7 +210,7 @@
                 bunkerState = data.plutoniumZone || null;
 
                 let myOrg = gameState[myOwnerId];
-                if(myOrg) document.getElementById('atpDisplay').innerText = `${Math.floor(myOrg.atp)} (Komórki: ${myOrg.nodes.length})`;
+                if(myOrg && !isSpectator) document.getElementById('atpDisplay').innerText = `${Math.floor(myOrg.atp)} (Komórki: ${myOrg.nodes.length})`;
 
                 if(data.leaderboard) {
                     let lbHTML = "";
@@ -188,16 +223,67 @@
         let myCamX = 1500;
         let myCamY = 1500;
 
-        window.addEventListener('mousemove', (e) => {
-            if (socket && isGameRunning) {
+        // STEROWANIE WASD (Jako zapasowe)
+        window.addEventListener('keydown', (e) => { if(spectatorKeys.hasOwnProperty(e.key)) spectatorKeys[e.key] = true; });
+        window.addEventListener('keyup', (e) => { if(spectatorKeys.hasOwnProperty(e.key)) spectatorKeys[e.key] = false; });
+
+        // --- OBSŁUGA MYSZKI I DOTYKU (DRAG & DROP) ---
+        function getInputPos(e) {
+            if(e.touches) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            return { x: e.clientX, y: e.clientY };
+        }
+
+        canvas.addEventListener('mousedown', (e) => {
+            if (!isSpectator) return;
+            isDragging = true;
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
+        });
+        canvas.addEventListener('touchstart', (e) => {
+            if (!isSpectator) return;
+            isDragging = true;
+            let pos = getInputPos(e);
+            lastMouseX = pos.x; lastMouseY = pos.y;
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            // Logika gry (sterowanie organizmem)
+            if (socket && isGameRunning && !isSpectator) {
                 let rawX = e.clientX + myCamX - canvas.width/2;
                 let rawY = e.clientY + myCamY - canvas.height/2;
                 let normX = ((rawX % WORLD_WIDTH) + WORLD_WIDTH) % WORLD_WIDTH;
                 let normY = ((rawY % WORLD_HEIGHT) + WORLD_HEIGHT) % WORLD_HEIGHT;
                 socket.emit('chemotaxis', { targetX: normX, targetY: normY });
             }
+            // Logika obserwatora (przesuwanie mapy)
+            else if (isSpectator && isDragging) {
+                let dx = e.clientX - lastMouseX;
+                let dy = e.clientY - lastMouseY;
+                myCamX -= dx; // Przesuwamy w przeciwną stronę ruchu myszki ("ciągniemy" mapę)
+                myCamY -= dy;
+                lastMouseX = e.clientX;
+                lastMouseY = e.clientY;
+            }
         });
 
+        // Obsługa TouchMove (dla telefonów)
+        canvas.addEventListener('touchmove', (e) => {
+            if (isSpectator && isDragging) {
+                e.preventDefault(); // Blokuje scrollowanie strony
+                let pos = getInputPos(e);
+                let dx = pos.x - lastMouseX;
+                let dy = pos.y - lastMouseY;
+                myCamX -= dx;
+                myCamY -= dy;
+                lastMouseX = pos.x; lastMouseY = pos.y;
+            }
+        });
+
+        canvas.addEventListener('mouseup', () => isDragging = false);
+        canvas.addEventListener('mouseleave', () => isDragging = false);
+        canvas.addEventListener('touchend', () => isDragging = false);
+
+        // --- FUNKCJE POMOCNICZE (HULL, POS) ---
         function getConvexHull(points) {
             if (points.length < 3) return points;
             points.sort((a, b) => a.x !== b.x ? a.x - b.x : a.y - b.y);
@@ -216,7 +302,6 @@
             return lower.concat(upper);
         }
 
-        // Funkcja do rysowania pojedynczych obiektów (glukoza, wirusy)
         function getRelPos(objX, objY, camX, camY) {
             let dx = objX - camX;
             let dy = objY - camY;
@@ -233,8 +318,20 @@
             ctx.fillStyle = "#050510";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            let myOrg = gameState[myOwnerId];
-            if (myOrg) { myCamX = myOrg.x; myCamY = myOrg.y; }
+            if (isSpectator) {
+                // Obsługa WASD (jako opcja)
+                if(spectatorKeys.w || spectatorKeys.ArrowUp) myCamY -= 15;
+                if(spectatorKeys.s || spectatorKeys.ArrowDown) myCamY += 15;
+                if(spectatorKeys.a || spectatorKeys.ArrowLeft) myCamX -= 15;
+                if(spectatorKeys.d || spectatorKeys.ArrowRight) myCamX += 15;
+
+                // Wrapping kamery (wspólne dla Drag i WASD)
+                myCamX = ((myCamX % WORLD_WIDTH) + WORLD_WIDTH) % WORLD_WIDTH;
+                myCamY = ((myCamY % WORLD_HEIGHT) + WORLD_HEIGHT) % WORLD_HEIGHT;
+            } else {
+                let myOrg = gameState[myOwnerId];
+                if (myOrg) { myCamX = myOrg.x; myCamY = myOrg.y; }
+            }
 
             // SIATKA
             let gridSize = 200;
@@ -296,36 +393,26 @@
                 }
             });
 
-            // --- ORGANIZMY - POPRAWIONE RYSOWANIE BEZ ROZRYWANIA HULLA ---
+            // ORGANIZMY
             for (let id in gameState) {
                 let org = gameState[id];
                 if (!org.nodes || org.nodes.length === 0) continue;
 
-                // 1. Używamy PIERWSZEJ KOMÓRKI jako kotwicy (Anchor)
-                // Zamiast środka (który może być źle policzony przy krawędziach),
-                // bierzemy fizyczny punkt - pierwszą komórkę.
                 let anchor = org.nodes[0];
                 let anchorScreen = getRelPos(anchor.x, anchor.y, myCamX, myCamY);
 
-                // Sprawdzamy czy kotwica jest blisko ekranu
                 if (anchorScreen.x < -500 || anchorScreen.x > canvas.width+500 || anchorScreen.y < -500 || anchorScreen.y > canvas.height+500) continue;
 
-                // 2. Mapujemy resztę komórek RELATYWNIE do Kotwicy
                 let screenNodes = org.nodes.map(n => {
                     let dx = n.x - anchor.x;
                     let dy = n.y - anchor.y;
-
-                    // Naprawiamy zawijanie odległości między komórkami
                     if (dx < -WORLD_WIDTH / 2) dx += WORLD_WIDTH;
                     if (dx > WORLD_WIDTH / 2) dx -= WORLD_WIDTH;
                     if (dy < -WORLD_HEIGHT / 2) dy += WORLD_HEIGHT;
                     if (dy > WORLD_HEIGHT / 2) dy -= WORLD_HEIGHT;
-
-                    // Pozycja na ekranie = Ekranowa Kotwica + Skorygowany Dystans
                     return { ...n, sx: anchorScreen.x + dx, sy: anchorScreen.y + dy };
                 });
 
-                // Rysowanie Hull
                 if (screenNodes.length >= 3) {
                     let hullNodes = screenNodes.map(n => ({x: n.sx, y: n.sy}));
                     let hull = getConvexHull(hullNodes);
@@ -338,7 +425,6 @@
                     ctx.stroke(); ctx.fill();
                 }
 
-                // Rysowanie komórek
                 screenNodes.forEach((n) => {
                     if (n.type === 'shooter') ctx.fillStyle = '#00ffff';
                     else if (n.type === 'thruster') ctx.fillStyle = 'orange';
@@ -392,7 +478,7 @@
                     }
                 });
 
-                if (id === myOwnerId) {
+                if (id === myOwnerId && !isSpectator) {
                     let pos = getRelPos(org.x, org.y, myCamX, myCamY);
                     ctx.fillStyle = "rgba(0,0,0,0.8)"; ctx.fillRect(pos.x - 20, pos.y - 30, 40, 6);
                     ctx.fillStyle = org.atp >= 200 ? "#ffaa00" : "#ffffff"; ctx.fillRect(pos.x - 20, pos.y - 30, Math.min((org.atp / 200) * 40, 40), 6);
