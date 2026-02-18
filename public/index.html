@@ -11,18 +11,7 @@
         input, button { font-family: monospace; font-size: 16px; padding: 10px; margin: 5px; background: #1a1a2e; color: #16ff00; border: 1px solid #16ff00; cursor:pointer; }
         button:hover { background: #16ff00; color: #1a1a2e; }
 
-        /* STYL DLA OPISU GRY NA EKRANIE LOGOWANIA */
-        .intro-box {
-            background: rgba(10, 10, 26, 0.8);
-            border: 1px dashed #16ff00;
-            padding: 20px 30px;
-            margin-bottom: 25px;
-            max-width: 550px;
-            border-radius: 8px;
-            color: #ccc;
-            text-align: center;
-            box-shadow: 0px 0px 15px rgba(22, 255, 0, 0.2);
-        }
+        .intro-box { background: rgba(10, 10, 26, 0.8); border: 1px dashed #16ff00; padding: 20px 30px; margin-bottom: 25px; max-width: 550px; border-radius: 8px; color: #ccc; text-align: center; box-shadow: 0px 0px 15px rgba(22, 255, 0, 0.2); }
         .intro-box h3 { color: yellow; margin-top: 0; font-size: 20px;}
         .intro-box ul { text-align: left; margin-bottom: 0; padding-left: 20px; }
         .intro-box li { margin-bottom: 10px; line-height: 1.4; }
@@ -34,7 +23,6 @@
         #mutationMenu { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); background: #1a1a2e; border: 2px dashed yellow; padding: 15px; display: none; z-index: 100; pointer-events: auto; width: 850px; text-align: center;}
         #editorCanvas { position: relative; border: 1px solid #444; background: #0a0a1a; cursor: crosshair; margin: 5px auto; width: 600px; height: 350px; display: block;}
 
-        /* NOWE STYLE DLA PRZYCISKÓW Z PYTAJNIKAMI */
         .tools { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-bottom: 5px; }
         .tool-wrapper { display: inline-flex; border: 1px solid #444; border-radius: 4px; overflow: hidden; background: #1a1a2e; }
         .tool-wrapper .tool-btn { border: none; margin: 0; border-radius: 0; font-size: 11px; padding: 6px 10px; outline: none; }
@@ -44,8 +32,7 @@
 
         #editorStatsBox { background: rgba(0,0,0,0.8); border: 1px solid #00d4ff; padding: 10px; font-size: 14px; color: #00d4ff; margin-bottom: 10px; }
 
-        /* PŁYWAJĄCY DYMEK Z OPISEM */
-        #cellTooltip { position: fixed; background: rgba(10,10,26,0.95); border: 1px solid #16ff00; color: #ddd; padding: 12px; border-radius: 5px; width: 240px; font-size: 12px; pointer-events: none; display: none; z-index: 2000; text-align: left; line-height: 1.5; box-shadow: 2px 2px 10px rgba(0,0,0,0.8); }
+        #cellTooltip { position: fixed; background: rgba(10,10,26,0.95); border: 1px solid #16ff00; color: #ddd; padding: 12px; border-radius: 5px; width: 260px; font-size: 12px; pointer-events: none; display: none; z-index: 2000; text-align: left; line-height: 1.5; box-shadow: 2px 2px 10px rgba(0,0,0,0.8); }
         #cellTooltip h3 { margin: 0 0 5px 0; font-size: 14px; text-transform: uppercase; }
     </style>
 </head>
@@ -54,18 +41,16 @@
 
     <div id="loginScreen">
         <h1>🔬 B A K T E R I O F A G O C Y T Y</h1>
-
         <div class="intro-box">
             <h3>Witaj w probówce!</h3>
             <p>Zaczynasz jako pojedyncza komórka. Twoim celem jest ewolucja, przetrwanie i zbudowanie potężnego organizmu.</p>
             <ul>
                 <li>🔵 <b>Jedzenie:</b> Zbieraj niebieską glukozę, aby zdobywać energię (ATP) do ewolucji.</li>
                 <li>🟪 <b>Surowce:</b> Zbieraj fioletowe minerały, by zasilać m.in. wieżyczki obronne.</li>
-                <li>☢️ <b>Bunkier:</b> Wpłyń do <b>żółtej strefy</b> na środku mapy, aby wejść do Edytora DNA. Tam bezpiecznie zmutujesz i w pełni wyleczysz organizm!</li>
-                <li>☠️ <b>Zagrożenia:</b> Uważaj na zielone chmury kwasu, dzikie wirusy oraz brutalne Makrofagi, które pożrą Cię w całości!</li>
+                <li>☢️ <b>Bunkier:</b> Wpłyń do <b>żółtej strefy</b> na środku mapy, aby wejść do Edytora DNA.</li>
+                <li>☠️ <b>Zagrożenia:</b> Uważaj na zielone chmury kwasu, dzikie wirusy oraz brutalne Makrofagi.</li>
             </ul>
         </div>
-
         <div style="display: flex; align-items: center; gap: 10px;">
             <input type="text" id="strainName" value="Szczep-Alfa" maxlength="15">
             <button onclick="joinGame()" style="font-size: 18px; font-weight: bold; padding: 10px 20px;">ZAINFEKUJ</button>
@@ -80,74 +65,27 @@
 
     <div id="mutationMenu">
         <h2 style="color:yellow; margin-top:0;">🧬 EDYTOR DNA (DOPŁATA: <span id="blueprintCost">0</span> ATP)</h2>
-
         <div id="editorStatsBox">
             🚀 Zwinność: <span id="statSpeed">0</span> | 🛡️ Masa: <span id="statMass">0</span> | 🔫 Broń: <span id="statFire">0</span> | 🛢️ Magazyn: <span id="statStorage">0</span>
         </div>
-
         <div class="tools">
-            <div class="tool-wrapper" style="border-color: #16ff00;">
-                <button class="tool-btn tool-active" id="tool_base" onclick="setTool('base')" style="color:#16ff00;">🟢 Rdzeń (+100)</button>
-                <div class="info-btn" onmousemove="showTip(event, 'base')" onmouseleave="hideTip()">?</div>
-            </div>
-            <div class="tool-wrapper" style="border-color: orange;">
-                <button class="tool-btn" id="tool_thruster" onclick="setTool('thruster')" style="color:orange;">🟠 Napęd (+150)</button>
-                <div class="info-btn" onmousemove="showTip(event, 'thruster')" onmouseleave="hideTip()">?</div>
-            </div>
-            <div class="tool-wrapper" style="border-color: #888888;">
-                <button class="tool-btn" id="tool_armor" onclick="setTool('armor')" style="color:#888888;">🛡️ Pancerz (+50)</button>
-                <div class="info-btn" onmousemove="showTip(event, 'armor')" onmouseleave="hideTip()">?</div>
-            </div>
-            <div class="tool-wrapper" style="border-color: #ff00aa;">
-                <button class="tool-btn" id="tool_harvester" onclick="setTool('harvester')" style="color:#ff00aa;">🧲 Macek (+150)</button>
-                <div class="info-btn" onmousemove="showTip(event, 'harvester')" onmouseleave="hideTip()">?</div>
-            </div>
-            <div class="tool-wrapper" style="border-color: #ffcc00;">
-                <button class="tool-btn" id="tool_storage" onclick="setTool('storage')" style="color:#ffcc00;">🛢️ Magazyn (+200)</button>
-                <div class="info-btn" onmousemove="showTip(event, 'storage')" onmouseleave="hideTip()">?</div>
-            </div>
-            <div class="tool-wrapper" style="border-color: cyan;">
-                <button class="tool-btn" id="tool_shooter" onclick="setTool('shooter')" style="color:cyan;">🔵 Wieża (+250)</button>
-                <div class="info-btn" onmousemove="showTip(event, 'shooter')" onmouseleave="hideTip()">?</div>
-            </div>
-            <div class="tool-wrapper" style="border-color: #aaff00;">
-                <button class="tool-btn" id="tool_generator" onclick="setTool('generator')" style="color:#aaff00;">🔋 Reaktor (+300)</button>
-                <div class="info-btn" onmousemove="showTip(event, 'generator')" onmouseleave="hideTip()">?</div>
-            </div>
-            <div class="tool-wrapper" style="border-color: #228B22;">
-                <button class="tool-btn" id="tool_chloroplast" onclick="setTool('chloroplast')" style="color:#228B22;">🌱 Flora (+150)</button>
-                <div class="info-btn" onmousemove="showTip(event, 'chloroplast')" onmouseleave="hideTip()">?</div>
-            </div>
-            <div class="tool-wrapper" style="border-color: #FFFFFF;">
-                <button class="tool-btn" id="tool_filter" onclick="setTool('filter')" style="color:#FFFFFF;">🧼 Detoks (+200)</button>
-                <div class="info-btn" onmousemove="showTip(event, 'filter')" onmouseleave="hideTip()">?</div>
-            </div>
-            <div class="tool-wrapper" style="border-color: #AAAAAA;">
-                <button class="tool-btn" id="tool_spike" onclick="setTool('spike')" style="color:#AAAAAA;">🗡️ Kolec (+250)</button>
-                <div class="info-btn" onmousemove="showTip(event, 'spike')" onmouseleave="hideTip()">?</div>
-            </div>
-            <div class="tool-wrapper" style="border-color: #ff6666;">
-                <button class="tool-btn" id="tool_flesh" onclick="setTool('flesh')" style="color:#ff6666;">🥩 Tkanka (+50)</button>
-                <div class="info-btn" onmousemove="showTip(event, 'flesh')" onmouseleave="hideTip()">?</div>
-            </div>
-            <div class="tool-wrapper" style="border-color: #66ccff;">
-                <button class="tool-btn" id="tool_sensor" onclick="setTool('sensor')" style="color:#66ccff;">📡 Radar (+150)</button>
-                <div class="info-btn" onmousemove="showTip(event, 'sensor')" onmouseleave="hideTip()">?</div>
-            </div>
-
-            <div class="tool-wrapper" style="border-color: #d400ff; margin-left: 10px;">
-                <button class="tool-btn" id="tool_move" onclick="setTool('move')" style="color:#d400ff;">✋ Przesuń</button>
-                <div class="info-btn" onmousemove="showTip(event, 'move')" onmouseleave="hideTip()">?</div>
-            </div>
-            <div class="tool-wrapper" style="border-color: red;">
-                <button class="tool-btn" id="tool_delete" onclick="setTool('delete')" style="color:red;">❌ Usuń</button>
-                <div class="info-btn" onmousemove="showTip(event, 'delete')" onmouseleave="hideTip()">?</div>
-            </div>
+            <div class="tool-wrapper" style="border-color: #16ff00;"><button class="tool-btn tool-active" id="tool_base" onclick="setTool('base')" style="color:#16ff00;">🟢 Rdzeń (+100)</button><div class="info-btn" onmousemove="showTip(event, 'base')" onmouseleave="hideTip()">?</div></div>
+            <div class="tool-wrapper" style="border-color: orange;"><button class="tool-btn" id="tool_thruster" onclick="setTool('thruster')" style="color:orange;">🟠 Napęd (+150)</button><div class="info-btn" onmousemove="showTip(event, 'thruster')" onmouseleave="hideTip()">?</div></div>
+            <div class="tool-wrapper" style="border-color: #888888;"><button class="tool-btn" id="tool_armor" onclick="setTool('armor')" style="color:#888888;">🛡️ Pancerz (+50)</button><div class="info-btn" onmousemove="showTip(event, 'armor')" onmouseleave="hideTip()">?</div></div>
+            <div class="tool-wrapper" style="border-color: #ff00aa;"><button class="tool-btn" id="tool_harvester" onclick="setTool('harvester')" style="color:#ff00aa;">🧲 Macek (+150)</button><div class="info-btn" onmousemove="showTip(event, 'harvester')" onmouseleave="hideTip()">?</div></div>
+            <div class="tool-wrapper" style="border-color: #ffcc00;"><button class="tool-btn" id="tool_storage" onclick="setTool('storage')" style="color:#ffcc00;">🛢️ Magazyn (+200)</button><div class="info-btn" onmousemove="showTip(event, 'storage')" onmouseleave="hideTip()">?</div></div>
+            <div class="tool-wrapper" style="border-color: cyan;"><button class="tool-btn" id="tool_shooter" onclick="setTool('shooter')" style="color:cyan;">🔵 Wieża (+250)</button><div class="info-btn" onmousemove="showTip(event, 'shooter')" onmouseleave="hideTip()">?</div></div>
+            <div class="tool-wrapper" style="border-color: #aaff00;"><button class="tool-btn" id="tool_generator" onclick="setTool('generator')" style="color:#aaff00;">🔋 Reaktor (+300)</button><div class="info-btn" onmousemove="showTip(event, 'generator')" onmouseleave="hideTip()">?</div></div>
+            <div class="tool-wrapper" style="border-color: #228B22;"><button class="tool-btn" id="tool_chloroplast" onclick="setTool('chloroplast')" style="color:#228B22;">🌱 Flora (+150)</button><div class="info-btn" onmousemove="showTip(event, 'chloroplast')" onmouseleave="hideTip()">?</div></div>
+            <div class="tool-wrapper" style="border-color: #FFFFFF;"><button class="tool-btn" id="tool_filter" onclick="setTool('filter')" style="color:#FFFFFF;">🧼 Detoks (+200)</button><div class="info-btn" onmousemove="showTip(event, 'filter')" onmouseleave="hideTip()">?</div></div>
+            <div class="tool-wrapper" style="border-color: #AAAAAA;"><button class="tool-btn" id="tool_spike" onclick="setTool('spike')" style="color:#AAAAAA;">🗡️ Kolec (+250)</button><div class="info-btn" onmousemove="showTip(event, 'spike')" onmouseleave="hideTip()">?</div></div>
+            <div class="tool-wrapper" style="border-color: #ff6666;"><button class="tool-btn" id="tool_flesh" onclick="setTool('flesh')" style="color:#ff6666;">🥩 Tkanka (+50)</button><div class="info-btn" onmousemove="showTip(event, 'flesh')" onmouseleave="hideTip()">?</div></div>
+            <div class="tool-wrapper" style="border-color: #66ccff;"><button class="tool-btn" id="tool_sensor" onclick="setTool('sensor')" style="color:#66ccff;">📡 Radar (+150)</button><div class="info-btn" onmousemove="showTip(event, 'sensor')" onmouseleave="hideTip()">?</div></div>
+            <div class="tool-wrapper" style="border-color: #d400ff; margin-left: 10px;"><button class="tool-btn" id="tool_move" onclick="setTool('move')" style="color:#d400ff;">✋ Przesuń</button><div class="info-btn" onmousemove="showTip(event, 'move')" onmouseleave="hideTip()">?</div></div>
+            <div class="tool-wrapper" style="border-color: red;"><button class="tool-btn" id="tool_delete" onclick="setTool('delete')" style="color:red;">❌ Usuń</button><div class="info-btn" onmousemove="showTip(event, 'delete')" onmouseleave="hideTip()">?</div></div>
         </div>
-
         <canvas id="editorCanvas" width="600" height="350"></canvas>
         <p style="font-size:11px; color:#aaa; margin: 3px;">Kółko Myszki = Zoom | Prawy Przycisk = Przesuń Kamere</p>
-
         <div style="display:flex; justify-content:space-between; margin-top: 10px;">
             <button onclick="loadEditor()" style="background: red; color: white;">Cofnij Zmiany</button>
             <button onclick="saveOrganism()" style="background: #16ff00; color: black; font-weight:bold;">ZAPISZ I WYPŁYŃ</button>
@@ -158,24 +96,22 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        // --- LOGIKA OPISÓW KOMÓREK (TOOLTIPY) ---
         const tooltipsText = {
-            'base': "<h3 style='color:#16ff00;'>🟢 Rdzeń (Zwykła)</h3><b>HP: 100</b><br>Podstawowa struktura. Wytwarza 1.0 siły ciągu i magazynuje do 2 sztuk minerałów.",
-            'thruster': "<h3 style='color:orange;'>🟠 Napęd (Silnik)</h3><b>HP: 80</b><br>Potężny silnik. Generuje aż 3.0 siły ciągu! Konieczny do ruszania ciężkimi organizmami.",
-            'armor': "<h3 style='color:#888888;'>🛡️ Pancerz</h3><b>HP: 300</b><br>Twardy blok obronny. Redukuje obrażenia od pocisków do 10 HP i doskonale chroni w walce w zwarciu.",
-            'harvester': "<h3 style='color:#ff00aa;'>🧲 Macek Zbierający</h3><b>HP: 100</b><br>Tworzy pole, które zasysa glukozę i minerały z ogromnej odległości.",
-            'storage': "<h3 style='color:#ffcc00;'>🛢️ Magazyn Minerałów</h3><b>HP: 120</b><br>Przechowuje do 20 minerałów i zasila połączone ze sobą organy (np. wieżyczki).",
-            'shooter': "<h3 style='color:cyan;'>🔵 Wieża Strzelnicza</h3><b>HP: 100</b><br>Automatycznie strzela we wrogów. <br><br><b>Wymaga:</b> 5 ATP oraz 1 Minerału z magazynu do strzału.",
-            'generator': "<h3 style='color:#aaff00;'>🔋 Reaktor Jądrowy</h3><b>HP: 80</b><br>Nieustannie, pasywnie generuje darmowe ATP dla organizmu.",
-            'chloroplast': "<h3 style='color:#228B22;'>🌱 Flora (Chloroplast)</h3><b>HP: 80</b><br>Produkuje olbrzymie ilości ATP, ale <b>tylko wtedy</b>, gdy jesteś w strefie złotych promieni słonecznych.",
-            'filter': "<h3 style='color:#FFFFFF;'>🧼 Detoks (Lysosom)</h3><b>HP: 100</b><br>Zapewnia całkowitą odporność na zielone chmury trujące oraz pożera wirusy dając Ci ATP!",
-            'spike': "<h3 style='color:#AAAAAA;'>🗡️ Kolec</h3><b>HP: 150</b><br>Taran. Mocno rani i brutalnie odpycha wrogów w walce w zwarciu.",
-            'flesh': "<h3 style='color:#ff6666;'>🥩 Tkanka Odżywcza</h3><b>HP: 50</b><br>Gdy zginie, wyrzuca z siebie aż 5x więcej pożywienia. Stosowana u hodowlanych NPC.",
-            'sensor': "<h3 style='color:#66ccff;'>📡 Sensor Zmysłowy</h3><b>HP: 80</b><br>Wydłuża wzrok wieżyczek i drapieżników o dodatkowe 200px.",
-            'move': "<h3 style='color:#d400ff;'>✋ Przesuń Narząd</h3>Złap i przeciągnij istniejącą komórkę do innego miejsca na siatce.",
-            'delete': "<h3 style='color:red;'>❌ Usuń (Amputacja)</h3>Kliknij na komórkę, aby ją trwale usunąć. <br><b>Uwaga:</b> Wydane ATP nie jest zwracane!"
+            'base': "<h3 style='color:#16ff00;'>🟢 Rdzeń (Zwykła)</h3><b>HP: 100</b><br>Podstawa. Wytwarza 0.5 siły ciągu (awaryjny napęd) i magazynuje do 2 sztuk minerałów.",
+            'thruster': "<h3 style='color:orange;'>🟠 Napęd (Silnik)</h3><b>HP: 80</b><br>Potężny silnik. Generuje aż 4.0 siły ciągu! Konieczny do sprawnego poruszania.",
+            'armor': "<h3 style='color:#888888;'>🛡️ Pancerz</h3><b>HP: 300</b><br>Twardy blok obronny. Redukuje obrażenia od pocisków.",
+            'harvester': "<h3 style='color:#ff00aa;'>🧲 Macek Zbierający</h3><b>HP: 100</b><br>Zasysa glukozę i minerały z dużej odległości.",
+            'storage': "<h3 style='color:#ffcc00;'>🛢️ Magazyn Minerałów</h3><b>HP: 120</b><br>Przechowuje do 20 minerałów.",
+            'shooter': "<h3 style='color:cyan;'>🔵 Wieża Strzelnicza</h3><b>HP: 100</b><br>Automatycznie strzela we wrogów. Wymaga 5 ATP i 1 Minerału.",
+            'generator': "<h3 style='color:#aaff00;'>🔋 Reaktor Jądrowy</h3><b>HP: 80</b><br>Pasywnie generuje darmowe ATP.",
+            'chloroplast': "<h3 style='color:#228B22;'>🌱 Flora (Chloroplast)</h3><b>HP: 80</b><br>Produkuje ATP, ale tylko w słońcu.",
+            'filter': "<h3 style='color:#FFFFFF;'>🧼 Detoks (Lysosom)</h3><b>HP: 100</b><br>Daje odporność na truciznę i wirusy.",
+            'spike': "<h3 style='color:#AAAAAA;'>🗡️ Kolec</h3><b>HP: 150</b><br>Mocno rani i odpycha wrogów w zwarciu.",
+            'flesh': "<h3 style='color:#ff6666;'>🥩 Tkanka Odżywcza</h3><b>HP: 50</b><br>Po śmierci wyrzuca dużo jedzenia.",
+            'sensor': "<h3 style='color:#66ccff;'>📡 Sensor Zmysłowy</h3><b>HP: 80</b><br>Wydłuża zasięg wzroku.",
+            'move': "<h3 style='color:#d400ff;'>✋ Przesuń Narząd</h3>Złap i przeciągnij.",
+            'delete': "<h3 style='color:red;'>❌ Usuń</h3>Trwale usuwa komórkę."
         };
-
         const MAX_HP_MAP = { base: 100, thruster: 80, storage: 120, shooter: 100, armor: 300, harvester: 100, generator: 80, chloroplast: 80, filter: 100, spike: 150, flesh: 50, sensor: 80 };
 
         function showTip(e, type) {
@@ -185,10 +121,7 @@
             tip.style.left = (e.clientX + 15) + 'px';
             tip.style.top = (e.clientY + 15) + 'px';
         }
-
-        function hideTip() {
-            document.getElementById('cellTooltip').style.display = 'none';
-        }
+        function hideTip() { document.getElementById('cellTooltip').style.display = 'none'; }
 
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -200,8 +133,6 @@
 
         let socket;
         let myOwnerId = null;
-        let cameraX = 0; let cameraY = 0;
-
         let gameState = {};
         let foodState = [];
         let mineralState = [];
@@ -212,6 +143,9 @@
         let bunkerState = null;
         let isGameRunning = false;
 
+        const WORLD_WIDTH = 3000;
+        const WORLD_HEIGHT = 3000;
+
         function joinGame() {
             const name = document.getElementById('strainName').value;
             document.getElementById('loginScreen').style.display = 'none';
@@ -220,6 +154,7 @@
             socket.on('spawn', (data) => {
                 myOwnerId = data.ownerId;
                 document.getElementById('idDisplay').innerText = data.species;
+                myCamX = 1500; myCamY = 1500;
                 isGameRunning = true;
                 requestAnimationFrame(draw);
             });
@@ -250,8 +185,17 @@
             });
         }
 
+        let myCamX = 1500;
+        let myCamY = 1500;
+
         window.addEventListener('mousemove', (e) => {
-            if (socket && isGameRunning) socket.emit('chemotaxis', { targetX: e.clientX + cameraX, targetY: e.clientY + cameraY });
+            if (socket && isGameRunning) {
+                let rawX = e.clientX + myCamX - canvas.width/2;
+                let rawY = e.clientY + myCamY - canvas.height/2;
+                let normX = ((rawX % WORLD_WIDTH) + WORLD_WIDTH) % WORLD_WIDTH;
+                let normY = ((rawY % WORLD_HEIGHT) + WORLD_HEIGHT) % WORLD_HEIGHT;
+                socket.emit('chemotaxis', { targetX: normX, targetY: normY });
+            }
         });
 
         function getConvexHull(points) {
@@ -272,48 +216,119 @@
             return lower.concat(upper);
         }
 
+        // Funkcja do rysowania pojedynczych obiektów (glukoza, wirusy)
+        function getRelPos(objX, objY, camX, camY) {
+            let dx = objX - camX;
+            let dy = objY - camY;
+            if (dx < -WORLD_WIDTH / 2) dx += WORLD_WIDTH;
+            if (dx > WORLD_WIDTH / 2) dx -= WORLD_WIDTH;
+            if (dy < -WORLD_HEIGHT / 2) dy += WORLD_HEIGHT;
+            if (dy > WORLD_HEIGHT / 2) dy -= WORLD_HEIGHT;
+            return { x: canvas.width/2 + dx, y: canvas.height/2 + dy };
+        }
+
         function draw() {
             if(!isGameRunning) return;
-            ctx.fillStyle = "#050510"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = "#050510";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             let myOrg = gameState[myOwnerId];
-            if (myOrg) {
-                cameraX += (myOrg.x - canvas.width / 2 - cameraX) * 0.1;
-                cameraY += (myOrg.y - canvas.height / 2 - cameraY) * 0.1;
+            if (myOrg) { myCamX = myOrg.x; myCamY = myOrg.y; }
+
+            // SIATKA
+            let gridSize = 200;
+            let offX = (myCamX % gridSize);
+            let offY = (myCamY % gridSize);
+            if(offX < 0) offX += gridSize;
+            if(offY < 0) offY += gridSize;
+
+            ctx.strokeStyle = "#16ff0011";
+            ctx.lineWidth = 1;
+            for (let x = -gridSize; x < canvas.width + gridSize; x += gridSize) {
+                let drawX = x - offX + (canvas.width/2 % gridSize);
+                ctx.beginPath(); ctx.moveTo(drawX, 0); ctx.lineTo(drawX, canvas.height); ctx.stroke();
+            }
+            for (let y = -gridSize; y < canvas.height + gridSize; y += gridSize) {
+                let drawY = y - offY + (canvas.height/2 % gridSize);
+                ctx.beginPath(); ctx.moveTo(0, drawY); ctx.lineTo(canvas.width, drawY); ctx.stroke();
             }
 
-            ctx.save();
-            ctx.translate(-cameraX, -cameraY);
-
-            ctx.strokeStyle = "#16ff0011"; ctx.lineWidth = 1;
-            for(let i = 0; i <= 3000; i += 200) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 3000); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(3000, i); ctx.stroke(); }
-
-            mapZonesState.dense.forEach(z => {
-                ctx.fillStyle = "rgba(0, 50, 150, 0.15)";
-                ctx.beginPath(); ctx.arc(z.x, z.y, z.r, 0, Math.PI*2); ctx.fill();
-            });
-            mapZonesState.toxic.forEach(z => {
-                let grad = ctx.createRadialGradient(z.x, z.y, 0, z.x, z.y, z.r);
-                grad.addColorStop(0, "rgba(0, 255, 50, 0.3)"); grad.addColorStop(1, "rgba(0, 255, 50, 0)");
-                ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(z.x, z.y, z.r, 0, Math.PI*2); ctx.fill();
-            });
-            mapZonesState.sunbeams.forEach(z => {
-                let grad = ctx.createRadialGradient(z.x, z.y, 0, z.x, z.y, z.r);
-                grad.addColorStop(0, "rgba(255, 255, 100, 0.4)"); grad.addColorStop(1, "rgba(255, 255, 100, 0)");
-                ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(z.x, z.y, z.r, 0, Math.PI*2); ctx.fill();
+            [...mapZonesState.dense, ...mapZonesState.toxic, ...mapZonesState.sunbeams].forEach(z => {
+                let pos = getRelPos(z.x, z.y, myCamX, myCamY);
+                if (pos.x > -500 && pos.x < canvas.width+500 && pos.y > -500 && pos.y < canvas.height+500) {
+                    if (mapZonesState.toxic.includes(z)) {
+                        let grad = ctx.createRadialGradient(pos.x, pos.y, 0, pos.x, pos.y, z.r);
+                        grad.addColorStop(0, "rgba(0, 255, 50, 0.3)"); grad.addColorStop(1, "rgba(0, 255, 50, 0)");
+                        ctx.fillStyle = grad;
+                    } else if (mapZonesState.sunbeams.includes(z)) {
+                        let grad = ctx.createRadialGradient(pos.x, pos.y, 0, pos.x, pos.y, z.r);
+                        grad.addColorStop(0, "rgba(255, 255, 100, 0.4)"); grad.addColorStop(1, "rgba(255, 255, 100, 0)");
+                        ctx.fillStyle = grad;
+                    } else {
+                        ctx.fillStyle = "rgba(0, 50, 150, 0.15)";
+                    }
+                    ctx.beginPath(); ctx.arc(pos.x, pos.y, z.r, 0, Math.PI*2); ctx.fill();
+                }
             });
 
             if (bunkerState) {
-                ctx.fillStyle = "rgba(255, 255, 0, 0.1)"; ctx.beginPath(); ctx.arc(bunkerState.x, bunkerState.y, bunkerState.radius, 0, Math.PI*2); ctx.fill();
-                ctx.strokeStyle = "yellow"; ctx.lineWidth = 2; ctx.stroke();
+                let pos = getRelPos(bunkerState.x, bunkerState.y, myCamX, myCamY);
+                if (pos.x > -200 && pos.x < canvas.width+200 && pos.y > -200 && pos.y < canvas.height+200) {
+                    ctx.fillStyle = "rgba(255, 255, 0, 0.1)";
+                    ctx.beginPath(); ctx.arc(pos.x, pos.y, bunkerState.radius, 0, Math.PI*2); ctx.fill();
+                    ctx.strokeStyle = "yellow"; ctx.lineWidth = 2; ctx.stroke();
+                }
             }
 
+            ctx.fillStyle = "#00d4ff";
+            foodState.forEach(f => {
+                let pos = getRelPos(f.x, f.y, myCamX, myCamY);
+                if (pos.x > -50 && pos.x < canvas.width+50 && pos.y > -50 && pos.y < canvas.height+50) {
+                    ctx.beginPath(); ctx.arc(pos.x, pos.y, 3, 0, Math.PI*2); ctx.fill();
+                }
+            });
+            ctx.fillStyle = "#ff00ff";
+            mineralState.forEach(m => {
+                let pos = getRelPos(m.x, m.y, myCamX, myCamY);
+                if (pos.x > -50 && pos.x < canvas.width+50 && pos.y > -50 && pos.y < canvas.height+50) {
+                    ctx.fillRect(pos.x - 3, pos.y - 3, 6, 6);
+                }
+            });
+
+            // --- ORGANIZMY - POPRAWIONE RYSOWANIE BEZ ROZRYWANIA HULLA ---
             for (let id in gameState) {
                 let org = gameState[id];
+                if (!org.nodes || org.nodes.length === 0) continue;
 
-                let pts = org.nodes.map(n => ({x: n.x, y: n.y}));
-                if (pts.length >= 3) {
-                    let hull = getConvexHull(pts);
+                // 1. Używamy PIERWSZEJ KOMÓRKI jako kotwicy (Anchor)
+                // Zamiast środka (który może być źle policzony przy krawędziach),
+                // bierzemy fizyczny punkt - pierwszą komórkę.
+                let anchor = org.nodes[0];
+                let anchorScreen = getRelPos(anchor.x, anchor.y, myCamX, myCamY);
+
+                // Sprawdzamy czy kotwica jest blisko ekranu
+                if (anchorScreen.x < -500 || anchorScreen.x > canvas.width+500 || anchorScreen.y < -500 || anchorScreen.y > canvas.height+500) continue;
+
+                // 2. Mapujemy resztę komórek RELATYWNIE do Kotwicy
+                let screenNodes = org.nodes.map(n => {
+                    let dx = n.x - anchor.x;
+                    let dy = n.y - anchor.y;
+
+                    // Naprawiamy zawijanie odległości między komórkami
+                    if (dx < -WORLD_WIDTH / 2) dx += WORLD_WIDTH;
+                    if (dx > WORLD_WIDTH / 2) dx -= WORLD_WIDTH;
+                    if (dy < -WORLD_HEIGHT / 2) dy += WORLD_HEIGHT;
+                    if (dy > WORLD_HEIGHT / 2) dy -= WORLD_HEIGHT;
+
+                    // Pozycja na ekranie = Ekranowa Kotwica + Skorygowany Dystans
+                    return { ...n, sx: anchorScreen.x + dx, sy: anchorScreen.y + dy };
+                });
+
+                // Rysowanie Hull
+                if (screenNodes.length >= 3) {
+                    let hullNodes = screenNodes.map(n => ({x: n.sx, y: n.sy}));
+                    let hull = getConvexHull(hullNodes);
                     ctx.beginPath(); ctx.moveTo(hull[0].x, hull[0].y);
                     for (let i = 1; i < hull.length; i++) ctx.lineTo(hull[i].x, hull[i].y);
                     ctx.closePath();
@@ -323,7 +338,8 @@
                     ctx.stroke(); ctx.fill();
                 }
 
-                org.nodes.forEach((n, idx) => {
+                // Rysowanie komórek
+                screenNodes.forEach((n) => {
                     if (n.type === 'shooter') ctx.fillStyle = '#00ffff';
                     else if (n.type === 'thruster') ctx.fillStyle = 'orange';
                     else if (n.type === 'storage') ctx.fillStyle = '#ffcc00';
@@ -337,27 +353,24 @@
                     else if (n.type === 'sensor') ctx.fillStyle = '#66ccff';
                     else ctx.fillStyle = '#16ff00';
 
-                    ctx.beginPath(); ctx.arc(n.x, n.y, 14, 0, Math.PI*2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(n.sx, n.sy, 14, 0, Math.PI*2); ctx.fill();
                     ctx.strokeStyle = id === myOwnerId ? "white" : (org.isNPC ? "#ff00ff" : "red");
                     ctx.lineWidth = id === myOwnerId ? 2 : 1; ctx.stroke();
 
                     if (n.type === 'harvester') {
                         ctx.strokeStyle = "rgba(255, 0, 170, 0.1)";
-                        ctx.beginPath(); ctx.arc(n.x, n.y, 70, 0, Math.PI*2); ctx.stroke();
+                        ctx.beginPath(); ctx.arc(n.sx, n.sy, 70, 0, Math.PI*2); ctx.stroke();
                     }
 
-                    // --- RYSOWANIE OBRAŻEŃ (PASEK HP) ---
                     let maxHpForType = MAX_HP_MAP[n.type] || 100;
                     let hpPercent = n.hp / maxHpForType;
                     if (hpPercent < 1.0 && hpPercent > 0) {
                         ctx.strokeStyle = "rgba(255, 0, 0, 0.8)";
                         ctx.lineWidth = 3;
-                        ctx.beginPath();
-                        ctx.arc(n.x, n.y, 16, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * hpPercent));
-                        ctx.stroke();
+                        ctx.beginPath(); ctx.arc(n.sx, n.sy, 16, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * hpPercent)); ctx.stroke();
                     }
 
-                    ctx.font = "14px Arial"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+                    ctx.font = "14px Arial"; ctx.fillStyle = "white"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
                     let emoji = "";
                     if (n.type === 'shooter') emoji = '🎯';
                     else if (n.type === 'thruster') emoji = '🔥';
@@ -371,79 +384,66 @@
                     else if (n.type === 'flesh') emoji = '🥩';
                     else if (n.type === 'sensor') emoji = '📡';
                     else emoji = '🦠';
-                    ctx.fillText(emoji, n.x, n.y);
+                    ctx.fillText(emoji, n.sx, n.sy);
 
                     if (n.minerals > 0.5) {
                         ctx.fillStyle = "rgba(255, 0, 255, 0.75)";
-                        ctx.beginPath(); ctx.arc(n.x, n.y, Math.min(n.minerals * 1.5, 8), 0, Math.PI*2); ctx.fill();
+                        ctx.beginPath(); ctx.arc(n.sx, n.sy, Math.min(n.minerals * 1.5, 8), 0, Math.PI*2); ctx.fill();
                     }
                 });
 
                 if (id === myOwnerId) {
-                    ctx.fillStyle = "rgba(0,0,0,0.8)"; ctx.fillRect(org.x - 20, org.y - 30, 40, 6);
-                    ctx.fillStyle = org.atp >= 200 ? "#ffaa00" : "#ffffff"; ctx.fillRect(org.x - 20, org.y - 30, Math.min((org.atp / 200) * 40, 40), 6);
+                    let pos = getRelPos(org.x, org.y, myCamX, myCamY);
+                    ctx.fillStyle = "rgba(0,0,0,0.8)"; ctx.fillRect(pos.x - 20, pos.y - 30, 40, 6);
+                    ctx.fillStyle = org.atp >= 200 ? "#ffaa00" : "#ffffff"; ctx.fillRect(pos.x - 20, pos.y - 30, Math.min((org.atp / 200) * 40, 40), 6);
                 }
             }
 
-            ctx.fillStyle = "#00d4ff";
-            foodState.forEach(f => { ctx.beginPath(); ctx.arc(f.x, f.y, 3, 0, Math.PI*2); ctx.fill(); });
-
             ctx.fillStyle = "#ff00ff";
-            mineralState.forEach(m => { ctx.fillRect(m.x - 3, m.y - 3, 6, 6); });
-
-            ctx.fillStyle = "#ff00ff";
-            virusState.forEach(v => { ctx.beginPath(); ctx.moveTo(v.x, v.y - 8); ctx.lineTo(v.x + 6, v.y); ctx.lineTo(v.x, v.y + 8); ctx.lineTo(v.x - 6, v.y); ctx.fill(); });
+            virusState.forEach(v => {
+                let pos = getRelPos(v.x, v.y, myCamX, myCamY);
+                if (pos.x > -50 && pos.x < canvas.width+50 && pos.y > -50 && pos.y < canvas.height+50) {
+                    ctx.beginPath(); ctx.moveTo(pos.x, pos.y - 8); ctx.lineTo(pos.x + 6, pos.y); ctx.lineTo(pos.x, pos.y + 8); ctx.lineTo(pos.x - 6, pos.y); ctx.fill();
+                }
+            });
 
             ctx.fillStyle = "#00ffff";
-            playerPhageState.forEach(f => { ctx.beginPath(); ctx.moveTo(f.x, f.y - 5); ctx.lineTo(f.x + 15, f.y); ctx.lineTo(f.x, f.y + 5); ctx.lineTo(f.x - 5, f.y); ctx.fill(); });
+            playerPhageState.forEach(f => {
+                let pos = getRelPos(f.x, f.y, myCamX, myCamY);
+                if (pos.x > -50 && pos.x < canvas.width+50 && pos.y > -50 && pos.y < canvas.height+50) {
+                    ctx.beginPath(); ctx.moveTo(pos.x, pos.y - 5); ctx.lineTo(pos.x + 15, pos.y); ctx.lineTo(pos.x, pos.y + 5); ctx.lineTo(pos.x - 5, pos.y); ctx.fill();
+                }
+            });
 
             ctx.fillStyle = "rgba(255,255,255,0.4)"; ctx.strokeStyle = "white"; ctx.lineWidth = 2;
-            predatorState.forEach(m => { ctx.beginPath(); ctx.arc(m.x, m.y, m.radius, 0, Math.PI*2); ctx.fill(); ctx.stroke(); });
+            predatorState.forEach(m => {
+                let pos = getRelPos(m.x, m.y, myCamX, myCamY);
+                if (pos.x > -200 && pos.x < canvas.width+200 && pos.y > -200 && pos.y < canvas.height+200) {
+                    ctx.beginPath(); ctx.arc(pos.x, pos.y, m.radius, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+                }
+            });
 
-            ctx.restore();
+            mCtx.fillStyle = "black"; mCtx.fillRect(0, 0, 150, 150);
+            const scale = 150 / WORLD_WIDTH;
 
-            // --- RYSOWANIE MINIMAPY ---
-            mCtx.fillStyle = "black";
-            mCtx.fillRect(0, 0, 150, 150);
-            const scale = 150 / 3000;
-
-            // 1. Strefy klimatyczne
             mapZonesState.toxic.forEach(z => { mCtx.fillStyle = "rgba(0, 255, 50, 0.3)"; mCtx.beginPath(); mCtx.arc(z.x * scale, z.y * scale, z.r * scale, 0, Math.PI*2); mCtx.fill(); });
             mapZonesState.sunbeams.forEach(z => { mCtx.fillStyle = "rgba(255, 255, 100, 0.4)"; mCtx.beginPath(); mCtx.arc(z.x * scale, z.y * scale, z.r * scale, 0, Math.PI*2); mCtx.fill(); });
 
-            // 2. BUNKIER (Żółty okrąg)
             if (bunkerState) {
-                mCtx.fillStyle = "rgba(255, 255, 0, 0.4)";
-                mCtx.beginPath();
-                mCtx.arc(bunkerState.x * scale, bunkerState.y * scale, bunkerState.radius * scale, 0, Math.PI*2);
-                mCtx.fill();
-                mCtx.strokeStyle = "yellow";
-                mCtx.lineWidth = 1;
-                mCtx.stroke();
+                mCtx.fillStyle = "rgba(255, 255, 0, 0.4)"; mCtx.beginPath(); mCtx.arc(bunkerState.x * scale, bunkerState.y * scale, bunkerState.radius * scale, 0, Math.PI*2); mCtx.fill();
+                mCtx.strokeStyle = "yellow"; mCtx.lineWidth = 1; mCtx.stroke();
             }
 
-            // 3. Organizmy (Gracze i NPC)
             for (let id in gameState) {
                 let org = gameState[id];
-                let minimapX = org.x * scale;
-                let minimapY = org.y * scale;
-
-                if (id === myOwnerId) {
-                    mCtx.fillStyle = "#16ff00"; // Ty (Duży zielony kwadrat)
-                    mCtx.fillRect(minimapX - 2.5, minimapY - 2.5, 5, 5);
-                } else if (org.isNPC) {
-                    mCtx.fillStyle = "purple";  // NPC (Mniejszy fioletowy kwadrat)
-                    mCtx.fillRect(minimapX - 1.5, minimapY - 1.5, 3, 3);
-                } else {
-                    mCtx.fillStyle = "red";     // Inni Gracze (Duży czerwony kwadrat)
-                    mCtx.fillRect(minimapX - 2.5, minimapY - 2.5, 5, 5);
-                }
+                mCtx.fillStyle = (id === myOwnerId) ? "#16ff00" : (org.isNPC ? "purple" : "red");
+                mCtx.fillRect(org.x * scale, org.y * scale, 3, 3);
             }
 
-            // 4. Pole widzenia kamery
-            mCtx.strokeStyle = "white";
-            mCtx.lineWidth = 1;
-            mCtx.strokeRect(cameraX * scale, cameraY * scale, canvas.width * scale, canvas.height * scale);
+            mCtx.strokeStyle = "white"; mCtx.lineWidth = 1;
+            let mmCamX = myCamX * scale;
+            let mmCamY = myCamY * scale;
+            mCtx.strokeRect(mmCamX - (canvas.width*scale)/2, mmCamY - (canvas.height*scale)/2, canvas.width * scale, canvas.height * scale);
 
             requestAnimationFrame(draw);
         }
