@@ -1,12 +1,14 @@
 const config = require('./config');
 const npcBlueprints = require('./npcBlueprints');
+const { saveHighScore } = require('./db'); // <--- POBIERAMY BAZĘ DANYCH
 
 const organisms = {};
 let glucoseParticles = [];
 let mineralParticles = [];
 let viruses = [];
 let playerPhages = [];
-const predators = [{ id: 'macro_1', x: 1500, y: 1500, targetX: 1600, targetY: 1600, speed: 1.5, radius: 40 }];
+let predators = [];
+// to  był bakteriofagocyt ->>  const predators = [{ id: 'macro_1', x: 1500, y: 1500, targetX: 1600, targetY: 1600, speed: 1.5, radius: 40 }];
 const plutoniumZone = { x: 1500, y: 800, radius: 100 };
 
 const mapZones = { sunbeams: [], toxic: [], dense: [] };
@@ -70,8 +72,9 @@ function spawnNPC() {
     organisms[id] = {
         id: id, species: bp.name, isNPC: true, aiType: bp.aiType,
         x: spawnX, y: spawnY, targetX: spawnX, targetY: spawnY,
-        atp: startingATP, isHidden: false, mutationCooldown: 0,
-        blueprint: { nodes: bp.blueprint },
+        atp: startingATP, totalAtp: 0, isHidden: false, mutationCooldown: 0, // totalAtp dla NPC (nieużywane, ale spójne)
+        blueprint: { nodes: JSON.parse(JSON.stringify(bp.blueprint)) },
+        rankingBlueprint: JSON.parse(JSON.stringify(bp.blueprint)), // Kopia zapasowa
         nodes: nodes
     };
 
@@ -161,12 +164,23 @@ function init(io) {
             id: socket.id, species: playerName, isNPC: false,
             x: plutoniumZone.x, y: plutoniumZone.y,
             targetX: plutoniumZone.x, targetY: plutoniumZone.y,
-            atp: 200, isHidden: true, mutationCooldown: 0,
+
+            // --- ZMIANA: totalAtp służy jako rankingowy "Wynik", atp to waluta ---
+            atp: 500,
+            totalAtp: 500,
+
+            isHidden: true, mutationCooldown: 0,
 
             blueprint: { nodes: [
                 { x: 0, y: 0, type: 'base' },
                 { x: 0, y: 25, type: 'thruster' }
             ]},
+
+            // --- ZMIANA: Kopia zapasowa wyglądu do rankingu ---
+            rankingBlueprint: [
+                { x: 0, y: 0, type: 'base' },
+                { x: 0, y: 25, type: 'thruster' }
+            ],
 
             nodes: [
                 { id: 'n1', type: 'base', x: plutoniumZone.x, y: plutoniumZone.y, vx: 0, vy: 0, lastShot: 0, minerals: 0, hp: config.CELLS['base'].maxHp },
@@ -229,11 +243,22 @@ function init(io) {
                 }
                 org.nodes = newNodes;
                 recenterBlueprint(org);
+
+                // --- ZMIANA: Zapisujemy nienaruszalną kopię dla rankingu po wyjściu z edytora ---
+                org.rankingBlueprint = JSON.parse(JSON.stringify(org.blueprint.nodes));
+
                 socket.emit('blueprintSaved');
             } else { socket.emit('errorMsg', "Za mało ATP!"); }
         });
 
-        socket.on('disconnect', () => { delete organisms[socket.id]; });
+        socket.on('disconnect', () => {
+            let org = organisms[socket.id];
+            if (org && !org.isNPC) {
+                // Zapisujemy przy wyjściu z serwera
+                saveHighScore(org.species, Math.floor(org.totalAtp), org.rankingBlueprint);
+            }
+            delete organisms[socket.id];
+        });
     });
 
     setInterval(() => {
@@ -246,7 +271,6 @@ function init(io) {
 function updatePhysics(io) {
     let orgIds = Object.keys(organisms);
 
-    // --- FIZYCZNE KOLIZJE MIĘDZY ORGANIZMAMI (BODY COLLISION) ---
     for (let i = 0; i < orgIds.length; i++) {
         for (let j = i + 1; j < orgIds.length; j++) {
             let orgA = organisms[orgIds[i]];
@@ -375,7 +399,12 @@ function updatePhysics(io) {
 
                 let isSun = false;
                 for (let z of mapZones.sunbeams) { if (Math.hypot(n.x - z.x, n.y - z.y) < z.r) { isSun = true; break; } }
-                if (isSun && n.type === 'chloroplast') org.atp += config.CELLS.chloroplast.sunPower;
+
+                // --- ZMIANA: Dodajemy totalAtp za Słońce ---
+                if (isSun && n.type === 'chloroplast') {
+                    org.atp += config.CELLS.chloroplast.sunPower;
+                    org.totalAtp += config.CELLS.chloroplast.sunPower;
+                }
 
                 n.vx *= localFriction; n.vy *= localFriction;
 
@@ -387,7 +416,11 @@ function updatePhysics(io) {
 
                 n.x += n.vx; n.y += n.vy;
 
-                if (n.type === 'generator') org.atp += config.CELLS.generator.atpGeneration;
+                // --- ZMIANA: Dodajemy totalAtp z Generatora ---
+                if (n.type === 'generator') {
+                    org.atp += config.CELLS.generator.atpGeneration;
+                    org.totalAtp += config.CELLS.generator.atpGeneration;
+                }
 
                 let radius = (n.type === 'harvester') ? config.CELLS.harvester.collectionRadius : 20;
                 for(let i=mineralParticles.length-1; i>=0; i--) {
@@ -434,7 +467,13 @@ function updatePhysics(io) {
                 let radius = (n.type === 'harvester') ? config.CELLS.harvester.collectionRadius : 20;
                 if(Math.hypot(n.x-glucoseParticles[i].x, n.y-glucoseParticles[i].y) < radius) { eaten = true; break; }
             }
-            if (eaten) { org.atp += 15; glucoseParticles.splice(i, 1); spawnResource(glucoseParticles); }
+            // --- ZMIANA: Zwiększamy totalAtp po zjedzeniu glukozy ---
+            if (eaten) {
+                org.atp += 15;
+                org.totalAtp += 15;
+                glucoseParticles.splice(i, 1);
+                spawnResource(glucoseParticles);
+            }
         }
     }
 
@@ -519,7 +558,11 @@ function updatePhysics(io) {
             for (let n of org.nodes) {
                 let dist = Math.hypot(v.x - n.x, v.y - n.y);
                 if (dist < 20) {
-                    if (n.type === 'filter') { org.atp += 5; }
+                    // --- ZMIANA: Detoks (Filter) też nalicza punkty do rankingu ---
+                    if (n.type === 'filter') {
+                        org.atp += 5;
+                        org.totalAtp += 5;
+                    }
                     else if (n.type === 'armor') { n.hp -= 10; }
                     else { n.hp -= 40; org.atp -= 20; }
                     hit = true; break;
@@ -585,7 +628,6 @@ function updatePhysics(io) {
         if (m.y >= config.WORLD_HEIGHT) m.y -= config.WORLD_HEIGHT;
     }
 
-    // --- CLEANUP ŚMIERCI I REKALIBRACJA ---
     for (let id in organisms) {
         let org = organisms[id];
         let nodesDied = false;
@@ -608,13 +650,18 @@ function updatePhysics(io) {
         }
 
         if(org.nodes.length === 0 || org.atp <= 0) {
-            io.to(id).emit('gameOver'); // <--- DODANA LINIJKA: Informujemy gracza o śmierci
+            // --- ZMIANA: Zapisujemy organizm PRZY ŚMIERCI (używając totalAtp i bezpiecznej kopii Blueprintu) ---
+            if (!org.isNPC) {
+                saveHighScore(org.species, Math.floor(org.totalAtp), org.rankingBlueprint);
+                io.to(id).emit('gameOver');
+            }
             delete organisms[id];
         }
     }
 
     const stats = {};
-    for(let id in organisms) { if(!organisms[id].isNPC) stats[organisms[id].species] = Math.floor(organisms[id].atp); }
+    // Pokażmy w tabeli liderów podczas gry również Wynik Całkowity, a nie bieżący portfel
+    for(let id in organisms) { if(!organisms[id].isNPC) stats[organisms[id].species] = Math.floor(organisms[id].totalAtp); }
     const leaderboard = Object.entries(stats).sort((a,b) => b[1]-a[1]).slice(0,5);
 
     tickCounter++;

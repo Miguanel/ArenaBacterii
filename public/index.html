@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>Bakteriofagocyty: Ekosystem</title>
+    <title>Ewolucja: Mikroświat</title>
     <style>
         body { background: #050510; color: #16ff00; font-family: monospace; margin: 0; overflow: hidden; }
         canvas { display: block; position: absolute; top: 0; left: 0; cursor: crosshair; }
@@ -43,6 +43,71 @@
 
         #cellTooltip { position: fixed; background: rgba(10,10,26,0.95); border: 1px solid #16ff00; color: #ddd; padding: 12px; border-radius: 5px; width: 260px; font-size: 12px; pointer-events: none; display: none; z-index: 2000; text-align: left; line-height: 1.5; box-shadow: 2px 2px 10px rgba(0,0,0,0.8); }
         #cellTooltip h3 { margin: 0 0 5px 0; font-size: 14px; text-transform: uppercase; }
+
+        /* --- GLOBALNY RANKING --- */
+        #globalLeaderboard {
+            background: rgba(10, 10, 26, 0.9);
+            border: 1px solid #ffcc00;
+            padding: 15px;
+            border-radius: 8px;
+            width: 320px;
+
+            /* Pozycjonowanie na samej górze po lewej */
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            transform: none;
+
+            /* Obsługa przewijania (Scrollbar) */
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+
+            box-shadow: 0 0 15px rgba(255, 204, 0, 0.2);
+            z-index: 1001;
+        }
+        #globalLeaderboard h3 { color: #ffcc00; text-align: center; margin-top: 0; }
+
+        /* Stylizacja scrollbara */
+        #globalLeaderboard::-webkit-scrollbar { width: 8px; }
+        #globalLeaderboard::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.5); border-radius: 4px; }
+        #globalLeaderboard::-webkit-scrollbar-thumb { background: #ffcc00; border-radius: 4px; }
+        #globalLeaderboard::-webkit-scrollbar-thumb:hover { background: #16ff00; }
+
+        .lb-entry {
+            display: flex; align-items: center; justify-content: space-between;
+            border-bottom: 1px dashed #444; padding: 10px 0;
+        }
+        .lb-entry:last-child { border-bottom: none; }
+        .lb-rank { font-weight: bold; font-size: 1.2em; color: #fff; width: 30px;}
+        .lb-canvas { background: #000; border: 1px solid #333; border-radius: 50%; }
+        .lb-info { flex-grow: 1; margin-left: 15px; text-align: left; }
+        .lb-name { color: #16ff00; font-weight: bold; font-size: 14px; }
+        .lb-score { color: #ffcc00; font-size: 12px; }
+
+        canvas.lb-canvas {
+            position: static !important;  /* Zabrania uciekania z wiersza na róg ekranu */
+            width: 60px !important;       /* Wymusza dokładny rozmiar */
+            height: 60px !important;
+            display: block !important;
+            background: #050510 !important;
+            border: 1px solid #444 !important;
+            border-radius: 50% !important;
+            margin: 0 15px !important;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.1); /* Lekki zielony blask */
+            transform: none !important;
+        }
+
+        @media (max-width: 900px) {
+            #globalLeaderboard {
+                position: relative;
+                left: auto;
+                top: auto;
+                transform: none;
+                margin: 20px auto;
+                width: 90%;
+            }
+            #loginScreen { justify-content: flex-start; padding-top: 20px; overflow-y: auto; }
+        }
     </style>
 </head>
 <body>
@@ -52,17 +117,22 @@
         <h1>🔬 B A K T E R I O F A G O C Y T Y</h1>
         <div class="intro-box">
             <h3>Witaj w probówce!</h3>
-            <p>Zaczynasz jako pojedyncza komórka. Twoim celem jest ewolucja, przetrwanie i zbudowanie potężnego organizmu.</p>
+            <p>Zbuduj swój unikalny organizm i przetrwaj w brutalnym środowisku pełnym różnorodnych form życia i rywalizujących gatunków.</p>
             <ul>
-                <li>🔵 <b>Jedzenie:</b> Zbieraj niebieską glukozę, aby zdobywać energię (ATP) do ewolucji.</li>
-                <li>🟪 <b>Surowce:</b> Zbieraj fioletowe minerały, by zasilać m.in. wieżyczki obronne.</li>
-                <li>☢️ <b>Bunkier:</b> Wpłyń do <b>żółtej strefy</b> na środku mapy, aby wejść do Edytora DNA.</li>
-                <li>☠️ <b>Zagrożenia:</b> Uważaj na zielone chmury kwasu, dzikie wirusy oraz brutalne Makrofagi.</li>
+                <li>🔵 <b>Zasoby:</b> Zbieraj niebieską glukozę (energia do ewolucji) oraz fioletowe minerały (surowiec dla wieżyczek strzelniczych).</li>
+                <li>🧬 <b>Edytor DNA:</b> Wpłyń do <b>żółtej strefy</b> (bunkra) na środku mapy, aby bezpiecznie modyfikować swoje komórki.</li>
+                <li>👾 <b>Różnorodne Gatunki:</b> Obserwuj i wchodź w interakcje z innymi organizmami (NPC). W probówce żyją łagodne rośliny, wędrowni zbieracze oraz agresywne drapieżniki.</li>
+                <li>🦠 <b>Wirusy i Mutacje:</b> Uważaj na fioletowe wirusy! Szukają odsłoniętych tkanek, aby je zainfekować i zniszczyć (wysysając przy tym Twoje ATP). Zamontuj komórkę <b>Detoksu (Lysosom)</b>, by zyskać odporność na infekcje i toksyczne chmury.</li>
+                <li>☠️ <b>Makrofagi:</b> Unikaj wielkich, półprzezroczystych "czyścicieli", którzy pochłaniają wszystko, co stanie im na drodze.</li>
             </ul>
         </div>
         <div style="display: flex; align-items: center; gap: 10px;">
             <input type="text" id="strainName" value="Szczep-Alfa" maxlength="15">
             <button onclick="joinGame()" style="font-size: 18px; font-weight: bold; padding: 10px 20px;">ZAINFEKUJ</button>
+        </div>
+        <div id="globalLeaderboard">
+            <h3>🏆 HALL OF FAME 🏆</h3>
+            <div id="lbListContainer">Wczytywanie ewolucji...</div>
         </div>
     </div>
 
@@ -79,7 +149,17 @@
     </div>
 
     <div id="mutationMenu">
-        <h2 style="color:yellow; margin-top:0;">🧬 EDYTOR DNA (DOPŁATA: <span id="blueprintCost">0</span> ATP)</h2>
+        <h2 style="color:yellow; margin-top:0; margin-bottom: 10px;">🧬 EDYTOR DNA</h2>
+
+        <div style="display: flex; justify-content: center; gap: 20px; font-size: 16px; font-weight: bold; margin-bottom: 15px;">
+            <div style="color: #16ff00; border: 1px dashed #16ff00; padding: 8px 20px; background: rgba(22, 255, 0, 0.1);">
+                💼 TWOJE ATP: <span id="editorCurrentAtp">0</span>
+            </div>
+            <div id="costContainer" style="color: #ffaa00; border: 1px dashed #ffaa00; padding: 8px 20px; background: rgba(255, 170, 0, 0.1);">
+                📉 KOSZT ZMIAN: <span id="blueprintCost">0</span>
+            </div>
+        </div>
+
         <div id="editorStatsBox">
             🚀 Zwinność: <span id="statSpeed">0</span> | 🛡️ Masa: <span id="statMass">0</span> | 🔫 Broń: <span id="statFire">0</span> | 🛢️ Magazyn: <span id="statStorage">0</span>
         </div>
@@ -210,8 +290,33 @@
                 bunkerState = data.plutoniumZone || null;
 
                 let myOrg = gameState[myOwnerId];
-                if(myOrg && !isSpectator) document.getElementById('atpDisplay').innerText = `${Math.floor(myOrg.atp)} (Komórki: ${myOrg.nodes.length})`;
+                if(myOrg && !isSpectator) {
+                    let currentAtp = Math.floor(myOrg.atp);
+                    // Aktualizacja na głównym ekranie gry
+                    document.getElementById('atpDisplay').innerText = `${currentAtp} (Komórki: ${myOrg.nodes.length})`;
 
+                    // Aktualizacja wewnątrz otwartego Edytora DNA
+                    const editorAtp = document.getElementById('editorCurrentAtp');
+                    if(editorAtp) {
+                        editorAtp.innerText = currentAtp;
+                    }
+
+                    // Kolorowanie kosztu na czerwono, jeśli gracza nie stać na modyfikacje
+                    const costSpan = document.getElementById('blueprintCost');
+                    const costContainer = document.getElementById('costContainer');
+                    if (costSpan && costContainer) {
+                        const cost = parseInt(costSpan.innerText) || 0;
+                        if (currentAtp < cost) {
+                            costContainer.style.color = "#ff4444";
+                            costContainer.style.borderColor = "#ff4444";
+                            costContainer.style.background = "rgba(255, 0, 0, 0.15)";
+                        } else {
+                            costContainer.style.color = "#ffaa00";
+                            costContainer.style.borderColor = "#ffaa00";
+                            costContainer.style.background = "rgba(255, 170, 0, 0.1)";
+                        }
+                    }
+                }
                 if(data.leaderboard) {
                     let lbHTML = "";
                     data.leaderboard.forEach(e => lbHTML += `<div>${e[0]}: ${e[1]}</div>`);
@@ -535,6 +640,136 @@
         }
 
         window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
+    </script>
+    <script>
+        // 1. Mapowanie kolorów (musi być, by Canvas wiedział jakich farb użyć)
+        function getCellColor(type) {
+            if (type === 'shooter') return '#00ffff';
+            if (type === 'thruster') return 'orange';
+            if (type === 'storage') return '#ffcc00';
+            if (type === 'armor') return '#888888';
+            if (type === 'harvester') return '#ff00aa';
+            if (type === 'generator') return '#aaff00';
+            if (type === 'chloroplast') return '#228B22';
+            if (type === 'filter') return '#FFFFFF';
+            if (type === 'spike') return '#444444';
+            if (type === 'flesh') return '#ff6666';
+            if (type === 'sensor') return '#66ccff';
+            return '#16ff00'; // base
+        }
+
+        // 2. Pobieranie danych i tworzenie "drugiego canvasu" dla każdego gracza
+        async function loadGlobalLeaderboard() {
+            try {
+                const res = await fetch('/api/leaderboard');
+                if(!res.ok) throw new Error('Błąd sieci');
+                const data = await res.json();
+
+                const container = document.getElementById('lbListContainer');
+                container.innerHTML = '';
+
+                data.forEach((player, idx) => {
+                    const entry = document.createElement('div');
+                    entry.className = 'lb-entry';
+
+                    // Unikalne ID dla płótna każdego gracza
+                    const canvasId = `lb-canvas-${idx}`;
+
+                    entry.innerHTML = `
+                        <div class="lb-rank">#${idx + 1}</div>
+                        <canvas id="${canvasId}" class="lb-canvas" width="60" height="60"></canvas>
+                        <div class="lb-info">
+                            <div class="lb-name">${player.name}</div>
+                            <div class="lb-score">${player.score} ATP</div>
+                        </div>
+                    `;
+                    // Musimy dodać element do strony, ZANIM spróbujemy po nim rysować
+                    container.appendChild(entry);
+
+                    // --- INTELIGENTNE WYDOBYCIE DANYCH Z BAZY ---
+                    let bpData = player.blueprint;
+
+                    // Scenariusz A: Format stary { nodes: [...] }
+                    if (bpData && bpData.nodes) {
+                        bpData = bpData.nodes;
+                    }
+                    // Scenariusz B: Baza zwróciła tablicę wewnątrz tablicy np. [[...]]
+                    if (Array.isArray(bpData) && Array.isArray(bpData[0])) {
+                        bpData = bpData[0];
+                    }
+                    // Scenariusz C: Baza w ogóle nie ma blueprintu
+                    if (!bpData) {
+                        bpData = [];
+                    }
+
+                    // Wyrzucamy do konsoli F12, co tak naprawdę przyszło z bazy
+                    console.log(`[Ranking] Dane dla ${player.name}:`, bpData);
+
+                    // Wywołanie rysowania
+                    drawMiniBlueprint(canvasId, bpData);
+                });
+
+            } catch (e) {
+                console.error("Błąd rankingu:", e);
+                document.getElementById('lbListContainer').innerHTML = '<span style="color:red;">Brak połączenia z bazą archiwalną.</span>';
+            }
+        }
+
+        // 3. Rysowanie organizmu
+        function drawMiniBlueprint(canvasId, nodes) {
+            const canvas = document.getElementById(canvasId);
+            if(!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            // Sprawdzenie, czy faktycznie mamy co rysować
+            if (!Array.isArray(nodes) || nodes.length === 0) {
+                ctx.fillStyle = "#ff4444";
+                ctx.font = "bold 24px monospace";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText("?", canvas.width/2, canvas.height/2);
+                return;
+            }
+
+            // Znajdowanie granic organizmu (żeby wyśrodkować na małym Canvasie)
+            let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+            nodes.forEach(n => {
+                const x = Number(n.x) || 0;
+                const y = Number(n.y) || 0;
+                if(x < minX) minX = x; if(x > maxX) maxX = x;
+                if(y < minY) minY = y; if(y > maxY) maxY = y;
+            });
+
+            const width = (maxX - minX) || 20;
+            const height = (maxY - minY) || 20;
+            const centerX = minX + width / 2;
+            const centerY = minY + height / 2;
+
+            // Auto-skalowanie, by gigantyczne organizmy zmieściły się w 60x60
+            const scale = Math.min(35 / width, 35 / height, 1.2);
+
+            ctx.save();
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            ctx.scale(scale, scale);
+
+            // Malowanie komórek
+            nodes.forEach(n => {
+                ctx.fillStyle = getCellColor(n.type);
+                ctx.beginPath();
+                ctx.arc((Number(n.x)||0) - centerX, (Number(n.y)||0) - centerY, 14, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Lekka biała obwódka jak w prawdziwej grze
+                ctx.strokeStyle = "rgba(255,255,255,0.4)";
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            });
+
+            ctx.restore();
+        }
+
+        // Inicjalizacja rankingu przy załadowaniu pliku
+        loadGlobalLeaderboard();
     </script>
     <script src="js/editor.js"></script>
 </body>
