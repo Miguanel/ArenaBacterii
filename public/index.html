@@ -149,7 +149,44 @@
 
     <div id="gameUI">
         <div id="stats">ATP: <span id="atpDisplay">0</span> | Szczep: <span id="idDisplay">Brak</span></div>
-        <div id="leaderboard"><b>🏆 TOP 5</b><div id="lbList"></div></div>
+        <!-- Nawigacja na górze mapy -->
+<div id="topNav">
+    <button class="nav-btn" onclick="openModal('playersModal')">👥 GRACZE</button>
+    <button class="nav-btn" onclick="openModal('mapLegendModal')">🗺️ LEGENDA</button>
+    <button class="nav-btn" onclick="openCmentarz()">🪦 HISTORIA (CMENTARZ)</button>
+</div>
+
+<!-- MODAL: LISTA GRACZY -->
+<div id="playersModal" class="game-modal">
+    <div class="modal-header">
+        <h2>👥 AKTUALNE SZCZEPY</h2>
+        <button class="modal-close-btn" onclick="closeModal('playersModal')">X</button>
+    </div>
+    <div id="currentPlayersList"></div>
+</div>
+
+<!-- MODAL: LEGENDA MAPY -->
+<div id="mapLegendModal" class="game-modal">
+    <div class="modal-header">
+        <h2>🗺️ INFORMACJE O ŚRODOWISKU</h2>
+        <button class="modal-close-btn" onclick="closeModal('mapLegendModal')">X</button>
+    </div>
+    <div style="color: #ccc; line-height: 1.6;">
+        <p><span style="color: yellow;">● Żółta Strefa:</span> Bunkier / Edytor DNA. Tu jesteś bezpieczny.</p>
+        <p><span style="color: #00ff32;">● Zielone Chmury:</span> Toksyny. Wymagają komórki Detoksu.</p>
+        <p><span style="color: #ffff64;">● Jasne Promienie:</span> Słońce. Chloroplasty generują tu ATP.</p>
+        <p><span style="color: #005096;">● Ciemne Obszary:</span> Gęsta woda. Bardzo wysokie tarcie (powolny ruch).</p>
+    </div>
+</div>
+
+<!-- MODAL: CMENTARZ (HISTORIA) -->
+<div id="graveyardModal" class="game-modal">
+    <div class="modal-header">
+        <h2 style="color: #888;">🪦 CMENTARZ ZAPOMNIANYCH SZCZEPÓW</h2>
+        <button class="modal-close-btn" onclick="closeModal('graveyardModal')">X</button>
+    </div>
+    <div id="graveList">Wczytywanie historii...</div>
+</div>
         <canvas id="minimapCanvas" width="150" height="150" style="position: absolute; top: 20px; right: 20px; border: 2px solid #16ff00; z-index: 11; background: black; pointer-events: auto;"></canvas>
     </div>
 
@@ -819,6 +856,46 @@
         list.innerHTML = "Cmentarz jest obecnie niedostępny.";
     }
 };
+    </script>
+    <script>
+        <!-- Nawigacja na górze mapy -->
+<div id="topNav">
+    <button class="nav-btn" onclick="openModal('playersModal')">👥 GRACZE</button>
+    <button class="nav-btn" onclick="openModal('mapLegendModal')">🗺️ LEGENDA</button>
+    <button class="nav-btn" onclick="openCmentarz()">🪦 HISTORIA (CMENTARZ)</button>
+</div>
+
+<!-- MODAL: LISTA GRACZY -->
+<div id="playersModal" class="game-modal">
+    <div class="modal-header">
+        <h2>👥 AKTUALNE SZCZEPY</h2>
+        <button class="modal-close-btn" onclick="closeModal('playersModal')">X</button>
+    </div>
+    <div id="currentPlayersList"></div>
+</div>
+
+<!-- MODAL: LEGENDA MAPY -->
+<div id="mapLegendModal" class="game-modal">
+    <div class="modal-header">
+        <h2>🗺️ INFORMACJE O ŚRODOWISKU</h2>
+        <button class="modal-close-btn" onclick="closeModal('mapLegendModal')">X</button>
+    </div>
+    <div style="color: #ccc; line-height: 1.6;">
+        <p><span style="color: yellow;">● Żółta Strefa:</span> Bunkier / Edytor DNA. Tu jesteś bezpieczny.</p>
+        <p><span style="color: #00ff32;">● Zielone Chmury:</span> Toksyny. Wymagają komórki Detoksu.</p>
+        <p><span style="color: #ffff64;">● Jasne Promienie:</span> Słońce. Chloroplasty generują tu ATP.</p>
+        <p><span style="color: #005096;">● Ciemne Obszary:</span> Gęsta woda. Bardzo wysokie tarcie (powolny ruch).</p>
+    </div>
+</div>
+
+<!-- MODAL: CMENTARZ (HISTORIA) -->
+<div id="graveyardModal" class="game-modal">
+    <div class="modal-header">
+        <h2 style="color: #888;">🪦 CMENTARZ ZAPOMNIANYCH SZCZEPÓW</h2>
+        <button class="modal-close-btn" onclick="closeModal('graveyardModal')">X</button>
+    </div>
+    <div id="graveList">Wczytywanie historii...</div>
+</div>
     </script>
     <script src="js/editor.js"></script>
 </body>
