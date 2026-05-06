@@ -652,18 +652,34 @@ function updatePhysics(io) {
             recenterBlueprint(org);
         }
 
-       if(org.nodes.length === 0 || org.atp <= 0) {
+        // Sprawdzanie warunku śmierci
+        if(org.nodes.length === 0 || org.atp <= 0) {
             if (!org.isNPC) {
-                const { buryOrganism, saveHighScore } = require('./db');
+                // KRYTYCZNE: Importujemy funkcje z bazy danych
+                const db = require('./db');
 
-                // Zapisujemy rekord życiowy (Top Scores)
-                saveHighScore(org.species, Math.floor(org.totalAtp), org.rankingBlueprint);
+                // Obliczamy ostateczny wynik (zabezpieczenie przed NaN)
+                const finalScore = Math.floor(org.totalAtp) || 0;
+                const safeBlueprint = org.rankingBlueprint || { nodes: [] };
 
-                // Zapisujemy KAŻDĄ śmierć na cmentarz
-                buryOrganism(org.species, Math.floor(org.totalAtp), org.rankingBlueprint);
+                console.log(`💀 Gracz ${org.species} zmarł z wynikiem ${finalScore} ATP. Próba zapisu...`);
 
+                // 1. Zapis do Hall of Fame (tylko rekordy)
+                if (typeof db.saveHighScore === 'function') {
+                    db.saveHighScore(org.species, finalScore, safeBlueprint);
+                }
+
+                // 2. Zapis na Cmentarz (każda śmierć = nowe wspomnienie)
+                if (typeof db.buryOrganism === 'function') {
+                    db.buryOrganism(org.species, finalScore, safeBlueprint);
+                } else {
+                    console.error("❌ Błąd: Funkcja buryOrganism nie istnieje w db.js!");
+                }
+
+                // Wysyłamy sygnał do klienta, by wyświetlił ekran "MARTWY"
                 io.to(id).emit('gameOver');
             }
+            // Usuwamy organizm z mapy
             delete organisms[id];
         }
     }

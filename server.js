@@ -12,15 +12,23 @@ const io = new Server(server);
 
 app.use(express.static('public'));
 
+// Endpoint dla Hall of Fame
 app.get('/api/leaderboard', async (req, res) => {
+    const { getTopScores } = require('./db');
     const scores = await getTopScores();
     res.json(scores);
 });
 
-// Endpoint musi być skonfigurowany ZANIM odpalimy nasłuch!
+// Endpoint dla Cmentarza (Raporty Wspomnień)
 app.get('/api/graveyard', async (req, res) => {
-    const graves = await getRecentGraves(20);
-    res.json(graves);
+    try {
+        const { getRecentGraves } = require('./db');
+        const graves = await getRecentGraves(20); // Pobieramy 20 ostatnich wspomnień
+        res.json(graves);
+    } catch (error) {
+        console.error("Błąd API Cmentarza:", error);
+        res.status(500).json({ error: "Nie udało się połączyć z bazą Cmentarza" });
+    }
 });
 
 gameEngine.init(io);
