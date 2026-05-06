@@ -199,7 +199,7 @@ function init(io) {
         socket.on('exitZone', () => {
             let org = organisms[socket.id];
             if (org && org.isHidden) {
-                org.isHidden = false; org.mutationCooldown = Date.now() + 4000;
+                org.isHidden = false; org.mutationCooldown = Date.now() + 9000;
                 if (org.nodes.length > 0) {
                     let coreX = org.x; let coreY = org.y;
                     for(let i = 0; i < org.nodes.length; i++) {
