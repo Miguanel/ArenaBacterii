@@ -16,8 +16,8 @@ window.cameraX = 1500;
 window.cameraY = 1500;
 
 // NAPRAWA KONFLIKTU: Przypisujemy do window, aby uniknąć błędów redeklaracji
-window.WORLD_WIDTH = 3000;
-window.WORLD_HEIGHT = 3000;
+//window.WORLD_WIDTH = 3000;
+//window.WORLD_HEIGHT = 3000;
 
 function joinGame() {
     const name = document.getElementById('strainName').value;
