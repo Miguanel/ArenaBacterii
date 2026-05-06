@@ -266,14 +266,15 @@
         const list = document.getElementById('graveList');
         list.innerHTML = "Wskrzeszanie wspomnień...";
         try {
-            // DODANO cache: 'no-store'
             const res = await fetch('/api/graveyard', { cache: 'no-store' });
             const data = await res.json();
             list.innerHTML = "";
+
             data.forEach((grave, idx) => {
                 const card = document.createElement('div');
                 card.className = 'grave-card';
                 const canvasId = `grave-canvas-${idx}`;
+
                 card.innerHTML = `
                     <canvas id="${canvasId}" width="80" height="80" style="background:#000; border-radius:50%; border: 1px solid #333;"></canvas>
                     <div style="margin-left: 20px;">
@@ -282,11 +283,27 @@
                         <small style="color: #666;">${new Date(grave.date).toLocaleString()}</small>
                     </div>`;
                 list.appendChild(card);
+
+                // --- INTELIGENTNE ROZPAKOWANIE ZWŁOK ---
+                let bpData = grave.blueprint;
+
+                // Zabezpieczenie przed różnymi formatami z bazy danych
+                if (bpData && bpData.nodes) bpData = bpData.nodes;
+                if (Array.isArray(bpData) && Array.isArray(bpData[0])) bpData = bpData[0];
+                if (typeof bpData === 'string') {
+                    try { bpData = JSON.parse(bpData); } catch(e) { bpData = []; }
+                }
+                if (!Array.isArray(bpData)) bpData = [];
+
+                // Wywołanie rysowania po rozpakowaniu!
                 if (typeof window.drawMiniBlueprint === 'function') {
-                    setTimeout(() => window.drawMiniBlueprint(canvasId, grave.blueprint), 50);
+                    setTimeout(() => window.drawMiniBlueprint(canvasId, bpData), 50);
                 }
             });
-        } catch (e) { list.innerHTML = "Cmentarz niedostępny."; }
+
+        } catch (e) {
+            list.innerHTML = "Cmentarz niedostępny.";
+        }
     };
 
     function getCellColor(type) {
