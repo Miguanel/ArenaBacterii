@@ -1,18 +1,15 @@
 const mongoose = require('mongoose');
 
-// Render automatycznie wstrzykuje zmienne, więc .config() nie jest zawsze konieczne,
-// ale warto mieć pancerne połączenie.
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('✅ MongoDB: Połączono!'))
   .catch(err => console.error('❌ MongoDB: Błąd połączenia:', err));
 
-// ROZWIĄZANIE: Definiujemy Schema, aby JavaScript wiedział co to jest
 const Schema = mongoose.Schema;
 
+// Schemat Rankingu
 const scoreSchema = new Schema({
     name: { type: String, required: true, index: true },
     score: { type: Number, required: true },
-    // Używamy Mixed, aby baza była elastyczna dla danych z Unity i WWW
     blueprint: { type: Schema.Types.Mixed, required: true },
     date: { type: Date, default: Date.now }
 });
@@ -21,21 +18,13 @@ const Score = mongoose.model('Score', scoreSchema);
 
 async function saveHighScore(name, score, blueprint) {
     if (!name || score <= 0) return;
-
     try {
-        // Atomiczna aktualizacja - zapisz tylko jeśli wynik jest lepszy
         await Score.findOneAndUpdate(
             { name: name, score: { $lt: score } },
-            {
-                $set: {
-                    score: score,
-                    blueprint: blueprint,
-                    date: Date.now()
-                }
-            },
+            { $set: { score: score, blueprint: blueprint, date: Date.now() } },
             { upsert: true }
         );
-        console.log(`[DB] Próba zapisu dla: ${name} (${score} ATP) zakończona sukcesem.`);
+        console.log(`[DB] Zapisano rekord: ${name} (${score} ATP)`);
     } catch (err) {
         console.error("❌ Błąd zapisu rankingu:", err.message);
     }
@@ -43,23 +32,24 @@ async function saveHighScore(name, score, blueprint) {
 
 async function getTopScores() {
     try {
-        return await Score.find().sort({ score: -1 }).limit(5).select('name score date');
+        // DODANO .lean() - zapobiega błędom 500 na serwerze!
+        return await Score.find().sort({ score: -1 }).limit(5).select('name score blueprint date').lean();
     } catch (err) {
         return [];
     }
 }
-// db.js - Dodaj nowy schemat i model
+
+// Schemat Cmentarza
 const graveSchema = new Schema({
     name: String,
     score: Number,
     blueprint: Schema.Types.Mixed,
-    causeOfDeath: String, // Opcjonalnie: np. 'virus', 'starvation', 'spike'
+    causeOfDeath: String,
     date: { type: Date, default: Date.now }
 });
 
 const Grave = mongoose.model('Grave', graveSchema);
 
-// Funkcja zapisu na cmentarz (wywoływana przy każdej śmierci)
 async function buryOrganism(name, score, blueprint) {
     if (!name || score <= 0) return;
     try {
@@ -71,10 +61,14 @@ async function buryOrganism(name, score, blueprint) {
     }
 }
 
-// Pobieranie ostatnich zgonów
 async function getRecentGraves(limit = 10) {
-    return await Grave.find().sort({ date: -1 }).limit(limit);
+    try {
+        // DODANO .lean() - kluczowe dla Cmentarza!
+        return await Grave.find().sort({ date: -1 }).limit(limit).lean();
+    } catch (err) {
+        console.error("❌ Błąd pobierania cmentarza:", err);
+        return [];
+    }
 }
 
-// Pamiętaj o eksporcie!
 module.exports = { saveHighScore, getTopScores, buryOrganism, getRecentGraves };

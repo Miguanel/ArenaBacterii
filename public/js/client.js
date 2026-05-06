@@ -1,6 +1,5 @@
 window.socket = null;
 
-// Globalne zmienne stanu używane przez inne pliki
 window.myOwnerId = null;
 window.gameState = {};
 window.foodState = [];
@@ -14,10 +13,8 @@ window.isGameRunning = false;
 window.isSpectator = false;
 window.cameraX = 1500;
 window.cameraY = 1500;
-
-// NAPRAWA KONFLIKTU: Przypisujemy do window, aby uniknąć błędów redeklaracji
-//window.WORLD_WIDTH = 3000;
-//window.WORLD_HEIGHT = 3000;
+window.WORLD_WIDTH = 3000;
+window.WORLD_HEIGHT = 3000;
 
 function joinGame() {
     const name = document.getElementById('strainName').value;
@@ -27,17 +24,16 @@ function joinGame() {
     window.socket.on('spawn', (data) => {
         window.myOwnerId = data.ownerId;
         document.getElementById('idDisplay').innerText = data.species;
-        window.cameraX = 1500; window.cameraY = 800; // Start w bunkrze
+        window.cameraX = 1500; window.cameraY = 800;
         window.isSpectator = false;
         document.getElementById('spectatorUI').style.display = 'none';
         document.getElementById('gameCanvas').classList.remove('spectator-cursor');
         window.isGameRunning = true;
 
-        // Zabezpieczenie przed crashem
         if (typeof window.draw === 'function') {
             requestAnimationFrame(window.draw);
         } else {
-            console.error("Błąd: Funkcja rysująca 'draw' nie została załadowana!");
+            console.error("❌ Błąd: Funkcja draw() wciąż nie istnieje!");
         }
     });
 
@@ -126,7 +122,6 @@ function closeMutationMenu() {
     if(window.socket) window.socket.emit('exitZone');
 }
 
-// STEROWANIE WOLNĄ KAMERĄ
 window.isFreeCamera = false;
 let isDragging = false;
 let isMinimapDragging = false;
