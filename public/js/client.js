@@ -1,6 +1,5 @@
 let socket;
 
-// Globalne zmienne stanu używane przez renderer.js
 window.myOwnerId = null;
 window.gameState = {};
 window.foodState = [];
@@ -18,7 +17,7 @@ function joinGame() {
         window.myOwnerId = data.ownerId;
         document.getElementById('idDisplay').innerText = data.species;
         window.isGameRunning = true;
-        requestAnimationFrame(draw); // Odpal renderer.js
+        requestAnimationFrame(draw);
     });
 
     socket.on('enterMutationZone', () => document.getElementById('mutationMenu').style.display = 'block');
@@ -32,25 +31,34 @@ function joinGame() {
         window.bunkerState = data.plutoniumZone || null;
 
         let myCell = window.gameState[window.myOwnerId];
-        if(myCell) document.getElementById('atpDisplay').innerText = Math.floor(myCell.atp);
+        if(myCell) {
+            const atpDisplay = document.getElementById('atpDisplay');
+            if (atpDisplay) atpDisplay.innerText = Math.floor(myCell.atp);
+        }
 
+        // NAPRAWA BŁĘDU: Bezpieczne ładowanie tabeli
         if(data.leaderboard) {
-            let lbHTML = "";
-            data.leaderboard.forEach(e => lbHTML += `<div>${e[0]}: ${e[1]}</div>`);
-            document.getElementById('lbList').innerHTML = lbHTML;
+            const lbList = document.getElementById('lbList');
+            if (lbList) {
+                let lbHTML = "";
+                // Skrócony ranking na ekranie gry (TOP 3)
+                data.leaderboard.slice(0, 3).forEach(e => lbHTML += `<div>${e[0]}: ${e[1]}</div>`);
+                lbList.innerHTML = lbHTML;
+            }
+
+            // Wysyłamy dane do modala "Gracze", jeśli funkcja istnieje (jest w index.html)
+            if (typeof updatePlayersModal === 'function') {
+                updatePlayersModal(data.leaderboard);
+            }
         }
     });
-    // Definicja funkcji dostępnej z konsoli (F12)
+
     window.ranking = function() {
         console.log("📊 Pobieranie rankingu z bazy danych...");
-        if (socket) {
-            socket.emit('getRanking');
-        } else {
-            console.error("❌ Brak połączenia z serwerem.");
-        }
+        if (socket) socket.emit('getRanking');
+        else console.error("❌ Brak połączenia z serwerem.");
     };
 
-    // Słuchacz odpowiedzi z serwera
     socket.on('rankingList', (data) => {
         console.clear();
         console.log("%c🏆 TOP 10 EWOLUCJI 🏆", "color: #ffcc00; font-weight: bold; font-size: 16px;");
