@@ -25,7 +25,7 @@ function joinGame() {
 
     socket.on('updateMap', (data) => {
         if(!data) return;
-        window.gameState = data.cells || {};
+        window.gameState = data.organisms || {};
         window.foodState = data.food || [];
         window.virusState = data.viruses || [];
         window.predatorState = data.predators || [];
