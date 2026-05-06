@@ -11,7 +11,7 @@ const scoreSchema = new mongoose.Schema({
     // lepiej zarządzać tym przez findOneAndUpdate.
     name: { type: String, required: true, index: true },
     score: { type: Number, required: true },
-    blueprint: { type: [Object], required: true },
+    blueprint: { type: Schema.Types.Mixed, required: true },
     date: { type: Date, default: Date.now }
 });
 
