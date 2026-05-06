@@ -63,9 +63,8 @@
 
         canvas.lb-canvas { position: static !important; width: 60px !important; height: 60px !important; display: block !important; background: #050510 !important; border: 1px solid #444 !important; border-radius: 50% !important; margin: 0 15px !important; box-shadow: 0 0 10px rgba(0, 255, 0, 0.1); transform: none !important; }
 
-        /* NOWE STYLE DLA MODALI I MENU */
+        /* NAWIGACJA I MODALE */
         #topNav, .nav-btn, .game-modal { pointer-events: auto !important; }
-
         #topNav { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 20; }
         .nav-btn { background: rgba(26, 26, 46, 0.8); color: #16ff00; border: 1px solid #16ff00; padding: 8px 15px; font-family: monospace; cursor: pointer; font-size: 14px; }
         .nav-btn:hover { background: #16ff00; color: black; }
@@ -131,7 +130,11 @@
     <!-- Skrócony leaderboard po prawej -->
     <div id="leaderboard"><b>🏆 TOP 3</b><div id="lbList"></div></div>
 
-    <canvas id="minimapCanvas" width="150" height="150" style="position: absolute; top: 20px; right: 20px; border: 2px solid #16ff00; z-index: 11; background: black; pointer-events: auto;"></canvas>
+    <!-- Minimapa -->
+    <canvas id="minimapCanvas" width="150" height="150" style="position: absolute; top: 20px; right: 20px; border: 2px solid #16ff00; z-index: 11; background: black; pointer-events: auto; cursor: crosshair;"></canvas>
+    
+    <!-- Przycisk Powrotu Kamery -->
+    <button id="centerCamBtn" style="position: absolute; top: 180px; right: 20px; z-index: 11; display: none; width: 154px; font-weight: bold; background: #ffaa00; color: #000; border: 2px solid #ffaa00; padding: 10px; cursor: pointer; pointer-events: auto; border-radius: 4px;" onclick="window.resetCamera()">🎯 WYŚRODKUJ</button>
 </div>
 
 <!-- MODALE -->
@@ -210,10 +213,9 @@
 
 <canvas id="gameCanvas"></canvas>
 
-<!-- SKRYPTY GŁÓWNE -->
+<!-- TYLKO LOGIKA INTERFEJSU (UI) -->
 <script src="/socket.io/socket.io.js"></script>
 <script>
-    // Konfiguracja tooltipów
     const tooltipsText = {
         'base': "<h3 style='color:#16ff00;'>🟢 Rdzeń (Zwykła)</h3><b>HP: 100</b><br>Podstawa. Wytwarza 0.5 siły ciągu.",
         'thruster': "<h3 style='color:orange;'>🟠 Napęd (Silnik)</h3><b>HP: 80</b><br>Potężny silnik. Generuje aż 3.0 siły ciągu!",
@@ -240,11 +242,9 @@
     }
     function hideTip() { document.getElementById('cellTooltip').style.display = 'none'; }
 
-    // Funkcje UI (Modale)
     function openModal(id) { document.getElementById(id).style.display = 'block'; }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-    // Aktualizacja listy graczy w Modalu
     function updatePlayersModal(leaderboard) {
         const listCont = document.getElementById('currentPlayersList');
         if (!listCont) return;
@@ -261,7 +261,6 @@
         listCont.innerHTML = html;
     }
 
-    // Logika Cmentarza
     window.cmentarz = async function() {
         openModal('graveyardModal');
         const list = document.getElementById('graveList');
@@ -282,15 +281,13 @@
                         <small style="color: #666;">${new Date(grave.date).toLocaleString()}</small>
                     </div>`;
                 list.appendChild(card);
-                // Wywołaj rysowanie dopiero po upewnieniu się, że funkcja istnieje
-                if (typeof drawMiniBlueprint === 'function') {
-                    setTimeout(() => drawMiniBlueprint(canvasId, grave.blueprint), 50);
+                if (typeof window.drawMiniBlueprint === 'function') {
+                    setTimeout(() => window.drawMiniBlueprint(canvasId, grave.blueprint), 50);
                 }
             });
         } catch (e) { list.innerHTML = "Cmentarz niedostępny."; }
     };
 
-    // Globalny Leaderboard Rysowanie (Startowe)
     function getCellColor(type) {
         if (type === 'shooter') return '#00ffff';
         if (type === 'thruster') return 'orange';
@@ -303,10 +300,10 @@
         if (type === 'spike') return '#444444';
         if (type === 'flesh') return '#ff6666';
         if (type === 'sensor') return '#66ccff';
-        return '#16ff00';
+        return '#16ff00'; 
     }
 
-    function drawMiniBlueprint(canvasId, nodes) {
+    window.drawMiniBlueprint = function(canvasId, nodes) {
         const canvas = document.getElementById(canvasId);
         if(!canvas) return;
         const ctx = canvas.getContext('2d');
@@ -333,7 +330,7 @@
             ctx.strokeStyle = "rgba(255,255,255,0.4)"; ctx.lineWidth = 2; ctx.stroke();
         });
         ctx.restore();
-    }
+    };
 
     async function loadGlobalLeaderboard() {
         try {
@@ -351,7 +348,7 @@
                 if (bpData && bpData.nodes) bpData = bpData.nodes;
                 if (Array.isArray(bpData) && Array.isArray(bpData[0])) bpData = bpData[0];
                 if (!bpData) bpData = [];
-                drawMiniBlueprint(canvasId, bpData);
+                window.drawMiniBlueprint(canvasId, bpData);
             });
         } catch (e) {
             document.getElementById('lbListContainer').innerHTML = '<span style="color:red;">Brak połączenia z bazą archiwalną.</span>';
@@ -360,8 +357,10 @@
     loadGlobalLeaderboard();
 </script>
 
+<!-- GŁÓWNA LOGIKA GRY ŁADOWANA Z PLIKÓW -->
 <script src="js/client.js"></script>
 <script src="js/editor.js"></script>
 <script src="js/renderer.js"></script>
+
 </body>
 </html>
