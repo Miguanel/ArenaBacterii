@@ -1,3 +1,4 @@
+// editor.js
 const eCanvas = document.getElementById('editorCanvas');
 const eCtx = eCanvas.getContext('2d');
 
@@ -22,10 +23,11 @@ function setTool(tool) {
 }
 
 function loadEditor() {
-    let myOrg = gameState[myOwnerId];
+    // NAPRAWA BŁĘDU: Pobieramy dane z globalnego okna
+    let myOrg = window.gameState ? window.gameState[window.myOwnerId] : null;
     editorZoom = 1.0; editorPanX = 0; editorPanY = 0;
 
-    if (!myOrg || !myOrg.blueprint) {
+    if (!myOrg || !myOrg.blueprint || !myOrg.blueprint.nodes) {
         edNodes = [{ x: 250, y: 175, type: 'base' }];
         originalCost = 0;
     } else {
@@ -74,16 +76,13 @@ eCanvas.addEventListener('contextmenu', e => e.preventDefault());
 
 eCanvas.addEventListener('mousedown', (e) => {
     if (e.button === 2) { isPanning = true; return; }
-
     let rect = eCanvas.getBoundingClientRect();
     let mx = (e.clientX - rect.left - 250 - editorPanX) / editorZoom + 250;
     let my = (e.clientY - rect.top - 175 - editorPanY) / editorZoom + 175;
-
     let clickedIdx = -1;
     for(let i=0; i<edNodes.length; i++) {
         if(Math.sqrt((mx-edNodes[i].x)**2 + (my-edNodes[i].y)**2) < 15) { clickedIdx = i; break; }
     }
-
     if (currentTool === 'delete') {
         if (clickedIdx > 0) edNodes.splice(clickedIdx, 1);
     } else if (currentTool === 'move') {
@@ -91,13 +90,11 @@ eCanvas.addEventListener('mousedown', (e) => {
     } else {
         if(clickedIdx === -1) edNodes.push({ x: mx, y: my, type: currentTool });
     }
-
     updateEditorStats(); drawEditor();
 });
 
 eCanvas.addEventListener('mousemove', (e) => {
     if (isPanning) { editorPanX += e.movementX; editorPanY += e.movementY; drawEditor(); return; }
-
     if (currentTool === 'move' && draggedNodeIndex !== -1) {
         let rect = eCanvas.getBoundingClientRect();
         edNodes[draggedNodeIndex].x = (e.clientX - rect.left - 250 - editorPanX) / editorZoom + 250;
@@ -112,7 +109,6 @@ eCanvas.addEventListener('mouseleave', () => { isPanning = false; draggedNodeInd
 function drawEditor() {
     eCtx.clearRect(0, 0, eCanvas.width, eCanvas.height);
     eCtx.save();
-
     eCtx.translate(250 + editorPanX, 175 + editorPanY);
     eCtx.scale(editorZoom, editorZoom);
     eCtx.translate(-250, -175);
@@ -130,15 +126,14 @@ function drawEditor() {
         else if (n.type === 'armor') eCtx.fillStyle = '#888888';
         else if (n.type === 'harvester') eCtx.fillStyle = '#ff00aa';
         else if (n.type === 'generator') eCtx.fillStyle = '#aaff00';
-        else if (n.type === 'chloroplast') eCtx.fillStyle = '#228B22'; // Zielony roślinny
-        else if (n.type === 'filter') eCtx.fillStyle = '#FFFFFF';      // Biały z niebieską nutą
-        else if (n.type === 'spike') eCtx.fillStyle = '#444444';       // Ciemnoszary szpikulec
-        else if (n.type === 'flesh') eCtx.fillStyle = '#ff6666';       // Różowe mięso
-        else if (n.type === 'sensor') eCtx.fillStyle = '#66ccff';      // Jasnoniebieski radar
+        else if (n.type === 'chloroplast') eCtx.fillStyle = '#228B22';
+        else if (n.type === 'filter') eCtx.fillStyle = '#FFFFFF';
+        else if (n.type === 'spike') eCtx.fillStyle = '#444444';
+        else if (n.type === 'flesh') eCtx.fillStyle = '#ff6666';
+        else if (n.type === 'sensor') eCtx.fillStyle = '#66ccff';
         else eCtx.fillStyle = '#16ff00';
 
         eCtx.beginPath(); eCtx.arc(n.x, n.y, 12, 0, Math.PI*2); eCtx.fill();
-
         eCtx.strokeStyle = idx === 0 ? "white" : "black";
         eCtx.lineWidth = 2; eCtx.stroke();
 
@@ -158,7 +153,6 @@ function drawEditor() {
         else emoji = '🦠';
         eCtx.fillText(emoji, n.x, n.y);
     });
-
     eCtx.restore();
 }
 
@@ -168,5 +162,6 @@ function saveOrganism() {
     cx /= edNodes.length; cy /= edNodes.length;
 
     let payloadNodes = edNodes.map(n => ({ x: n.x - cx, y: n.y - cy, type: n.type }));
-    if(socket) socket.emit('saveBlueprint', { nodes: payloadNodes });
+    // NAPRAWA BŁĘDU: Używamy globalnego socketa
+    if(window.socket) window.socket.emit('saveBlueprint', { nodes: payloadNodes });
 }
