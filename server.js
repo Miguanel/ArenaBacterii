@@ -23,3 +23,9 @@ gameEngine.init(io);
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`🚀 Serwer nasłuchuje na porcie ${PORT}`));
+
+app.get('/api/graveyard', async (req, res) => {
+    const { getRecentGraves } = require('./db');
+    const graves = await getRecentGraves(20);
+    res.json(graves);
+});

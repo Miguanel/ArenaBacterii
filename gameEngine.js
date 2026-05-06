@@ -652,10 +652,16 @@ function updatePhysics(io) {
             recenterBlueprint(org);
         }
 
-        if(org.nodes.length === 0 || org.atp <= 0) {
+       if(org.nodes.length === 0 || org.atp <= 0) {
             if (!org.isNPC) {
-                console.log(`[DEBUG] Próba zapisu rankingu dla ${org.species} przed usunięciem.`);
+                const { buryOrganism, saveHighScore } = require('./db');
+
+                // Zapisujemy rekord życiowy (Top Scores)
                 saveHighScore(org.species, Math.floor(org.totalAtp), org.rankingBlueprint);
+
+                // Zapisujemy KAŻDĄ śmierć na cmentarz
+                buryOrganism(org.species, Math.floor(org.totalAtp), org.rankingBlueprint);
+
                 io.to(id).emit('gameOver');
             }
             delete organisms[id];

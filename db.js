@@ -48,5 +48,33 @@ async function getTopScores() {
         return [];
     }
 }
+// db.js - Dodaj nowy schemat i model
+const graveSchema = new Schema({
+    name: String,
+    score: Number,
+    blueprint: Schema.Types.Mixed,
+    causeOfDeath: String, // Opcjonalnie: np. 'virus', 'starvation', 'spike'
+    date: { type: Date, default: Date.now }
+});
 
-module.exports = { saveHighScore, getTopScores };
+const Grave = mongoose.model('Grave', graveSchema);
+
+// Funkcja zapisu na cmentarz (wywoływana przy każdej śmierci)
+async function buryOrganism(name, score, blueprint) {
+    if (!name || score <= 0) return;
+    try {
+        const deceased = new Grave({ name, score, blueprint });
+        await deceased.save();
+        console.log(`[Cmentarz] Pochowano: ${name}`);
+    } catch (err) {
+        console.error("❌ Błąd pochówku:", err);
+    }
+}
+
+// Pobieranie ostatnich zgonów
+async function getRecentGraves(limit = 10) {
+    return await Grave.find().sort({ date: -1 }).limit(limit);
+}
+
+// Pamiętaj o eksporcie!
+module.exports = { saveHighScore, getTopScores, buryOrganism, getRecentGraves };

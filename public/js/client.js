@@ -40,6 +40,27 @@ function joinGame() {
             document.getElementById('lbList').innerHTML = lbHTML;
         }
     });
+    // Definicja funkcji dostępnej z konsoli (F12)
+    window.ranking = function() {
+        console.log("📊 Pobieranie rankingu z bazy danych...");
+        if (socket) {
+            socket.emit('getRanking');
+        } else {
+            console.error("❌ Brak połączenia z serwerem.");
+        }
+    };
+
+    // Słuchacz odpowiedzi z serwera
+    socket.on('rankingList', (data) => {
+        console.clear();
+        console.log("%c🏆 TOP 10 EWOLUCJI 🏆", "color: #ffcc00; font-weight: bold; font-size: 16px;");
+        console.table(data.map((entry, index) => ({
+            Miejsce: index + 1,
+            Nazwa: entry.name,
+            Wynik: entry.score + " ATP",
+            Data: new Date(entry.date).toLocaleString()
+        })));
+    });
 }
 
 function closeMutationMenu() {

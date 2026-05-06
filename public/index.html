@@ -108,6 +108,17 @@
             }
             #loginScreen { justify-content: flex-start; padding-top: 20px; overflow-y: auto; }
         }
+
+        #graveyardModal {
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    background: rgba(20, 10, 10, 0.95); border: 2px solid #555;
+    padding: 20px; width: 80%; max-height: 80vh; overflow-y: auto;
+    z-index: 3000; display: none; color: #aaa;
+}
+.grave-card {
+    display: flex; align-items: center; background: #1a1a1a;
+    margin: 10px 0; padding: 10px; border-left: 5px solid #444;
+}
     </style>
 </head>
 <body>
@@ -770,6 +781,44 @@
 
         // Inicjalizacja rankingu przy załadowaniu pliku
         loadGlobalLeaderboard();
+
+
+    </script>
+    <script>
+
+        window.cmentarz = async function() {
+    const modal = document.getElementById('graveyardModal');
+    const list = document.getElementById('graveList');
+    modal.style.display = 'block';
+    list.innerHTML = "Wskrzeszanie wspomnień...";
+
+    try {
+        const res = await fetch('/api/graveyard');
+        const data = await res.json();
+        list.innerHTML = "";
+
+        data.forEach((grave, idx) => {
+            const card = document.createElement('div');
+            card.className = 'grave-card';
+            const canvasId = `grave-canvas-${idx}`;
+
+            card.innerHTML = `
+                <canvas id="${canvasId}" width="80" height="80" style="background:#000; border-radius:50%"></canvas>
+                <div style="margin-left: 20px;">
+                    <strong style="color: #fff;">${grave.name}</strong><br>
+                    Przetrwał do: ${grave.score} ATP<br>
+                    <small>${new Date(grave.date).toLocaleString()}</small>
+                </div>
+            `;
+            list.appendChild(card);
+
+            // Rysujemy zwłoki na małym canvasie (używamy Twojej funkcji drawMiniBlueprint)
+            setTimeout(() => drawMiniBlueprint(canvasId, grave.blueprint), 10);
+        });
+    } catch (e) {
+        list.innerHTML = "Cmentarz jest obecnie niedostępny.";
+    }
+};
     </script>
     <script src="js/editor.js"></script>
 </body>
