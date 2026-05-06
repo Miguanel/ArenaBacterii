@@ -1,5 +1,4 @@
-// client.js
-window.socket = null; // ZMIANA: socket jest teraz globalny
+window.socket = null;
 
 // Globalne zmienne stanu używane przez inne pliki
 window.myOwnerId = null;
@@ -16,8 +15,9 @@ window.isSpectator = false;
 window.cameraX = 1500;
 window.cameraY = 1500;
 
-const WORLD_WIDTH = 3000;
-const WORLD_HEIGHT = 3000;
+// NAPRAWA KONFLIKTU: Przypisujemy do window, aby uniknąć błędów redeklaracji
+window.WORLD_WIDTH = 3000;
+window.WORLD_HEIGHT = 3000;
 
 function joinGame() {
     const name = document.getElementById('strainName').value;
@@ -32,7 +32,13 @@ function joinGame() {
         document.getElementById('spectatorUI').style.display = 'none';
         document.getElementById('gameCanvas').classList.remove('spectator-cursor');
         window.isGameRunning = true;
-        requestAnimationFrame(draw);
+
+        // Zabezpieczenie przed crashem
+        if (typeof window.draw === 'function') {
+            requestAnimationFrame(window.draw);
+        } else {
+            console.error("Błąd: Funkcja rysująca 'draw' nie została załadowana!");
+        }
     });
 
     window.socket.on('gameOver', () => {
@@ -120,26 +126,98 @@ function closeMutationMenu() {
     if(window.socket) window.socket.emit('exitZone');
 }
 
+// STEROWANIE WOLNĄ KAMERĄ
+window.isFreeCamera = false;
 let isDragging = false;
+let isMinimapDragging = false;
 let lastMouseX = 0, lastMouseY = 0;
 
-window.addEventListener('mousedown', (e) => {
-    if (window.isSpectator) { isDragging = true; lastMouseX = e.clientX; lastMouseY = e.clientY; }
-});
-window.addEventListener('mouseup', () => isDragging = false);
+window.resetCamera = function() {
+    window.isFreeCamera = false;
+    const btn = document.getElementById('centerCamBtn');
+    if (btn) btn.style.display = 'none';
+};
 
-window.addEventListener('mousemove', (e) => {
-    if (window.socket && window.isGameRunning && !window.isSpectator) {
-        const canvas = document.getElementById('gameCanvas');
-        let rawX = e.clientX + window.cameraX - canvas.width/2;
-        let rawY = e.clientY + window.cameraY - canvas.height/2;
-        let normX = ((rawX % WORLD_WIDTH) + WORLD_WIDTH) % WORLD_WIDTH;
-        let normY = ((rawY % WORLD_HEIGHT) + WORLD_HEIGHT) % WORLD_HEIGHT;
-        window.socket.emit('chemotaxis', { targetX: normX, targetY: normY });
-    } else if (window.isSpectator && isDragging) {
-        let dx = e.clientX - lastMouseX;
-        let dy = e.clientY - lastMouseY;
-        window.cameraX -= dx; window.cameraY -= dy;
-        lastMouseX = e.clientX; lastMouseY = e.clientY;
+function handleMinimapInteraction(clientX, clientY) {
+    const mCanvas = document.getElementById('minimapCanvas');
+    if (!mCanvas) return;
+    const rect = mCanvas.getBoundingClientRect();
+    let mx = clientX - rect.left;
+    let my = clientY - rect.top;
+
+    mx = Math.max(0, Math.min(150, mx));
+    my = Math.max(0, Math.min(150, my));
+
+    window.cameraX = mx * (window.WORLD_WIDTH / 150);
+    window.cameraY = my * (window.WORLD_HEIGHT / 150);
+
+    window.isFreeCamera = true;
+    const btn = document.getElementById('centerCamBtn');
+    if(btn) btn.style.display = 'block';
+}
+
+function getInputPos(e) {
+    if(e.touches && e.touches.length > 0) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    return { x: e.clientX, y: e.clientY };
+}
+
+window.addEventListener('mousedown', (e) => {
+    if (e.target.id === 'minimapCanvas') {
+        isMinimapDragging = true;
+        handleMinimapInteraction(e.clientX, e.clientY);
+    } else if (e.target.id === 'gameCanvas' || window.isSpectator) {
+        isDragging = true;
+        lastMouseX = e.clientX;
+        lastMouseY = e.clientY;
     }
 });
+
+window.addEventListener('touchstart', (e) => {
+    const pos = getInputPos(e);
+    if (e.target.id === 'minimapCanvas') {
+        isMinimapDragging = true;
+        handleMinimapInteraction(pos.x, pos.y);
+    } else if (e.target.id === 'gameCanvas' || window.isSpectator) {
+        isDragging = true;
+        lastMouseX = pos.x;
+        lastMouseY = pos.y;
+    }
+}, {passive: false});
+
+window.addEventListener('mouseup', () => { isDragging = false; isMinimapDragging = false; });
+window.addEventListener('touchend', () => { isDragging = false; isMinimapDragging = false; });
+
+function handleMove(clientX, clientY) {
+    if (isMinimapDragging) {
+        handleMinimapInteraction(clientX, clientY);
+    } else if (isDragging) {
+        let dx = clientX - lastMouseX;
+        let dy = clientY - lastMouseY;
+        window.cameraX -= dx;
+        window.cameraY -= dy;
+        lastMouseX = clientX;
+        lastMouseY = clientY;
+
+        if (!window.isSpectator) {
+            window.isFreeCamera = true;
+            const btn = document.getElementById('centerCamBtn');
+            if(btn) btn.style.display = 'block';
+        }
+    }
+
+    if (window.socket && window.isGameRunning && !window.isSpectator) {
+        const canvas = document.getElementById('gameCanvas');
+        let rawX = clientX + window.cameraX - canvas.width/2;
+        let rawY = clientY + window.cameraY - canvas.height/2;
+        let normX = ((rawX % window.WORLD_WIDTH) + window.WORLD_WIDTH) % window.WORLD_WIDTH;
+        let normY = ((rawY % window.WORLD_HEIGHT) + window.WORLD_HEIGHT) % window.WORLD_HEIGHT;
+        window.socket.emit('chemotaxis', { targetX: normX, targetY: normY });
+    }
+}
+
+window.addEventListener('mousemove', (e) => { handleMove(e.clientX, e.clientY); });
+window.addEventListener('touchmove', (e) => {
+    if(isDragging || isMinimapDragging) e.preventDefault();
+    const pos = getInputPos(e);
+    handleMove(pos.x, pos.y);
+}, {passive: false});

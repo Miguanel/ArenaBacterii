@@ -1,4 +1,3 @@
-// renderer.js
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const mCanvas = document.getElementById('minimapCanvas');
@@ -8,7 +7,6 @@ function resize() { canvas.width = window.innerWidth; canvas.height = window.inn
 window.addEventListener('resize', resize);
 resize();
 
-// Funkcje pomocnicze
 function getConvexHull(points) {
     if (points.length < 3) return points;
     points.sort((a, b) => a.x !== b.x ? a.x - b.x : a.y - b.y);
@@ -27,34 +25,33 @@ function getConvexHull(points) {
     return lower.concat(upper);
 }
 
-const WORLD_WIDTH = 3000;
-const WORLD_HEIGHT = 3000;
+const MAX_HP_MAP = { base: 100, thruster: 80, storage: 120, shooter: 100, armor: 300, harvester: 100, generator: 80, chloroplast: 80, filter: 100, spike: 150, flesh: 50, sensor: 80 };
 
 function getRelPos(objX, objY, camX, camY) {
     let dx = objX - camX;
     let dy = objY - camY;
-    if (dx < -WORLD_WIDTH / 2) dx += WORLD_WIDTH;
-    if (dx > WORLD_WIDTH / 2) dx -= WORLD_WIDTH;
-    if (dy < -WORLD_HEIGHT / 2) dy += WORLD_HEIGHT;
-    if (dy > WORLD_HEIGHT / 2) dy -= WORLD_HEIGHT;
+    if (dx < -window.WORLD_WIDTH / 2) dx += window.WORLD_WIDTH;
+    if (dx > window.WORLD_WIDTH / 2) dx -= window.WORLD_WIDTH;
+    if (dy < -window.WORLD_HEIGHT / 2) dy += window.WORLD_HEIGHT;
+    if (dy > window.WORLD_HEIGHT / 2) dy -= window.WORLD_HEIGHT;
     return { x: canvas.width/2 + dx, y: canvas.height/2 + dy };
 }
 
-const MAX_HP_MAP = { base: 100, thruster: 80, storage: 120, shooter: 100, armor: 300, harvester: 100, generator: 80, chloroplast: 80, filter: 100, spike: 150, flesh: 50, sensor: 80 };
-
-function draw() {
+window.draw = function() {
     if(!window.isGameRunning) return;
 
     ctx.fillStyle = "#050510";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     let myOrg = window.gameState[window.myOwnerId];
-    if (myOrg && !window.isSpectator) {
+    if (myOrg && !window.isSpectator && !window.isFreeCamera) {
         window.cameraX += (myOrg.x - window.cameraX) * 0.1;
         window.cameraY += (myOrg.y - window.cameraY) * 0.1;
     }
 
-    // Tło Siatki
+    ctx.save();
+    ctx.translate(-window.cameraX, -window.cameraY);
+
     let gridSize = 200;
     let offX = (window.cameraX % gridSize);
     let offY = (window.cameraY % gridSize);
@@ -71,7 +68,6 @@ function draw() {
         ctx.beginPath(); ctx.moveTo(0, drawY); ctx.lineTo(canvas.width, drawY); ctx.stroke();
     }
 
-    // Rysowanie zjawisk pogodowych
     [...(window.mapZonesState.dense || []), ...(window.mapZonesState.toxic || []), ...(window.mapZonesState.sunbeams || [])].forEach(z => {
         let pos = getRelPos(z.x, z.y, window.cameraX, window.cameraY);
         if (pos.x > -500 && pos.x < canvas.width+500 && pos.y > -500 && pos.y < canvas.height+500) {
@@ -131,7 +127,6 @@ function draw() {
         ctx.beginPath(); ctx.arc(pos.x, pos.y, m.radius, 0, Math.PI*2); ctx.fill(); ctx.stroke();
     });
 
-    // NAPRAWA BŁĘDU RYSOWANIA ORGANIZMÓW
     for (let id in window.gameState) {
         let org = window.gameState[id];
         if (!org.nodes || org.nodes.length === 0) continue;
@@ -144,10 +139,10 @@ function draw() {
         let screenNodes = org.nodes.map(n => {
             let dx = n.x - anchor.x;
             let dy = n.y - anchor.y;
-            if (dx < -WORLD_WIDTH / 2) dx += WORLD_WIDTH;
-            if (dx > WORLD_WIDTH / 2) dx -= WORLD_WIDTH;
-            if (dy < -WORLD_HEIGHT / 2) dy += WORLD_HEIGHT;
-            if (dy > WORLD_HEIGHT / 2) dy -= WORLD_HEIGHT;
+            if (dx < -window.WORLD_WIDTH / 2) dx += window.WORLD_WIDTH;
+            if (dx > window.WORLD_WIDTH / 2) dx -= window.WORLD_WIDTH;
+            if (dy < -window.WORLD_HEIGHT / 2) dy += window.WORLD_HEIGHT;
+            if (dy > window.WORLD_HEIGHT / 2) dy -= window.WORLD_HEIGHT;
             return { ...n, sx: anchorScreen.x + dx, sy: anchorScreen.y + dy };
         });
 
@@ -223,10 +218,10 @@ function draw() {
             ctx.fillRect(pos.x - 20, pos.y - 30, Math.min((org.atp / 200) * 40, 40), 6);
         }
     }
+    ctx.restore();
 
-    // MINIMAPA
     mCtx.fillStyle = "black"; mCtx.fillRect(0, 0, 150, 150);
-    const scale = 150 / WORLD_WIDTH;
+    const scale = 150 / window.WORLD_WIDTH;
 
     if (window.mapZonesState.toxic) {
         window.mapZonesState.toxic.forEach(z => { mCtx.fillStyle = "rgba(0, 255, 50, 0.3)"; mCtx.beginPath(); mCtx.arc(z.x * scale, z.y * scale, z.r * scale, 0, Math.PI*2); mCtx.fill(); });
@@ -251,5 +246,5 @@ function draw() {
     let mmCamY = window.cameraY * scale;
     mCtx.strokeRect(mmCamX - (canvas.width*scale)/2, mmCamY - (canvas.height*scale)/2, canvas.width * scale, canvas.height * scale);
 
-    requestAnimationFrame(draw);
+    requestAnimationFrame(window.draw);
 }
