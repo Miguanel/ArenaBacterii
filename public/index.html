@@ -7,7 +7,6 @@
         body { background: #050510; color: #16ff00; font-family: monospace; margin: 0; overflow: hidden; }
         canvas { display: block; position: absolute; top: 0; left: 0; cursor: crosshair; }
 
-        /* Zmieniamy kursor w trybie obserwatora na 'łapkę' */
         .spectator-cursor { cursor: grab !important; }
         .spectator-cursor:active { cursor: grabbing !important; }
 
@@ -24,7 +23,6 @@
         #stats { padding: 15px; font-size: 16px; background: rgba(0,0,0,0.5); display: inline-block; }
         #leaderboard { position: absolute; top: 20px; right: 190px; background: rgba(0,0,0,0.7); padding: 15px; border: 1px solid #9600ff; min-width: 150px; }
 
-        /* PANEL OBSERWATORA (PO ŚMIERCI) */
         #spectatorUI { position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); background: rgba(50, 0, 0, 0.8); border: 2px solid red; padding: 20px; text-align: center; display: none; z-index: 2000; pointer-events: auto; }
         #spectatorUI h2 { margin: 0 0 10px 0; color: red; text-transform: uppercase; }
         #spectatorUI p { margin: 0 0 15px 0; color: #fff; font-size: 14px; }
@@ -44,39 +42,18 @@
         #cellTooltip { position: fixed; background: rgba(10,10,26,0.95); border: 1px solid #16ff00; color: #ddd; padding: 12px; border-radius: 5px; width: 260px; font-size: 12px; pointer-events: none; display: none; z-index: 2000; text-align: left; line-height: 1.5; box-shadow: 2px 2px 10px rgba(0,0,0,0.8); }
         #cellTooltip h3 { margin: 0 0 5px 0; font-size: 14px; text-transform: uppercase; }
 
-        /* --- GLOBALNY RANKING --- */
         #globalLeaderboard {
-            background: rgba(10, 10, 26, 0.9);
-            border: 1px solid #ffcc00;
-            padding: 15px;
-            border-radius: 8px;
-            width: 320px;
-
-            /* Pozycjonowanie na samej górze po lewej */
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            transform: none;
-
-            /* Obsługa przewijania (Scrollbar) */
-            max-height: calc(100vh - 40px);
-            overflow-y: auto;
-
-            box-shadow: 0 0 15px rgba(255, 204, 0, 0.2);
-            z-index: 1001;
+            background: rgba(10, 10, 26, 0.9); border: 1px solid #ffcc00; padding: 15px; border-radius: 8px; width: 320px;
+            position: absolute; top: 20px; left: 20px; transform: none; max-height: calc(100vh - 40px); overflow-y: auto;
+            box-shadow: 0 0 15px rgba(255, 204, 0, 0.2); z-index: 1001;
         }
         #globalLeaderboard h3 { color: #ffcc00; text-align: center; margin-top: 0; }
-
-        /* Stylizacja scrollbara */
         #globalLeaderboard::-webkit-scrollbar { width: 8px; }
         #globalLeaderboard::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.5); border-radius: 4px; }
         #globalLeaderboard::-webkit-scrollbar-thumb { background: #ffcc00; border-radius: 4px; }
         #globalLeaderboard::-webkit-scrollbar-thumb:hover { background: #16ff00; }
 
-        .lb-entry {
-            display: flex; align-items: center; justify-content: space-between;
-            border-bottom: 1px dashed #444; padding: 10px 0;
-        }
+        .lb-entry { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px dashed #444; padding: 10px 0; }
         .lb-entry:last-child { border-bottom: none; }
         .lb-rank { font-weight: bold; font-size: 1.2em; color: #fff; width: 30px;}
         .lb-canvas { background: #000; border: 1px solid #333; border-radius: 50%; }
@@ -84,83 +61,32 @@
         .lb-name { color: #16ff00; font-weight: bold; font-size: 14px; }
         .lb-score { color: #ffcc00; font-size: 12px; }
 
-        canvas.lb-canvas {
-            position: static !important;  /* Zabrania uciekania z wiersza na róg ekranu */
-            width: 60px !important;       /* Wymusza dokładny rozmiar */
-            height: 60px !important;
-            display: block !important;
-            background: #050510 !important;
-            border: 1px solid #444 !important;
-            border-radius: 50% !important;
-            margin: 0 15px !important;
-            box-shadow: 0 0 10px rgba(0, 255, 0, 0.1); /* Lekki zielony blask */
-            transform: none !important;
-        }
+        canvas.lb-canvas { position: static !important; width: 60px !important; height: 60px !important; display: block !important; background: #050510 !important; border: 1px solid #444 !important; border-radius: 50% !important; margin: 0 15px !important; box-shadow: 0 0 10px rgba(0, 255, 0, 0.1); transform: none !important; }
 
-        @media (max-width: 900px) {
-            #globalLeaderboard {
-                position: relative;
-                left: auto;
-                top: auto;
-                transform: none;
-                margin: 20px auto;
-                width: 90%;
-            }
-            #loginScreen { justify-content: flex-start; padding-top: 20px; overflow-y: auto; }
-        }
-
-        #graveyardModal {
-    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    background: rgba(20, 10, 10, 0.95); border: 2px solid #555;
-    padding: 20px; width: 80%; max-height: 80vh; overflow-y: auto;
-    z-index: 3000; display: none; color: #aaa;
-}
-.grave-card {
-    display: flex; align-items: center; background: #1a1a1a;
-    margin: 10px 0; padding: 10px; border-left: 5px solid #444;
-}
-
-body { background: #050510; color: #16ff00; font-family: monospace; margin: 0; overflow: hidden; }
-        canvas { display: block; position: absolute; top: 0; left: 0; cursor: crosshair; }
-
-        .spectator-cursor { cursor: grab !important; }
-        .spectator-cursor:active { cursor: grabbing !important; }
-
-        #loginScreen { position:absolute; top:0; left:0; width:100vw; height:100vh; background:rgba(5,5,16,0.95); z-index:1000; display:flex; flex-direction:column; justify-content:center; align-items:center; }
-        input, button { font-family: monospace; font-size: 16px; padding: 10px; margin: 5px; background: #1a1a2e; color: #16ff00; border: 1px solid #16ff00; cursor:pointer; }
-        button:hover { background: #16ff00; color: #1a1a2e; }
-
-        #gameUI { position: absolute; width: 100%; top: 0; left: 0; pointer-events: none; z-index: 10; }
-        #stats { padding: 15px; font-size: 16px; background: rgba(0,0,0,0.5); display: inline-block; }
-
-        /* Naprawa klikalności przycisków wewnątrz gameUI */
+        /* NOWE STYLE DLA MODALI I MENU */
         #topNav, .nav-btn, .game-modal { pointer-events: auto !important; }
 
-        #topNav {
-            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
-            display: flex; gap: 10px; z-index: 20;
-        }
-
-        .nav-btn {
-            background: rgba(26, 26, 46, 0.8); color: #16ff00; border: 1px solid #16ff00;
-            padding: 8px 15px; cursor: pointer;
-        }
+        #topNav { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 20; }
+        .nav-btn { background: rgba(26, 26, 46, 0.8); color: #16ff00; border: 1px solid #16ff00; padding: 8px 15px; font-family: monospace; cursor: pointer; font-size: 14px; }
+        .nav-btn:hover { background: #16ff00; color: black; }
 
         .game-modal {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: rgba(10, 10, 26, 0.98); border: 2px solid #16ff00;
-            padding: 20px; width: 80%; max-width: 600px; max-height: 80vh;
-            overflow-y: auto; z-index: 3000; display: none;
-            box-shadow: 0 0 30px rgba(0, 255, 0, 0.4);
+            background: rgba(10, 10, 26, 0.95); border: 2px solid #16ff00; padding: 20px;
+            width: 80%; max-width: 600px; max-height: 80vh; overflow-y: auto;
+            z-index: 2500; display: none; box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
         }
 
-        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #16ff00; margin-bottom: 15px; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #16ff00; margin-bottom: 15px; padding-bottom: 10px; }
+        .modal-close-btn { background: #ff4444; color: white; border: none; padding: 5px 15px; cursor: pointer; }
 
-        #graveyardModal { background: rgba(20, 10, 10, 0.98); border-color: #555; }
+        #graveyardModal { background: rgba(20, 10, 10, 0.95); border: 2px solid #555; }
         .grave-card { display: flex; align-items: center; background: #1a1a1a; margin: 10px 0; padding: 10px; border-left: 5px solid #444; }
 
-        #mutationMenu { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); background: #1a1a2e; border: 2px dashed yellow; padding: 15px; display: none; z-index: 100; pointer-events: auto; width: 850px; text-align: center;}
-        #editorCanvas { position: relative; border: 1px solid #444; background: #0a0a1a; cursor: crosshair; margin: 5px auto; width: 600px; height: 350px; display: block;}
+        @media (max-width: 900px) {
+            #globalLeaderboard { position: relative; left: auto; top: auto; transform: none; margin: 20px auto; width: 90%; }
+            #loginScreen { justify-content: flex-start; padding-top: 20px; overflow-y: auto; }
+        }
     </style>
 </head>
 <body>
@@ -170,9 +96,20 @@ body { background: #050510; color: #16ff00; font-family: monospace; margin: 0; o
 <!-- EKRAN LOGOWANIA -->
 <div id="loginScreen">
     <h1>🔬 B A K T E R I O F A G O C Y T Y</h1>
+    <div class="intro-box">
+        <h3>Witaj w probówce!</h3>
+        <p>Zbuduj swój unikalny organizm i przetrwaj w brutalnym środowisku pełnym różnorodnych form życia i rywalizujących gatunków.</p>
+        <ul>
+            <li>🔵 <b>Zasoby:</b> Zbieraj niebieską glukozę (energia do ewolucji) oraz fioletowe minerały (surowiec dla wieżyczek strzelniczych).</li>
+            <li>🧬 <b>Edytor DNA:</b> Wpłyń do <b>żółtej strefy</b> (bunkra) na środku mapy, aby bezpiecznie modyfikować swoje komórki.</li>
+            <li>👾 <b>Różnorodne Gatunki:</b> Obserwuj i wchodź w interakcje z innymi organizmami (NPC).</li>
+            <li>🦠 <b>Wirusy i Mutacje:</b> Uważaj na fioletowe wirusy! Zamontuj komórkę <b>Detoksu (Lysosom)</b>, by zyskać odporność na infekcje i toksyczne chmury.</li>
+            <li>☠️ <b>Makrofagi:</b> Unikaj wielkich, półprzezroczystych "czyścicieli".</li>
+        </ul>
+    </div>
     <div style="display: flex; align-items: center; gap: 10px;">
         <input type="text" id="strainName" value="Szczep-Alfa" maxlength="15">
-        <button onclick="joinGame()">ZAINFEKUJ</button>
+        <button onclick="joinGame()" style="font-size: 18px; font-weight: bold; padding: 10px 20px;">ZAINFEKUJ</button>
     </div>
     <div id="globalLeaderboard">
         <h3>🏆 HALL OF FAME 🏆</h3>
@@ -184,887 +121,28 @@ body { background: #050510; color: #16ff00; font-family: monospace; margin: 0; o
 <div id="gameUI">
     <div id="stats">ATP: <span id="atpDisplay">0</span> | Szczep: <span id="idDisplay">Brak</span></div>
 
+    <!-- Nawigacja na górze mapy -->
     <div id="topNav">
         <button class="nav-btn" onclick="openModal('playersModal')">👥 GRACZE</button>
         <button class="nav-btn" onclick="openModal('mapLegendModal')">🗺️ LEGENDA</button>
         <button class="nav-btn" onclick="window.cmentarz()">🪦 HISTORIA (CMENTARZ)</button>
     </div>
 
-    <canvas id="minimapCanvas" width="150" height="150" style="position: absolute; top: 20px; right: 20px; border: 2px solid #16ff00; background: black;"></canvas>
+    <!-- Skrócony leaderboard po prawej -->
+    <div id="leaderboard"><b>🏆 TOP 3</b><div id="lbList"></div></div>
+
+    <canvas id="minimapCanvas" width="150" height="150" style="position: absolute; top: 20px; right: 20px; border: 2px solid #16ff00; z-index: 11; background: black; pointer-events: auto;"></canvas>
 </div>
 
-<!-- MODAL: LISTA GRACZY -->
-<div id="playersModal" class="game-modal">
-    <div class="modal-header">
-        <h2>👥 AKTUALNE SZCZEPY</h2>
-        <button onclick="closeModal('playersModal')">X</button>
-    </div>
-    <div id="currentPlayersList">Brak aktywnych graczy.</div>
-</div>
-
-<!-- MODAL: LEGENDA -->
-<div id="mapLegendModal" class="game-modal">
-    <div class="modal-header">
-        <h2>🗺️ INFORMACJE O ŚRODOWISKU</h2>
-        <button onclick="closeModal('mapLegendModal')">X</button>
-    </div>
-    <div style="color: #ccc; line-height: 1.6;">
-        <p><span style="color: yellow;">● Żółta Strefa:</span> Bunkier / Edytor DNA. Tu jesteś bezpieczny.</p>
-        <p><span style="color: #00ff32;">● Zielone Chmury:</span> Toksyny. Wymagają komórki Detoksu.</p>
-        <p><span style="color: #ffff64;">● Jasne Promienie:</span> Słońce. Chloroplasty generują tu ATP.</p>
-        <p><span style="color: #005096;">● Ciemne Obszary:</span> Gęsta woda. Spowolniony ruch.</p>
-    </div>
-</div>
-
-<!-- MODAL: CMENTARZ -->
-<div id="graveyardModal" class="game-modal">
-    <div class="modal-header">
-        <h2 style="color: #888;">🪦 CMENTARZ ZAPOMNIANYCH SZCZEPÓW</h2>
-        <button onclick="closeModal('graveyardModal')">X</button>
-    </div>
-    <div id="graveList">Wczytywanie historii...</div>
-</div>
-
-<canvas id="gameCanvas"></canvas>
-
-<!-- SKRYPTY -->
-<script src="/socket.io/socket.io.js"></script>
-<script>
-    // 1. OBSŁUGA MODALI
-    function openModal(id) { document.getElementById(id).style.display = 'block'; }
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
-    // 2. LOGIKA CMENTARZA
-    window.cmentarz = async function() {
-        openModal('graveyardModal');
-        const list = document.getElementById('graveList');
-        list.innerHTML = "Wskrzeszanie wspomnień...";
-        try {
-            const res = await fetch('/api/graveyard');
-            const data = await res.json();
-            list.innerHTML = "";
-            data.forEach((grave, idx) => {
-                const card = document.createElement('div');
-                card.className = 'grave-card';
-                const canvasId = `grave-canvas-${idx}`;
-                card.innerHTML = `
-                    <canvas id="${canvasId}" width="80" height="80" style="background:#000; border-radius:50%"></canvas>
-                    <div style="margin-left: 20px;">
-                        <strong style="color: #fff;">${grave.name}</strong><br>
-                        Przetrwał do: ${grave.score} ATP<br>
-                        <small>${new Date(grave.date).toLocaleString()}</small>
-                    </div>`;
-                list.appendChild(card);
-                setTimeout(() => window.drawMiniBlueprint && window.drawMiniBlueprint(canvasId, grave.blueprint), 50);
-            });
-        } catch (e) { list.innerHTML = "Cmentarz niedostępny."; }
-    };
-
-    // 3. TUTAJ WKLEJ SWOJE FUNKCJE: joinGame(), draw(), etc.
-    // ...
-</script>
-<script>
-        // FUNKCJE POMOCNICZE UI
-        function openModal(id) { document.getElementById(id).style.display = 'block'; }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
-        // LOGIKA CMENTARZA
-        window.cmentarz = async function() {
-            openModal('graveyardModal');
-            const list = document.getElementById('graveList');
-            list.innerHTML = "Wskrzeszanie wspomnień...";
-            try {
-                const res = await fetch('/api/graveyard');
-                const data = await res.json();
-                list.innerHTML = "";
-                data.forEach((grave, idx) => {
-                    const card = document.createElement('div');
-                    card.className = 'grave-card';
-                    const canvasId = `grave-canvas-${idx}`;
-                    card.innerHTML = `
-                        <canvas id="${canvasId}" width="80" height="80" style="background:#000; border-radius:50%"></canvas>
-                        <div style="margin-left: 20px;">
-                            <strong style="color: #fff;">${grave.name}</strong><br>
-                            Przetrwał do: ${grave.score} ATP<br>
-                            <small>${new Date(grave.date).toLocaleString()}</small>
-                        </div>`;
-                    list.appendChild(card);
-                    setTimeout(() => drawMiniBlueprint(canvasId, grave.blueprint), 10);
-                });
-            } catch (e) { list.innerHTML = "Cmentarz niedostępny."; }
-        };
-
-        // RESZTA TWOJEGO KODU JS (joinGame, draw, etc.)
-        // ...
-
-</script>
-<script src="js/editor.js"></script>
-
-<script>
-        // Funkcje obsługi modali (dodaj je tutaj)
-        function openModal(id) { document.getElementById(id).style.display = 'block'; }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
-        // Funkcja updatePlayersModal (z poprzedniej instrukcji) musi być tutaj
-
-
-</script>
-
-
-
-<div id="mutationMenu">
-    <h2 style="color:yellow; margin-top:0; margin-bottom: 10px;">🧬 EDYTOR DNA</h2>
-
-    <div style="display: flex; justify-content: center; gap: 20px; font-size: 16px; font-weight: bold; margin-bottom: 15px;">
-        <div style="color: #16ff00; border: 1px dashed #16ff00; padding: 8px 20px; background: rgba(22, 255, 0, 0.1);">
-            💼 TWOJE ATP: <span id="editorCurrentAtp">0</span>
-        </div>
-        <div id="costContainer"
-             style="color: #ffaa00; border: 1px dashed #ffaa00; padding: 8px 20px; background: rgba(255, 170, 0, 0.1);">
-            📉 KOSZT ZMIAN: <span id="blueprintCost">0</span>
-        </div>
-    </div>
-
-    <div id="editorStatsBox">
-        🚀 Zwinność: <span id="statSpeed">0</span> | 🛡️ Masa: <span id="statMass">0</span> | 🔫 Broń: <span
-            id="statFire">0</span> | 🛢️ Magazyn: <span id="statStorage">0</span>
-    </div>
-    <div class="tools">
-        <div class="tool-wrapper" style="border-color: #16ff00;">
-            <button class="tool-btn tool-active" id="tool_base" onclick="setTool('base')" style="color:#16ff00;">🟢
-                Rdzeń (+100)
-            </button>
-            <div class="info-btn" onmousemove="showTip(event, 'base')" onmouseleave="hideTip()">?</div>
-        </div>
-        <div class="tool-wrapper" style="border-color: orange;">
-            <button class="tool-btn" id="tool_thruster" onclick="setTool('thruster')" style="color:orange;">🟠 Napęd
-                (+150)
-            </button>
-            <div class="info-btn" onmousemove="showTip(event, 'thruster')" onmouseleave="hideTip()">?</div>
-        </div>
-        <div class="tool-wrapper" style="border-color: #888888;">
-            <button class="tool-btn" id="tool_armor" onclick="setTool('armor')" style="color:#888888;">🛡️ Pancerz
-                (+50)
-            </button>
-            <div class="info-btn" onmousemove="showTip(event, 'armor')" onmouseleave="hideTip()">?</div>
-        </div>
-        <div class="tool-wrapper" style="border-color: #ff00aa;">
-            <button class="tool-btn" id="tool_harvester" onclick="setTool('harvester')" style="color:#ff00aa;">🧲 Macek
-                (+150)
-            </button>
-            <div class="info-btn" onmousemove="showTip(event, 'harvester')" onmouseleave="hideTip()">?</div>
-        </div>
-        <div class="tool-wrapper" style="border-color: #ffcc00;">
-            <button class="tool-btn" id="tool_storage" onclick="setTool('storage')" style="color:#ffcc00;">🛢️ Magazyn
-                (+200)
-            </button>
-            <div class="info-btn" onmousemove="showTip(event, 'storage')" onmouseleave="hideTip()">?</div>
-        </div>
-        <div class="tool-wrapper" style="border-color: cyan;">
-            <button class="tool-btn" id="tool_shooter" onclick="setTool('shooter')" style="color:cyan;">🔵 Wieża
-                (+250)
-            </button>
-            <div class="info-btn" onmousemove="showTip(event, 'shooter')" onmouseleave="hideTip()">?</div>
-        </div>
-        <div class="tool-wrapper" style="border-color: #aaff00;">
-            <button class="tool-btn" id="tool_generator" onclick="setTool('generator')" style="color:#aaff00;">🔋
-                Reaktor (+300)
-            </button>
-            <div class="info-btn" onmousemove="showTip(event, 'generator')" onmouseleave="hideTip()">?</div>
-        </div>
-        <div class="tool-wrapper" style="border-color: #228B22;">
-            <button class="tool-btn" id="tool_chloroplast" onclick="setTool('chloroplast')" style="color:#228B22;">🌱
-                Flora (+150)
-            </button>
-            <div class="info-btn" onmousemove="showTip(event, 'chloroplast')" onmouseleave="hideTip()">?</div>
-        </div>
-        <div class="tool-wrapper" style="border-color: #FFFFFF;">
-            <button class="tool-btn" id="tool_filter" onclick="setTool('filter')" style="color:#FFFFFF;">🧼 Detoks
-                (+200)
-            </button>
-            <div class="info-btn" onmousemove="showTip(event, 'filter')" onmouseleave="hideTip()">?</div>
-        </div>
-        <div class="tool-wrapper" style="border-color: #AAAAAA;">
-            <button class="tool-btn" id="tool_spike" onclick="setTool('spike')" style="color:#AAAAAA;">🗡️ Kolec
-                (+250)
-            </button>
-            <div class="info-btn" onmousemove="showTip(event, 'spike')" onmouseleave="hideTip()">?</div>
-        </div>
-        <div class="tool-wrapper" style="border-color: #ff6666;">
-            <button class="tool-btn" id="tool_flesh" onclick="setTool('flesh')" style="color:#ff6666;">🥩 Tkanka (+50)
-            </button>
-            <div class="info-btn" onmousemove="showTip(event, 'flesh')" onmouseleave="hideTip()">?</div>
-        </div>
-        <div class="tool-wrapper" style="border-color: #66ccff;">
-            <button class="tool-btn" id="tool_sensor" onclick="setTool('sensor')" style="color:#66ccff;">📡 Radar
-                (+150)
-            </button>
-            <div class="info-btn" onmousemove="showTip(event, 'sensor')" onmouseleave="hideTip()">?</div>
-        </div>
-        <div class="tool-wrapper" style="border-color: #d400ff; margin-left: 10px;">
-            <button class="tool-btn" id="tool_move" onclick="setTool('move')" style="color:#d400ff;">✋ Przesuń</button>
-            <div class="info-btn" onmousemove="showTip(event, 'move')" onmouseleave="hideTip()">?</div>
-        </div>
-        <div class="tool-wrapper" style="border-color: red;">
-            <button class="tool-btn" id="tool_delete" onclick="setTool('delete')" style="color:red;">❌ Usuń</button>
-            <div class="info-btn" onmousemove="showTip(event, 'delete')" onmouseleave="hideTip()">?</div>
-        </div>
-    </div>
-    <canvas id="editorCanvas" width="600" height="350"></canvas>
-    <p style="font-size:11px; color:#aaa; margin: 3px;">Kółko Myszki = Zoom | Prawy Przycisk = Przesuń Kamere</p>
-    <div style="display:flex; justify-content:space-between; margin-top: 10px;">
-        <button onclick="loadEditor()" style="background: red; color: white;">Cofnij Zmiany</button>
-        <button onclick="saveOrganism()" style="background: #16ff00; color: black; font-weight:bold;">ZAPISZ I WYPŁYŃ
-        </button>
-    </div>
-</div>
-
-
-
-<script src="/socket.io/socket.io.js"></script>
-<script>
-        const tooltipsText = {
-            'base': "<h3 style='color:#16ff00;'>🟢 Rdzeń (Zwykła)</h3><b>HP: 100</b><br>Podstawa. Wytwarza 0.5 siły ciągu (awaryjny napęd) i magazynuje do 2 sztuk minerałów.",
-            'thruster': "<h3 style='color:orange;'>🟠 Napęd (Silnik)</h3><b>HP: 80</b><br>Potężny silnik. Generuje aż 3.0 siły ciągu! Konieczny do sprawnego poruszania.",
-            'armor': "<h3 style='color:#888888;'>🛡️ Pancerz</h3><b>HP: 300</b><br>Twardy blok obronny. Redukuje obrażenia od pocisków.",
-            'harvester': "<h3 style='color:#ff00aa;'>🧲 Macek Zbierający</h3><b>HP: 100</b><br>Zasysa glukozę i minerały z dużej odległości.",
-            'storage': "<h3 style='color:#ffcc00;'>🛢️ Magazyn Minerałów</h3><b>HP: 120</b><br>Przechowuje do 20 minerałów.",
-            'shooter': "<h3 style='color:cyan;'>🔵 Wieża Strzelnicza</h3><b>HP: 100</b><br>Automatycznie strzela we wrogów. Wymaga 5 ATP i 1 Minerału.",
-            'generator': "<h3 style='color:#aaff00;'>🔋 Reaktor Jądrowy</h3><b>HP: 80</b><br>Pasywnie generuje darmowe ATP.",
-            'chloroplast': "<h3 style='color:#228B22;'>🌱 Flora (Chloroplast)</h3><b>HP: 80</b><br>Produkuje ATP, ale tylko w słońcu.",
-            'filter': "<h3 style='color:#FFFFFF;'>🧼 Detoks (Lysosom)</h3><b>HP: 100</b><br>Daje odporność na truciznę i wirusy.",
-            'spike': "<h3 style='color:#AAAAAA;'>🗡️ Kolec</h3><b>HP: 150</b><br>Mocno rani i odpycha wrogów w zwarciu.",
-            'flesh': "<h3 style='color:#ff6666;'>🥩 Tkanka Odżywcza</h3><b>HP: 50</b><br>Po śmierci wyrzuca dużo jedzenia.",
-            'sensor': "<h3 style='color:#66ccff;'>📡 Sensor Zmysłowy</h3><b>HP: 80</b><br>Wydłuża zasięg wzroku.",
-            'move': "<h3 style='color:#d400ff;'>✋ Przesuń Narząd</h3>Złap i przeciągnij.",
-            'delete': "<h3 style='color:red;'>❌ Usuń</h3>Trwale usuwa komórkę."
-        };
-        const MAX_HP_MAP = { base: 100, thruster: 80, storage: 120, shooter: 100, armor: 300, harvester: 100, generator: 80, chloroplast: 80, filter: 100, spike: 150, flesh: 50, sensor: 80 };
-
-        function showTip(e, type) {
-            const tip = document.getElementById('cellTooltip');
-            tip.innerHTML = tooltipsText[type];
-            tip.style.display = 'block';
-            tip.style.left = (e.clientX + 15) + 'px';
-            tip.style.top = (e.clientY + 15) + 'px';
-        }
-        function hideTip() { document.getElementById('cellTooltip').style.display = 'none'; }
-
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const mCanvas = document.getElementById('minimapCanvas');
-        const mCtx = mCanvas.getContext('2d');
-
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        let socket;
-        let myOwnerId = null;
-        let gameState = {};
-        let foodState = [];
-        let mineralState = [];
-        let mapZonesState = { sunbeams: [], toxic: [], dense: [] };
-        let virusState = [];
-        let predatorState = [];
-        let playerPhageState = [];
-        let bunkerState = null;
-        let isGameRunning = false;
-
-        let isSpectator = false;
-
-        // ZMIENNE DLA DRAG & DROP KAMERY
-        let isDragging = false;
-        let lastMouseX = 0;
-        let lastMouseY = 0;
-        let spectatorKeys = { w: false, a: false, s: false, d: false, ArrowUp: false, ArrowLeft: false, ArrowDown: false, ArrowRight: false };
-
-        const WORLD_WIDTH = 3000;
-        const WORLD_HEIGHT = 3000;
-
-        function joinGame() {
-            const name = document.getElementById('strainName').value;
-            document.getElementById('loginScreen').style.display = 'none';
-            socket = io({ auth: { playerName: name } });
-
-            socket.on('spawn', (data) => {
-                myOwnerId = data.ownerId;
-                document.getElementById('idDisplay').innerText = data.species;
-                myCamX = 1500; myCamY = 800; // Start w bunkrze
-
-                isSpectator = false;
-                document.getElementById('spectatorUI').style.display = 'none';
-                canvas.classList.remove('spectator-cursor');
-
-                isGameRunning = true;
-                requestAnimationFrame(draw);
-            });
-
-            socket.on('gameOver', () => {
-                isSpectator = true;
-                document.getElementById('spectatorUI').style.display = 'block';
-                document.getElementById('atpDisplay').innerText = "MARTWY";
-                canvas.classList.add('spectator-cursor');
-            });
-
-            socket.on('enterMutationZone', () => { document.getElementById('mutationMenu').style.display = 'block'; loadEditor(); });
-            socket.on('blueprintSaved', () => { document.getElementById('mutationMenu').style.display = 'none'; socket.emit('exitZone'); });
-            socket.on('errorMsg', (msg) => alert(msg));
-
-            socket.on('updateMap', (data) => {
-                if(!data) return;
-                gameState = data.organisms || {};
-                foodState = data.food || [];
-                mineralState = data.minerals || [];
-                mapZonesState = data.zones || { sunbeams: [], toxic: [], dense: [] };
-                virusState = data.viruses || [];
-                predatorState = data.predators || [];
-                playerPhageState = data.playerPhages || [];
-                bunkerState = data.plutoniumZone || null;
-
-                let myOrg = gameState[myOwnerId];
-                if(myOrg && !isSpectator) {
-                    let currentAtp = Math.floor(myOrg.atp);
-                    // Aktualizacja na głównym ekranie gry
-                    document.getElementById('atpDisplay').innerText = `${currentAtp} (Komórki: ${myOrg.nodes.length})`;
-
-                    // Aktualizacja wewnątrz otwartego Edytora DNA
-                    const editorAtp = document.getElementById('editorCurrentAtp');
-                    if(editorAtp) {
-                        editorAtp.innerText = currentAtp;
-                    }
-
-                    // Kolorowanie kosztu na czerwono, jeśli gracza nie stać na modyfikacje
-                    const costSpan = document.getElementById('blueprintCost');
-                    const costContainer = document.getElementById('costContainer');
-                    if (costSpan && costContainer) {
-                        const cost = parseInt(costSpan.innerText) || 0;
-                        if (currentAtp < cost) {
-                            costContainer.style.color = "#ff4444";
-                            costContainer.style.borderColor = "#ff4444";
-                            costContainer.style.background = "rgba(255, 0, 0, 0.15)";
-                        } else {
-                            costContainer.style.color = "#ffaa00";
-                            costContainer.style.borderColor = "#ffaa00";
-                            costContainer.style.background = "rgba(255, 170, 0, 0.1)";
-                        }
-                    }
-                }
-                if(data.leaderboard) {
-                    let lbHTML = "";
-                    data.leaderboard.forEach(e => lbHTML += `<div>${e[0]}: ${e[1]}</div>`);
-                    document.getElementById('lbList').innerHTML = lbHTML;
-                }
-            });
-        }
-
-        let myCamX = 1500;
-        let myCamY = 1500;
-
-        // STEROWANIE WASD (Jako zapasowe)
-        window.addEventListener('keydown', (e) => { if(spectatorKeys.hasOwnProperty(e.key)) spectatorKeys[e.key] = true; });
-        window.addEventListener('keyup', (e) => { if(spectatorKeys.hasOwnProperty(e.key)) spectatorKeys[e.key] = false; });
-
-        // --- OBSŁUGA MYSZKI I DOTYKU (DRAG & DROP) ---
-        function getInputPos(e) {
-            if(e.touches) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
-            return { x: e.clientX, y: e.clientY };
-        }
-
-        canvas.addEventListener('mousedown', (e) => {
-            if (!isSpectator) return;
-            isDragging = true;
-            lastMouseX = e.clientX;
-            lastMouseY = e.clientY;
-        });
-        canvas.addEventListener('touchstart', (e) => {
-            if (!isSpectator) return;
-            isDragging = true;
-            let pos = getInputPos(e);
-            lastMouseX = pos.x; lastMouseY = pos.y;
-        });
-
-        canvas.addEventListener('mousemove', (e) => {
-            // Logika gry (sterowanie organizmem)
-            if (socket && isGameRunning && !isSpectator) {
-                let rawX = e.clientX + myCamX - canvas.width/2;
-                let rawY = e.clientY + myCamY - canvas.height/2;
-                let normX = ((rawX % WORLD_WIDTH) + WORLD_WIDTH) % WORLD_WIDTH;
-                let normY = ((rawY % WORLD_HEIGHT) + WORLD_HEIGHT) % WORLD_HEIGHT;
-                socket.emit('chemotaxis', { targetX: normX, targetY: normY });
-            }
-            // Logika obserwatora (przesuwanie mapy)
-            else if (isSpectator && isDragging) {
-                let dx = e.clientX - lastMouseX;
-                let dy = e.clientY - lastMouseY;
-                myCamX -= dx; // Przesuwamy w przeciwną stronę ruchu myszki ("ciągniemy" mapę)
-                myCamY -= dy;
-                lastMouseX = e.clientX;
-                lastMouseY = e.clientY;
-            }
-        });
-
-        // Obsługa TouchMove (dla telefonów)
-        canvas.addEventListener('touchmove', (e) => {
-            if (isSpectator && isDragging) {
-                e.preventDefault(); // Blokuje scrollowanie strony
-                let pos = getInputPos(e);
-                let dx = pos.x - lastMouseX;
-                let dy = pos.y - lastMouseY;
-                myCamX -= dx;
-                myCamY -= dy;
-                lastMouseX = pos.x; lastMouseY = pos.y;
-            }
-        });
-
-        canvas.addEventListener('mouseup', () => isDragging = false);
-        canvas.addEventListener('mouseleave', () => isDragging = false);
-        canvas.addEventListener('touchend', () => isDragging = false);
-
-        // --- FUNKCJE POMOCNICZE (HULL, POS) ---
-        function getConvexHull(points) {
-            if (points.length < 3) return points;
-            points.sort((a, b) => a.x !== b.x ? a.x - b.x : a.y - b.y);
-            const cross = (o, a, b) => (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
-            const lower = [];
-            for (let i = 0; i < points.length; i++) {
-                while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], points[i]) <= 0) lower.pop();
-                lower.push(points[i]);
-            }
-            const upper = [];
-            for (let i = points.length - 1; i >= 0; i--) {
-                while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], points[i]) <= 0) upper.pop();
-                upper.push(points[i]);
-            }
-            upper.pop(); lower.pop();
-            return lower.concat(upper);
-        }
-
-        function getRelPos(objX, objY, camX, camY) {
-            let dx = objX - camX;
-            let dy = objY - camY;
-            if (dx < -WORLD_WIDTH / 2) dx += WORLD_WIDTH;
-            if (dx > WORLD_WIDTH / 2) dx -= WORLD_WIDTH;
-            if (dy < -WORLD_HEIGHT / 2) dy += WORLD_HEIGHT;
-            if (dy > WORLD_HEIGHT / 2) dy -= WORLD_HEIGHT;
-            return { x: canvas.width/2 + dx, y: canvas.height/2 + dy };
-        }
-
-        function draw() {
-            if(!isGameRunning) return;
-
-            ctx.fillStyle = "#050510";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            if (isSpectator) {
-                // Obsługa WASD (jako opcja)
-                if(spectatorKeys.w || spectatorKeys.ArrowUp) myCamY -= 15;
-                if(spectatorKeys.s || spectatorKeys.ArrowDown) myCamY += 15;
-                if(spectatorKeys.a || spectatorKeys.ArrowLeft) myCamX -= 15;
-                if(spectatorKeys.d || spectatorKeys.ArrowRight) myCamX += 15;
-
-                // Wrapping kamery (wspólne dla Drag i WASD)
-                myCamX = ((myCamX % WORLD_WIDTH) + WORLD_WIDTH) % WORLD_WIDTH;
-                myCamY = ((myCamY % WORLD_HEIGHT) + WORLD_HEIGHT) % WORLD_HEIGHT;
-            } else {
-                let myOrg = gameState[myOwnerId];
-                if (myOrg) { myCamX = myOrg.x; myCamY = myOrg.y; }
-            }
-
-            // SIATKA
-            let gridSize = 200;
-            let offX = (myCamX % gridSize);
-            let offY = (myCamY % gridSize);
-            if(offX < 0) offX += gridSize;
-            if(offY < 0) offY += gridSize;
-
-            ctx.strokeStyle = "#16ff0011";
-            ctx.lineWidth = 1;
-            for (let x = -gridSize; x < canvas.width + gridSize; x += gridSize) {
-                let drawX = x - offX + (canvas.width/2 % gridSize);
-                ctx.beginPath(); ctx.moveTo(drawX, 0); ctx.lineTo(drawX, canvas.height); ctx.stroke();
-            }
-            for (let y = -gridSize; y < canvas.height + gridSize; y += gridSize) {
-                let drawY = y - offY + (canvas.height/2 % gridSize);
-                ctx.beginPath(); ctx.moveTo(0, drawY); ctx.lineTo(canvas.width, drawY); ctx.stroke();
-            }
-
-            [...mapZonesState.dense, ...mapZonesState.toxic, ...mapZonesState.sunbeams].forEach(z => {
-                let pos = getRelPos(z.x, z.y, myCamX, myCamY);
-                if (pos.x > -500 && pos.x < canvas.width+500 && pos.y > -500 && pos.y < canvas.height+500) {
-                    if (mapZonesState.toxic.includes(z)) {
-                        let grad = ctx.createRadialGradient(pos.x, pos.y, 0, pos.x, pos.y, z.r);
-                        grad.addColorStop(0, "rgba(0, 255, 50, 0.3)"); grad.addColorStop(1, "rgba(0, 255, 50, 0)");
-                        ctx.fillStyle = grad;
-                    } else if (mapZonesState.sunbeams.includes(z)) {
-                        let grad = ctx.createRadialGradient(pos.x, pos.y, 0, pos.x, pos.y, z.r);
-                        grad.addColorStop(0, "rgba(255, 255, 100, 0.4)"); grad.addColorStop(1, "rgba(255, 255, 100, 0)");
-                        ctx.fillStyle = grad;
-                    } else {
-                        ctx.fillStyle = "rgba(0, 50, 150, 0.15)";
-                    }
-                    ctx.beginPath(); ctx.arc(pos.x, pos.y, z.r, 0, Math.PI*2); ctx.fill();
-                }
-            });
-
-            if (bunkerState) {
-                let pos = getRelPos(bunkerState.x, bunkerState.y, myCamX, myCamY);
-                if (pos.x > -200 && pos.x < canvas.width+200 && pos.y > -200 && pos.y < canvas.height+200) {
-                    ctx.fillStyle = "rgba(255, 255, 0, 0.1)";
-                    ctx.beginPath(); ctx.arc(pos.x, pos.y, bunkerState.radius, 0, Math.PI*2); ctx.fill();
-                    ctx.strokeStyle = "yellow"; ctx.lineWidth = 2; ctx.stroke();
-                }
-            }
-
-            ctx.fillStyle = "#00d4ff";
-            foodState.forEach(f => {
-                let pos = getRelPos(f.x, f.y, myCamX, myCamY);
-                if (pos.x > -50 && pos.x < canvas.width+50 && pos.y > -50 && pos.y < canvas.height+50) {
-                    ctx.beginPath(); ctx.arc(pos.x, pos.y, 3, 0, Math.PI*2); ctx.fill();
-                }
-            });
-            ctx.fillStyle = "#ff00ff";
-            mineralState.forEach(m => {
-                let pos = getRelPos(m.x, m.y, myCamX, myCamY);
-                if (pos.x > -50 && pos.x < canvas.width+50 && pos.y > -50 && pos.y < canvas.height+50) {
-                    ctx.fillRect(pos.x - 3, pos.y - 3, 6, 6);
-                }
-            });
-
-            // ORGANIZMY
-            for (let id in gameState) {
-                let org = gameState[id];
-                if (!org.nodes || org.nodes.length === 0) continue;
-
-                let anchor = org.nodes[0];
-                let anchorScreen = getRelPos(anchor.x, anchor.y, myCamX, myCamY);
-
-                if (anchorScreen.x < -500 || anchorScreen.x > canvas.width+500 || anchorScreen.y < -500 || anchorScreen.y > canvas.height+500) continue;
-
-                let screenNodes = org.nodes.map(n => {
-                    let dx = n.x - anchor.x;
-                    let dy = n.y - anchor.y;
-                    if (dx < -WORLD_WIDTH / 2) dx += WORLD_WIDTH;
-                    if (dx > WORLD_WIDTH / 2) dx -= WORLD_WIDTH;
-                    if (dy < -WORLD_HEIGHT / 2) dy += WORLD_HEIGHT;
-                    if (dy > WORLD_HEIGHT / 2) dy -= WORLD_HEIGHT;
-                    return { ...n, sx: anchorScreen.x + dx, sy: anchorScreen.y + dy };
-                });
-
-                if (screenNodes.length >= 3) {
-                    let hullNodes = screenNodes.map(n => ({x: n.sx, y: n.sy}));
-                    let hull = getConvexHull(hullNodes);
-                    ctx.beginPath(); ctx.moveTo(hull[0].x, hull[0].y);
-                    for (let i = 1; i < hull.length; i++) ctx.lineTo(hull[i].x, hull[i].y);
-                    ctx.closePath();
-                    ctx.lineJoin = 'round'; ctx.lineWidth = 35;
-                    ctx.fillStyle = id === myOwnerId ? "rgba(22, 255, 0, 0.15)" : (org.isNPC ? "rgba(200, 0, 255, 0.15)" : "rgba(255, 0, 0, 0.15)");
-                    ctx.strokeStyle = id === myOwnerId ? "rgba(22, 255, 0, 0.3)" : (org.isNPC ? "rgba(200, 0, 255, 0.3)" : "rgba(255, 0, 0, 0.3)");
-                    ctx.stroke(); ctx.fill();
-                }
-
-                screenNodes.forEach((n) => {
-                    if (n.type === 'shooter') ctx.fillStyle = '#00ffff';
-                    else if (n.type === 'thruster') ctx.fillStyle = 'orange';
-                    else if (n.type === 'storage') ctx.fillStyle = '#ffcc00';
-                    else if (n.type === 'armor') ctx.fillStyle = '#888888';
-                    else if (n.type === 'harvester') ctx.fillStyle = '#ff00aa';
-                    else if (n.type === 'generator') ctx.fillStyle = '#aaff00';
-                    else if (n.type === 'chloroplast') ctx.fillStyle = '#228B22';
-                    else if (n.type === 'filter') ctx.fillStyle = '#FFFFFF';
-                    else if (n.type === 'spike') ctx.fillStyle = '#444444';
-                    else if (n.type === 'flesh') ctx.fillStyle = '#ff6666';
-                    else if (n.type === 'sensor') ctx.fillStyle = '#66ccff';
-                    else ctx.fillStyle = '#16ff00';
-
-                    ctx.beginPath(); ctx.arc(n.sx, n.sy, 14, 0, Math.PI*2); ctx.fill();
-                    ctx.strokeStyle = id === myOwnerId ? "white" : (org.isNPC ? "#ff00ff" : "red");
-                    ctx.lineWidth = id === myOwnerId ? 2 : 1; ctx.stroke();
-
-                    if (n.type === 'harvester') {
-                        ctx.strokeStyle = "rgba(255, 0, 170, 0.1)";
-                        ctx.beginPath(); ctx.arc(n.sx, n.sy, 70, 0, Math.PI*2); ctx.stroke();
-                    }
-
-                    let maxHpForType = MAX_HP_MAP[n.type] || 100;
-                    let hpPercent = n.hp / maxHpForType;
-                    if (hpPercent < 1.0 && hpPercent > 0) {
-                        ctx.strokeStyle = "rgba(255, 0, 0, 0.8)";
-                        ctx.lineWidth = 3;
-                        ctx.beginPath(); ctx.arc(n.sx, n.sy, 16, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * hpPercent)); ctx.stroke();
-                    }
-
-                    ctx.font = "14px Arial"; ctx.fillStyle = "white"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-                    let emoji = "";
-                    if (n.type === 'shooter') emoji = '🎯';
-                    else if (n.type === 'thruster') emoji = '🔥';
-                    else if (n.type === 'storage') emoji = '🛢️';
-                    else if (n.type === 'armor') emoji = '🛡️';
-                    else if (n.type === 'harvester') emoji = '🧲';
-                    else if (n.type === 'generator') emoji = '🔋';
-                    else if (n.type === 'chloroplast') emoji = '🌱';
-                    else if (n.type === 'filter') emoji = '🧼';
-                    else if (n.type === 'spike') emoji = '🗡️';
-                    else if (n.type === 'flesh') emoji = '🥩';
-                    else if (n.type === 'sensor') emoji = '📡';
-                    else emoji = '🦠';
-                    ctx.fillText(emoji, n.sx, n.sy);
-
-                    if (n.minerals > 0.5) {
-                        ctx.fillStyle = "rgba(255, 0, 255, 0.75)";
-                        ctx.beginPath(); ctx.arc(n.sx, n.sy, Math.min(n.minerals * 1.5, 8), 0, Math.PI*2); ctx.fill();
-                    }
-                });
-
-                if (id === myOwnerId && !isSpectator) {
-                    let pos = getRelPos(org.x, org.y, myCamX, myCamY);
-                    ctx.fillStyle = "rgba(0,0,0,0.8)"; ctx.fillRect(pos.x - 20, pos.y - 30, 40, 6);
-                    ctx.fillStyle = org.atp >= 200 ? "#ffaa00" : "#ffffff"; ctx.fillRect(pos.x - 20, pos.y - 30, Math.min((org.atp / 200) * 40, 40), 6);
-                }
-            }
-
-            ctx.fillStyle = "#ff00ff";
-            virusState.forEach(v => {
-                let pos = getRelPos(v.x, v.y, myCamX, myCamY);
-                if (pos.x > -50 && pos.x < canvas.width+50 && pos.y > -50 && pos.y < canvas.height+50) {
-                    ctx.beginPath(); ctx.moveTo(pos.x, pos.y - 8); ctx.lineTo(pos.x + 6, pos.y); ctx.lineTo(pos.x, pos.y + 8); ctx.lineTo(pos.x - 6, pos.y); ctx.fill();
-                }
-            });
-
-            ctx.fillStyle = "#00ffff";
-            playerPhageState.forEach(f => {
-                let pos = getRelPos(f.x, f.y, myCamX, myCamY);
-                if (pos.x > -50 && pos.x < canvas.width+50 && pos.y > -50 && pos.y < canvas.height+50) {
-                    ctx.beginPath(); ctx.moveTo(pos.x, pos.y - 5); ctx.lineTo(pos.x + 15, pos.y); ctx.lineTo(pos.x, pos.y + 5); ctx.lineTo(pos.x - 5, pos.y); ctx.fill();
-                }
-            });
-
-            ctx.fillStyle = "rgba(255,255,255,0.4)"; ctx.strokeStyle = "white"; ctx.lineWidth = 2;
-            predatorState.forEach(m => {
-                let pos = getRelPos(m.x, m.y, myCamX, myCamY);
-                if (pos.x > -200 && pos.x < canvas.width+200 && pos.y > -200 && pos.y < canvas.height+200) {
-                    ctx.beginPath(); ctx.arc(pos.x, pos.y, m.radius, 0, Math.PI*2); ctx.fill(); ctx.stroke();
-                }
-            });
-
-            mCtx.fillStyle = "black"; mCtx.fillRect(0, 0, 150, 150);
-            const scale = 150 / WORLD_WIDTH;
-
-            mapZonesState.toxic.forEach(z => { mCtx.fillStyle = "rgba(0, 255, 50, 0.3)"; mCtx.beginPath(); mCtx.arc(z.x * scale, z.y * scale, z.r * scale, 0, Math.PI*2); mCtx.fill(); });
-            mapZonesState.sunbeams.forEach(z => { mCtx.fillStyle = "rgba(255, 255, 100, 0.4)"; mCtx.beginPath(); mCtx.arc(z.x * scale, z.y * scale, z.r * scale, 0, Math.PI*2); mCtx.fill(); });
-
-            if (bunkerState) {
-                mCtx.fillStyle = "rgba(255, 255, 0, 0.4)"; mCtx.beginPath(); mCtx.arc(bunkerState.x * scale, bunkerState.y * scale, bunkerState.radius * scale, 0, Math.PI*2); mCtx.fill();
-                mCtx.strokeStyle = "yellow"; mCtx.lineWidth = 1; mCtx.stroke();
-            }
-
-            for (let id in gameState) {
-                let org = gameState[id];
-                mCtx.fillStyle = (id === myOwnerId) ? "#16ff00" : (org.isNPC ? "purple" : "red");
-                mCtx.fillRect(org.x * scale, org.y * scale, 3, 3);
-            }
-
-            mCtx.strokeStyle = "white"; mCtx.lineWidth = 1;
-            let mmCamX = myCamX * scale;
-            let mmCamY = myCamY * scale;
-            mCtx.strokeRect(mmCamX - (canvas.width*scale)/2, mmCamY - (canvas.height*scale)/2, canvas.width * scale, canvas.height * scale);
-
-            requestAnimationFrame(draw);
-        }
-
-        window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
-
-
-</script>
-<script>
-        // 1. Mapowanie kolorów (musi być, by Canvas wiedział jakich farb użyć)
-        function getCellColor(type) {
-            if (type === 'shooter') return '#00ffff';
-            if (type === 'thruster') return 'orange';
-            if (type === 'storage') return '#ffcc00';
-            if (type === 'armor') return '#888888';
-            if (type === 'harvester') return '#ff00aa';
-            if (type === 'generator') return '#aaff00';
-            if (type === 'chloroplast') return '#228B22';
-            if (type === 'filter') return '#FFFFFF';
-            if (type === 'spike') return '#444444';
-            if (type === 'flesh') return '#ff6666';
-            if (type === 'sensor') return '#66ccff';
-            return '#16ff00'; // base
-        }
-
-        // 2. Pobieranie danych i tworzenie "drugiego canvasu" dla każdego gracza
-        async function loadGlobalLeaderboard() {
-            try {
-                const res = await fetch('/api/leaderboard');
-                if(!res.ok) throw new Error('Błąd sieci');
-                const data = await res.json();
-
-                const container = document.getElementById('lbListContainer');
-                container.innerHTML = '';
-
-                data.forEach((player, idx) => {
-                    const entry = document.createElement('div');
-                    entry.className = 'lb-entry';
-
-                    // Unikalne ID dla płótna każdego gracza
-                    const canvasId = `lb-canvas-${idx}`;
-
-                    entry.innerHTML = `
-                        <div class="lb-rank">#${idx + 1}</div>
-                        <canvas id="${canvasId}" class="lb-canvas" width="60" height="60"></canvas>
-                        <div class="lb-info">
-                            <div class="lb-name">${player.name}</div>
-                            <div class="lb-score">${player.score} ATP</div>
-                        </div>
-                    `;
-                    // Musimy dodać element do strony, ZANIM spróbujemy po nim rysować
-                    container.appendChild(entry);
-
-                    // --- INTELIGENTNE WYDOBYCIE DANYCH Z BAZY ---
-                    let bpData = player.blueprint;
-
-                    // Scenariusz A: Format stary { nodes: [...] }
-                    if (bpData && bpData.nodes) {
-                        bpData = bpData.nodes;
-                    }
-                    // Scenariusz B: Baza zwróciła tablicę wewnątrz tablicy np. [[...]]
-                    if (Array.isArray(bpData) && Array.isArray(bpData[0])) {
-                        bpData = bpData[0];
-                    }
-                    // Scenariusz C: Baza w ogóle nie ma blueprintu
-                    if (!bpData) {
-                        bpData = [];
-                    }
-
-                    // Wyrzucamy do konsoli F12, co tak naprawdę przyszło z bazy
-                    console.log(`[Ranking] Dane dla ${player.name}:`, bpData);
-
-                    // Wywołanie rysowania
-                    drawMiniBlueprint(canvasId, bpData);
-                });
-
-            } catch (e) {
-                console.error("Błąd rankingu:", e);
-                document.getElementById('lbListContainer').innerHTML = '<span style="color:red;">Brak połączenia z bazą archiwalną.</span>';
-            }
-        }
-
-        // 3. Rysowanie organizmu
-        function drawMiniBlueprint(canvasId, nodes) {
-            const canvas = document.getElementById(canvasId);
-            if(!canvas) return;
-            const ctx = canvas.getContext('2d');
-
-            // Sprawdzenie, czy faktycznie mamy co rysować
-            if (!Array.isArray(nodes) || nodes.length === 0) {
-                ctx.fillStyle = "#ff4444";
-                ctx.font = "bold 24px monospace";
-                ctx.textAlign = "center";
-                ctx.textBaseline = "middle";
-                ctx.fillText("?", canvas.width/2, canvas.height/2);
-                return;
-            }
-
-            // Znajdowanie granic organizmu (żeby wyśrodkować na małym Canvasie)
-            let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-            nodes.forEach(n => {
-                const x = Number(n.x) || 0;
-                const y = Number(n.y) || 0;
-                if(x < minX) minX = x; if(x > maxX) maxX = x;
-                if(y < minY) minY = y; if(y > maxY) maxY = y;
-            });
-
-            const width = (maxX - minX) || 20;
-            const height = (maxY - minY) || 20;
-            const centerX = minX + width / 2;
-            const centerY = minY + height / 2;
-
-            // Auto-skalowanie, by gigantyczne organizmy zmieściły się w 60x60
-            const scale = Math.min(35 / width, 35 / height, 1.2);
-
-            ctx.save();
-            ctx.translate(canvas.width / 2, canvas.height / 2);
-            ctx.scale(scale, scale);
-
-            // Malowanie komórek
-            nodes.forEach(n => {
-                ctx.fillStyle = getCellColor(n.type);
-                ctx.beginPath();
-                ctx.arc((Number(n.x)||0) - centerX, (Number(n.y)||0) - centerY, 14, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Lekka biała obwódka jak w prawdziwej grze
-                ctx.strokeStyle = "rgba(255,255,255,0.4)";
-                ctx.lineWidth = 2;
-                ctx.stroke();
-            });
-
-            ctx.restore();
-        }
-
-        // Inicjalizacja rankingu przy załadowaniu pliku
-        loadGlobalLeaderboard();
-
-
-
-
-</script>
-<script>
-
-        window.cmentarz = async function() {
-    const modal = document.getElementById('graveyardModal');
-    const list = document.getElementById('graveList');
-    modal.style.display = 'block';
-    list.innerHTML = "Wskrzeszanie wspomnień...";
-
-    try {
-        const res = await fetch('/api/graveyard');
-        const data = await res.json();
-        list.innerHTML = "";
-
-        data.forEach((grave, idx) => {
-            const card = document.createElement('div');
-            card.className = 'grave-card';
-            const canvasId = `grave-canvas-${idx}`;
-
-            card.innerHTML = `
-                <canvas id="${canvasId}" width="80" height="80" style="background:#000; border-radius:50%"></canvas>
-                <div style="margin-left: 20px;">
-                    <strong style="color: #fff;">${grave.name}</strong><br>
-                    Przetrwał do: ${grave.score} ATP<br>
-                    <small>${new Date(grave.date).toLocaleString()}</small>
-                </div>
-            `;
-            list.appendChild(card);
-
-            // Rysujemy zwłoki na małym canvasie (używamy Twojej funkcji drawMiniBlueprint)
-            setTimeout(() => drawMiniBlueprint(canvasId, grave.blueprint), 10);
-        });
-    } catch (e) {
-        list.innerHTML = "Cmentarz jest obecnie niedostępny.";
-    }
-};
-
-
-</script>
-<script>
-        <!-- Nawigacja na górze mapy -->
-<div id="topNav">
-    <button class="nav-btn" onclick="openModal('playersModal')">👥 GRACZE</button>
-    <button class="nav-btn" onclick="openModal('mapLegendModal')">🗺️ LEGENDA</button>
-    <button class="nav-btn" onclick="openCmentarz()">🪦 HISTORIA (CMENTARZ)</button>
-</div>
-
-<!-- MODAL: LISTA GRACZY -->
+<!-- MODALE -->
 <div id="playersModal" class="game-modal">
     <div class="modal-header">
         <h2>👥 AKTUALNE SZCZEPY</h2>
         <button class="modal-close-btn" onclick="closeModal('playersModal')">X</button>
     </div>
-    <div id="currentPlayersList"></div>
+    <div id="currentPlayersList">Brak danych.</div>
 </div>
 
-<!-- MODAL: LEGENDA MAPY -->
 <div id="mapLegendModal" class="game-modal">
     <div class="modal-header">
         <h2>🗺️ INFORMACJE O ŚRODOWISKU</h2>
@@ -1078,7 +156,6 @@ body { background: #050510; color: #16ff00; font-family: monospace; margin: 0; o
     </div>
 </div>
 
-<!-- MODAL: CMENTARZ (HISTORIA) -->
 <div id="graveyardModal" class="game-modal">
     <div class="modal-header">
         <h2 style="color: #888;">🪦 CMENTARZ ZAPOMNIANYCH SZCZEPÓW</h2>
@@ -1087,8 +164,204 @@ body { background: #050510; color: #16ff00; font-family: monospace; margin: 0; o
     <div id="graveList">Wczytywanie historii...</div>
 </div>
 
+<div id="spectatorUI">
+    <h2>💀 TWOJA KOLONIA WYGINĘŁA 💀</h2>
+    <p>Przesuwaj mapę myszką (lub palcem), aby obserwować ekosystem.</p>
+    <button onclick="location.reload()" style="background: red; color: white; border: 1px solid white;">ODRODŹ SIĘ (RESTART)</button>
+</div>
 
+<!-- EDYTOR DNA -->
+<div id="mutationMenu">
+    <h2 style="color:yellow; margin-top:0; margin-bottom: 10px;">🧬 EDYTOR DNA</h2>
+    <div style="display: flex; justify-content: center; gap: 20px; font-size: 16px; font-weight: bold; margin-bottom: 15px;">
+        <div style="color: #16ff00; border: 1px dashed #16ff00; padding: 8px 20px; background: rgba(22, 255, 0, 0.1);">
+            💼 TWOJE ATP: <span id="editorCurrentAtp">0</span>
+        </div>
+        <div id="costContainer" style="color: #ffaa00; border: 1px dashed #ffaa00; padding: 8px 20px; background: rgba(255, 170, 0, 0.1);">
+            📉 KOSZT ZMIAN: <span id="blueprintCost">0</span>
+        </div>
+    </div>
+    <div id="editorStatsBox">
+        🚀 Zwinność: <span id="statSpeed">0</span> | 🛡️ Masa: <span id="statMass">0</span> | 🔫 Broń: <span id="statFire">0</span> | 🛢️ Magazyn: <span id="statStorage">0</span>
+    </div>
+    <div class="tools">
+        <div class="tool-wrapper" style="border-color: #16ff00;"><button class="tool-btn tool-active" id="tool_base" onclick="setTool('base')" style="color:#16ff00;">🟢 Rdzeń (+100)</button><div class="info-btn" onmousemove="showTip(event, 'base')" onmouseleave="hideTip()">?</div></div>
+        <div class="tool-wrapper" style="border-color: orange;"><button class="tool-btn" id="tool_thruster" onclick="setTool('thruster')" style="color:orange;">🟠 Napęd (+150)</button><div class="info-btn" onmousemove="showTip(event, 'thruster')" onmouseleave="hideTip()">?</div></div>
+        <div class="tool-wrapper" style="border-color: #888888;"><button class="tool-btn" id="tool_armor" onclick="setTool('armor')" style="color:#888888;">🛡️ Pancerz (+50)</button><div class="info-btn" onmousemove="showTip(event, 'armor')" onmouseleave="hideTip()">?</div></div>
+        <div class="tool-wrapper" style="border-color: #ff00aa;"><button class="tool-btn" id="tool_harvester" onclick="setTool('harvester')" style="color:#ff00aa;">🧲 Macek (+150)</button><div class="info-btn" onmousemove="showTip(event, 'harvester')" onmouseleave="hideTip()">?</div></div>
+        <div class="tool-wrapper" style="border-color: #ffcc00;"><button class="tool-btn" id="tool_storage" onclick="setTool('storage')" style="color:#ffcc00;">🛢️ Magazyn (+200)</button><div class="info-btn" onmousemove="showTip(event, 'storage')" onmouseleave="hideTip()">?</div></div>
+        <div class="tool-wrapper" style="border-color: cyan;"><button class="tool-btn" id="tool_shooter" onclick="setTool('shooter')" style="color:cyan;">🔵 Wieża (+250)</button><div class="info-btn" onmousemove="showTip(event, 'shooter')" onmouseleave="hideTip()">?</div></div>
+        <div class="tool-wrapper" style="border-color: #aaff00;"><button class="tool-btn" id="tool_generator" onclick="setTool('generator')" style="color:#aaff00;">🔋 Reaktor (+300)</button><div class="info-btn" onmousemove="showTip(event, 'generator')" onmouseleave="hideTip()">?</div></div>
+        <div class="tool-wrapper" style="border-color: #228B22;"><button class="tool-btn" id="tool_chloroplast" onclick="setTool('chloroplast')" style="color:#228B22;">🌱 Flora (+150)</button><div class="info-btn" onmousemove="showTip(event, 'chloroplast')" onmouseleave="hideTip()">?</div></div>
+        <div class="tool-wrapper" style="border-color: #FFFFFF;"><button class="tool-btn" id="tool_filter" onclick="setTool('filter')" style="color:#FFFFFF;">🧼 Detoks (+200)</button><div class="info-btn" onmousemove="showTip(event, 'filter')" onmouseleave="hideTip()">?</div></div>
+        <div class="tool-wrapper" style="border-color: #AAAAAA;"><button class="tool-btn" id="tool_spike" onclick="setTool('spike')" style="color:#AAAAAA;">🗡️ Kolec (+250)</button><div class="info-btn" onmousemove="showTip(event, 'spike')" onmouseleave="hideTip()">?</div></div>
+        <div class="tool-wrapper" style="border-color: #ff6666;"><button class="tool-btn" id="tool_flesh" onclick="setTool('flesh')" style="color:#ff6666;">🥩 Tkanka (+50)</button><div class="info-btn" onmousemove="showTip(event, 'flesh')" onmouseleave="hideTip()">?</div></div>
+        <div class="tool-wrapper" style="border-color: #66ccff;"><button class="tool-btn" id="tool_sensor" onclick="setTool('sensor')" style="color:#66ccff;">📡 Radar (+150)</button><div class="info-btn" onmousemove="showTip(event, 'sensor')" onmouseleave="hideTip()">?</div></div>
+        <div class="tool-wrapper" style="border-color: #d400ff; margin-left: 10px;"><button class="tool-btn" id="tool_move" onclick="setTool('move')" style="color:#d400ff;">✋ Przesuń</button><div class="info-btn" onmousemove="showTip(event, 'move')" onmouseleave="hideTip()">?</div></div>
+        <div class="tool-wrapper" style="border-color: red;"><button class="tool-btn" id="tool_delete" onclick="setTool('delete')" style="color:red;">❌ Usuń</button><div class="info-btn" onmousemove="showTip(event, 'delete')" onmouseleave="hideTip()">?</div></div>
+    </div>
+    <canvas id="editorCanvas" width="600" height="350"></canvas>
+    <p style="font-size:11px; color:#aaa; margin: 3px;">Kółko Myszki = Zoom | Prawy Przycisk = Przesuń Kamere</p>
+    <div style="display:flex; justify-content:space-between; margin-top: 10px;">
+        <button onclick="loadEditor()" style="background: red; color: white;">Cofnij Zmiany</button>
+        <button onclick="saveOrganism()" style="background: #16ff00; color: black; font-weight:bold;">ZAPISZ I WYPŁYŃ</button>
+    </div>
+</div>
+
+<canvas id="gameCanvas"></canvas>
+
+<!-- SKRYPTY GŁÓWNE -->
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    // Konfiguracja tooltipów
+    const tooltipsText = {
+        'base': "<h3 style='color:#16ff00;'>🟢 Rdzeń (Zwykła)</h3><b>HP: 100</b><br>Podstawa. Wytwarza 0.5 siły ciągu.",
+        'thruster': "<h3 style='color:orange;'>🟠 Napęd (Silnik)</h3><b>HP: 80</b><br>Potężny silnik. Generuje aż 3.0 siły ciągu!",
+        'armor': "<h3 style='color:#888888;'>🛡️ Pancerz</h3><b>HP: 300</b><br>Twardy blok obronny.",
+        'harvester': "<h3 style='color:#ff00aa;'>🧲 Macek Zbierający</h3><b>HP: 100</b><br>Zasysa zasoby.",
+        'storage': "<h3 style='color:#ffcc00;'>🛢️ Magazyn</h3><b>HP: 120</b><br>Przechowuje 20 minerałów.",
+        'shooter': "<h3 style='color:cyan;'>🔵 Wieża Strzelnicza</h3><b>HP: 100</b><br>Automatycznie strzela we wrogów.",
+        'generator': "<h3 style='color:#aaff00;'>🔋 Reaktor Jądrowy</h3><b>HP: 80</b><br>Pasywnie generuje ATP.",
+        'chloroplast': "<h3 style='color:#228B22;'>🌱 Flora (Chloroplast)</h3><b>HP: 80</b><br>Produkuje ATP w słońcu.",
+        'filter': "<h3 style='color:#FFFFFF;'>🧼 Detoks (Lysosom)</h3><b>HP: 100</b><br>Daje odporność na truciznę i wirusy.",
+        'spike': "<h3 style='color:#AAAAAA;'>🗡️ Kolec</h3><b>HP: 150</b><br>Rani i odpycha wrogów.",
+        'flesh': "<h3 style='color:#ff6666;'>🥩 Tkanka Odżywcza</h3><b>HP: 50</b><br>Po śmierci wyrzuca jedzenie.",
+        'sensor': "<h3 style='color:#66ccff;'>📡 Sensor Zmysłowy</h3><b>HP: 80</b><br>Wydłuża zasięg wzroku.",
+        'move': "<h3 style='color:#d400ff;'>✋ Przesuń Narząd</h3>Złap i przeciągnij.",
+        'delete': "<h3 style='color:red;'>❌ Usuń</h3>Trwale usuwa komórkę."
+    };
+
+    function showTip(e, type) {
+        const tip = document.getElementById('cellTooltip');
+        tip.innerHTML = tooltipsText[type];
+        tip.style.display = 'block';
+        tip.style.left = (e.clientX + 15) + 'px';
+        tip.style.top = (e.clientY + 15) + 'px';
+    }
+    function hideTip() { document.getElementById('cellTooltip').style.display = 'none'; }
+
+    // Funkcje UI (Modale)
+    function openModal(id) { document.getElementById(id).style.display = 'block'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    // Aktualizacja listy graczy w Modalu
+    function updatePlayersModal(leaderboard) {
+        const listCont = document.getElementById('currentPlayersList');
+        if (!listCont) return;
+        let html = "<table style='width: 100%; text-align: left; border-collapse: collapse;'>";
+        html += "<tr style='border-bottom: 1px solid #333;'><th>Miejsce</th><th>Nazwa Szczepu</th><th>Wynik</th></tr>";
+        leaderboard.forEach((entry, idx) => {
+            html += `<tr style='border-bottom: 1px solid #222; height: 40px;'>
+                <td>#${idx + 1}</td>
+                <td style='color: #16ff00; font-weight: bold;'>${entry[0]}</td>
+                <td>${entry[1]} ATP</td>
+            </tr>`;
+        });
+        html += "</table>";
+        listCont.innerHTML = html;
+    }
+
+    // Logika Cmentarza
+    window.cmentarz = async function() {
+        openModal('graveyardModal');
+        const list = document.getElementById('graveList');
+        list.innerHTML = "Wskrzeszanie wspomnień...";
+        try {
+            const res = await fetch('/api/graveyard');
+            const data = await res.json();
+            list.innerHTML = "";
+            data.forEach((grave, idx) => {
+                const card = document.createElement('div');
+                card.className = 'grave-card';
+                const canvasId = `grave-canvas-${idx}`;
+                card.innerHTML = `
+                    <canvas id="${canvasId}" width="80" height="80" style="background:#000; border-radius:50%; border: 1px solid #333;"></canvas>
+                    <div style="margin-left: 20px;">
+                        <strong style="color: #fff;">${grave.name}</strong><br>
+                        Przetrwał do: <span style="color: #16ff00">${grave.score} ATP</span><br>
+                        <small style="color: #666;">${new Date(grave.date).toLocaleString()}</small>
+                    </div>`;
+                list.appendChild(card);
+                // Wywołaj rysowanie dopiero po upewnieniu się, że funkcja istnieje
+                if (typeof drawMiniBlueprint === 'function') {
+                    setTimeout(() => drawMiniBlueprint(canvasId, grave.blueprint), 50);
+                }
+            });
+        } catch (e) { list.innerHTML = "Cmentarz niedostępny."; }
+    };
+
+    // Globalny Leaderboard Rysowanie (Startowe)
+    function getCellColor(type) {
+        if (type === 'shooter') return '#00ffff';
+        if (type === 'thruster') return 'orange';
+        if (type === 'storage') return '#ffcc00';
+        if (type === 'armor') return '#888888';
+        if (type === 'harvester') return '#ff00aa';
+        if (type === 'generator') return '#aaff00';
+        if (type === 'chloroplast') return '#228B22';
+        if (type === 'filter') return '#FFFFFF';
+        if (type === 'spike') return '#444444';
+        if (type === 'flesh') return '#ff6666';
+        if (type === 'sensor') return '#66ccff';
+        return '#16ff00';
+    }
+
+    function drawMiniBlueprint(canvasId, nodes) {
+        const canvas = document.getElementById(canvasId);
+        if(!canvas) return;
+        const ctx = canvas.getContext('2d');
+        if (!Array.isArray(nodes) || nodes.length === 0) {
+            ctx.fillStyle = "#ff4444"; ctx.font = "bold 24px monospace"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+            ctx.fillText("?", canvas.width/2, canvas.height/2);
+            return;
+        }
+        let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+        nodes.forEach(n => {
+            const x = Number(n.x) || 0; const y = Number(n.y) || 0;
+            if(x < minX) minX = x; if(x > maxX) maxX = x;
+            if(y < minY) minY = y; if(y > maxY) maxY = y;
+        });
+        const width = (maxX - minX) || 20; const height = (maxY - minY) || 20;
+        const centerX = minX + width / 2; const centerY = minY + height / 2;
+        const scale = Math.min(35 / width, 35 / height, 1.2);
+        ctx.save();
+        ctx.translate(canvas.width / 2, canvas.height / 2);
+        ctx.scale(scale, scale);
+        nodes.forEach(n => {
+            ctx.fillStyle = getCellColor(n.type);
+            ctx.beginPath(); ctx.arc((Number(n.x)||0) - centerX, (Number(n.y)||0) - centerY, 14, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = "rgba(255,255,255,0.4)"; ctx.lineWidth = 2; ctx.stroke();
+        });
+        ctx.restore();
+    }
+
+    async function loadGlobalLeaderboard() {
+        try {
+            const res = await fetch('/api/leaderboard');
+            if(!res.ok) throw new Error('Błąd sieci');
+            const data = await res.json();
+            const container = document.getElementById('lbListContainer');
+            container.innerHTML = '';
+            data.forEach((player, idx) => {
+                const entry = document.createElement('div'); entry.className = 'lb-entry';
+                const canvasId = `lb-canvas-${idx}`;
+                entry.innerHTML = `<div class="lb-rank">#${idx + 1}</div><canvas id="${canvasId}" class="lb-canvas" width="60" height="60"></canvas><div class="lb-info"><div class="lb-name">${player.name}</div><div class="lb-score">${player.score} ATP</div></div>`;
+                container.appendChild(entry);
+                let bpData = player.blueprint;
+                if (bpData && bpData.nodes) bpData = bpData.nodes;
+                if (Array.isArray(bpData) && Array.isArray(bpData[0])) bpData = bpData[0];
+                if (!bpData) bpData = [];
+                drawMiniBlueprint(canvasId, bpData);
+            });
+        } catch (e) {
+            document.getElementById('lbListContainer').innerHTML = '<span style="color:red;">Brak połączenia z bazą archiwalną.</span>';
+        }
+    }
+    loadGlobalLeaderboard();
 </script>
+
+<script src="js/client.js"></script>
 <script src="js/editor.js"></script>
+<script src="js/renderer.js"></script>
 </body>
 </html>
