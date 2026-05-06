@@ -119,126 +119,310 @@
     display: flex; align-items: center; background: #1a1a1a;
     margin: 10px 0; padding: 10px; border-left: 5px solid #444;
 }
+
+body { background: #050510; color: #16ff00; font-family: monospace; margin: 0; overflow: hidden; }
+        canvas { display: block; position: absolute; top: 0; left: 0; cursor: crosshair; }
+
+        .spectator-cursor { cursor: grab !important; }
+        .spectator-cursor:active { cursor: grabbing !important; }
+
+        #loginScreen { position:absolute; top:0; left:0; width:100vw; height:100vh; background:rgba(5,5,16,0.95); z-index:1000; display:flex; flex-direction:column; justify-content:center; align-items:center; }
+        input, button { font-family: monospace; font-size: 16px; padding: 10px; margin: 5px; background: #1a1a2e; color: #16ff00; border: 1px solid #16ff00; cursor:pointer; }
+        button:hover { background: #16ff00; color: #1a1a2e; }
+
+        #gameUI { position: absolute; width: 100%; top: 0; left: 0; pointer-events: none; z-index: 10; }
+        #stats { padding: 15px; font-size: 16px; background: rgba(0,0,0,0.5); display: inline-block; }
+
+        /* Naprawa klikalności przycisków wewnątrz gameUI */
+        #topNav, .nav-btn, .game-modal { pointer-events: auto !important; }
+
+        #topNav {
+            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 10px; z-index: 20;
+        }
+
+        .nav-btn {
+            background: rgba(26, 26, 46, 0.8); color: #16ff00; border: 1px solid #16ff00;
+            padding: 8px 15px; cursor: pointer;
+        }
+
+        .game-modal {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(10, 10, 26, 0.98); border: 2px solid #16ff00;
+            padding: 20px; width: 80%; max-width: 600px; max-height: 80vh;
+            overflow-y: auto; z-index: 3000; display: none;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.4);
+        }
+
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #16ff00; margin-bottom: 15px; }
+
+        #graveyardModal { background: rgba(20, 10, 10, 0.98); border-color: #555; }
+        .grave-card { display: flex; align-items: center; background: #1a1a1a; margin: 10px 0; padding: 10px; border-left: 5px solid #444; }
+
+        #mutationMenu { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); background: #1a1a2e; border: 2px dashed yellow; padding: 15px; display: none; z-index: 100; pointer-events: auto; width: 850px; text-align: center;}
+        #editorCanvas { position: relative; border: 1px solid #444; background: #0a0a1a; cursor: crosshair; margin: 5px auto; width: 600px; height: 350px; display: block;}
     </style>
 </head>
 <body>
-    <div id="cellTooltip"></div>
 
-    <div id="loginScreen">
-        <h1>🔬 B A K T E R I O F A G O C Y T Y</h1>
-        <div class="intro-box">
-            <h3>Witaj w probówce!</h3>
-            <p>Zbuduj swój unikalny organizm i przetrwaj w brutalnym środowisku pełnym różnorodnych form życia i rywalizujących gatunków.</p>
-            <ul>
-                <li>🔵 <b>Zasoby:</b> Zbieraj niebieską glukozę (energia do ewolucji) oraz fioletowe minerały (surowiec dla wieżyczek strzelniczych).</li>
-                <li>🧬 <b>Edytor DNA:</b> Wpłyń do <b>żółtej strefy</b> (bunkra) na środku mapy, aby bezpiecznie modyfikować swoje komórki.</li>
-                <li>👾 <b>Różnorodne Gatunki:</b> Obserwuj i wchodź w interakcje z innymi organizmami (NPC). W probówce żyją łagodne rośliny, wędrowni zbieracze oraz agresywne drapieżniki.</li>
-                <li>🦠 <b>Wirusy i Mutacje:</b> Uważaj na fioletowe wirusy! Szukają odsłoniętych tkanek, aby je zainfekować i zniszczyć (wysysając przy tym Twoje ATP). Zamontuj komórkę <b>Detoksu (Lysosom)</b>, by zyskać odporność na infekcje i toksyczne chmury.</li>
-                <li>☠️ <b>Makrofagi:</b> Unikaj wielkich, półprzezroczystych "czyścicieli", którzy pochłaniają wszystko, co stanie im na drodze.</li>
-            </ul>
-        </div>
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <input type="text" id="strainName" value="Szczep-Alfa" maxlength="15">
-            <button onclick="joinGame()" style="font-size: 18px; font-weight: bold; padding: 10px 20px;">ZAINFEKUJ</button>
-        </div>
-        <div id="globalLeaderboard">
-            <h3>🏆 HALL OF FAME 🏆</h3>
-            <div id="lbListContainer">Wczytywanie ewolucji...</div>
-        </div>
+<div id="cellTooltip"></div>
+
+<!-- EKRAN LOGOWANIA -->
+<div id="loginScreen">
+    <h1>🔬 B A K T E R I O F A G O C Y T Y</h1>
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <input type="text" id="strainName" value="Szczep-Alfa" maxlength="15">
+        <button onclick="joinGame()">ZAINFEKUJ</button>
+    </div>
+    <div id="globalLeaderboard">
+        <h3>🏆 HALL OF FAME 🏆</h3>
+        <div id="lbListContainer">Wczytywanie ewolucji...</div>
+    </div>
+</div>
+
+<!-- INTERFEJS GRY -->
+<div id="gameUI">
+    <div id="stats">ATP: <span id="atpDisplay">0</span> | Szczep: <span id="idDisplay">Brak</span></div>
+
+    <div id="topNav">
+        <button class="nav-btn" onclick="openModal('playersModal')">👥 GRACZE</button>
+        <button class="nav-btn" onclick="openModal('mapLegendModal')">🗺️ LEGENDA</button>
+        <button class="nav-btn" onclick="window.cmentarz()">🪦 HISTORIA (CMENTARZ)</button>
     </div>
 
-    <div id="gameUI">
-        <div id="stats">ATP: <span id="atpDisplay">0</span> | Szczep: <span id="idDisplay">Brak</span></div>
-        <!-- Nawigacja na górze mapy -->
-<div id="topNav">
-    <button class="nav-btn" onclick="openModal('playersModal')">👥 GRACZE</button>
-    <button class="nav-btn" onclick="openModal('mapLegendModal')">🗺️ LEGENDA</button>
-    <button class="nav-btn" onclick="openCmentarz()">🪦 HISTORIA (CMENTARZ)</button>
+    <canvas id="minimapCanvas" width="150" height="150" style="position: absolute; top: 20px; right: 20px; border: 2px solid #16ff00; background: black;"></canvas>
 </div>
 
 <!-- MODAL: LISTA GRACZY -->
 <div id="playersModal" class="game-modal">
     <div class="modal-header">
         <h2>👥 AKTUALNE SZCZEPY</h2>
-        <button class="modal-close-btn" onclick="closeModal('playersModal')">X</button>
+        <button onclick="closeModal('playersModal')">X</button>
     </div>
-    <div id="currentPlayersList"></div>
+    <div id="currentPlayersList">Brak aktywnych graczy.</div>
 </div>
 
-<!-- MODAL: LEGENDA MAPY -->
+<!-- MODAL: LEGENDA -->
 <div id="mapLegendModal" class="game-modal">
     <div class="modal-header">
         <h2>🗺️ INFORMACJE O ŚRODOWISKU</h2>
-        <button class="modal-close-btn" onclick="closeModal('mapLegendModal')">X</button>
+        <button onclick="closeModal('mapLegendModal')">X</button>
     </div>
     <div style="color: #ccc; line-height: 1.6;">
         <p><span style="color: yellow;">● Żółta Strefa:</span> Bunkier / Edytor DNA. Tu jesteś bezpieczny.</p>
         <p><span style="color: #00ff32;">● Zielone Chmury:</span> Toksyny. Wymagają komórki Detoksu.</p>
         <p><span style="color: #ffff64;">● Jasne Promienie:</span> Słońce. Chloroplasty generują tu ATP.</p>
-        <p><span style="color: #005096;">● Ciemne Obszary:</span> Gęsta woda. Bardzo wysokie tarcie (powolny ruch).</p>
+        <p><span style="color: #005096;">● Ciemne Obszary:</span> Gęsta woda. Spowolniony ruch.</p>
     </div>
 </div>
 
-<!-- MODAL: CMENTARZ (HISTORIA) -->
+<!-- MODAL: CMENTARZ -->
 <div id="graveyardModal" class="game-modal">
     <div class="modal-header">
         <h2 style="color: #888;">🪦 CMENTARZ ZAPOMNIANYCH SZCZEPÓW</h2>
-        <button class="modal-close-btn" onclick="closeModal('graveyardModal')">X</button>
+        <button onclick="closeModal('graveyardModal')">X</button>
     </div>
     <div id="graveList">Wczytywanie historii...</div>
 </div>
-        <canvas id="minimapCanvas" width="150" height="150" style="position: absolute; top: 20px; right: 20px; border: 2px solid #16ff00; z-index: 11; background: black; pointer-events: auto;"></canvas>
+
+<canvas id="gameCanvas"></canvas>
+
+<!-- SKRYPTY -->
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    // 1. OBSŁUGA MODALI
+    function openModal(id) { document.getElementById(id).style.display = 'block'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    // 2. LOGIKA CMENTARZA
+    window.cmentarz = async function() {
+        openModal('graveyardModal');
+        const list = document.getElementById('graveList');
+        list.innerHTML = "Wskrzeszanie wspomnień...";
+        try {
+            const res = await fetch('/api/graveyard');
+            const data = await res.json();
+            list.innerHTML = "";
+            data.forEach((grave, idx) => {
+                const card = document.createElement('div');
+                card.className = 'grave-card';
+                const canvasId = `grave-canvas-${idx}`;
+                card.innerHTML = `
+                    <canvas id="${canvasId}" width="80" height="80" style="background:#000; border-radius:50%"></canvas>
+                    <div style="margin-left: 20px;">
+                        <strong style="color: #fff;">${grave.name}</strong><br>
+                        Przetrwał do: ${grave.score} ATP<br>
+                        <small>${new Date(grave.date).toLocaleString()}</small>
+                    </div>`;
+                list.appendChild(card);
+                setTimeout(() => window.drawMiniBlueprint && window.drawMiniBlueprint(canvasId, grave.blueprint), 50);
+            });
+        } catch (e) { list.innerHTML = "Cmentarz niedostępny."; }
+    };
+
+    // 3. TUTAJ WKLEJ SWOJE FUNKCJE: joinGame(), draw(), etc.
+    // ...
+</script>
+<script>
+        // FUNKCJE POMOCNICZE UI
+        function openModal(id) { document.getElementById(id).style.display = 'block'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        // LOGIKA CMENTARZA
+        window.cmentarz = async function() {
+            openModal('graveyardModal');
+            const list = document.getElementById('graveList');
+            list.innerHTML = "Wskrzeszanie wspomnień...";
+            try {
+                const res = await fetch('/api/graveyard');
+                const data = await res.json();
+                list.innerHTML = "";
+                data.forEach((grave, idx) => {
+                    const card = document.createElement('div');
+                    card.className = 'grave-card';
+                    const canvasId = `grave-canvas-${idx}`;
+                    card.innerHTML = `
+                        <canvas id="${canvasId}" width="80" height="80" style="background:#000; border-radius:50%"></canvas>
+                        <div style="margin-left: 20px;">
+                            <strong style="color: #fff;">${grave.name}</strong><br>
+                            Przetrwał do: ${grave.score} ATP<br>
+                            <small>${new Date(grave.date).toLocaleString()}</small>
+                        </div>`;
+                    list.appendChild(card);
+                    setTimeout(() => drawMiniBlueprint(canvasId, grave.blueprint), 10);
+                });
+            } catch (e) { list.innerHTML = "Cmentarz niedostępny."; }
+        };
+
+        // RESZTA TWOJEGO KODU JS (joinGame, draw, etc.)
+        // ...
+
+</script>
+<script src="js/editor.js"></script>
+
+<script>
+        // Funkcje obsługi modali (dodaj je tutaj)
+        function openModal(id) { document.getElementById(id).style.display = 'block'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        // Funkcja updatePlayersModal (z poprzedniej instrukcji) musi być tutaj
+
+
+</script>
+
+
+
+<div id="mutationMenu">
+    <h2 style="color:yellow; margin-top:0; margin-bottom: 10px;">🧬 EDYTOR DNA</h2>
+
+    <div style="display: flex; justify-content: center; gap: 20px; font-size: 16px; font-weight: bold; margin-bottom: 15px;">
+        <div style="color: #16ff00; border: 1px dashed #16ff00; padding: 8px 20px; background: rgba(22, 255, 0, 0.1);">
+            💼 TWOJE ATP: <span id="editorCurrentAtp">0</span>
+        </div>
+        <div id="costContainer"
+             style="color: #ffaa00; border: 1px dashed #ffaa00; padding: 8px 20px; background: rgba(255, 170, 0, 0.1);">
+            📉 KOSZT ZMIAN: <span id="blueprintCost">0</span>
+        </div>
     </div>
 
-    <div id="spectatorUI">
-        <h2>💀 TWOJA KOLONIA WYGINĘŁA 💀</h2>
-        <p>Przesuwaj mapę myszką (lub palcem), aby obserwować ekosystem.</p>
-        <button onclick="location.reload()" style="background: red; color: white; border: 1px solid white;">ODRODŹ SIĘ (RESTART)</button>
+    <div id="editorStatsBox">
+        🚀 Zwinność: <span id="statSpeed">0</span> | 🛡️ Masa: <span id="statMass">0</span> | 🔫 Broń: <span
+            id="statFire">0</span> | 🛢️ Magazyn: <span id="statStorage">0</span>
     </div>
-
-    <div id="mutationMenu">
-        <h2 style="color:yellow; margin-top:0; margin-bottom: 10px;">🧬 EDYTOR DNA</h2>
-
-        <div style="display: flex; justify-content: center; gap: 20px; font-size: 16px; font-weight: bold; margin-bottom: 15px;">
-            <div style="color: #16ff00; border: 1px dashed #16ff00; padding: 8px 20px; background: rgba(22, 255, 0, 0.1);">
-                💼 TWOJE ATP: <span id="editorCurrentAtp">0</span>
-            </div>
-            <div id="costContainer" style="color: #ffaa00; border: 1px dashed #ffaa00; padding: 8px 20px; background: rgba(255, 170, 0, 0.1);">
-                📉 KOSZT ZMIAN: <span id="blueprintCost">0</span>
-            </div>
+    <div class="tools">
+        <div class="tool-wrapper" style="border-color: #16ff00;">
+            <button class="tool-btn tool-active" id="tool_base" onclick="setTool('base')" style="color:#16ff00;">🟢
+                Rdzeń (+100)
+            </button>
+            <div class="info-btn" onmousemove="showTip(event, 'base')" onmouseleave="hideTip()">?</div>
         </div>
-
-        <div id="editorStatsBox">
-            🚀 Zwinność: <span id="statSpeed">0</span> | 🛡️ Masa: <span id="statMass">0</span> | 🔫 Broń: <span id="statFire">0</span> | 🛢️ Magazyn: <span id="statStorage">0</span>
+        <div class="tool-wrapper" style="border-color: orange;">
+            <button class="tool-btn" id="tool_thruster" onclick="setTool('thruster')" style="color:orange;">🟠 Napęd
+                (+150)
+            </button>
+            <div class="info-btn" onmousemove="showTip(event, 'thruster')" onmouseleave="hideTip()">?</div>
         </div>
-        <div class="tools">
-            <div class="tool-wrapper" style="border-color: #16ff00;"><button class="tool-btn tool-active" id="tool_base" onclick="setTool('base')" style="color:#16ff00;">🟢 Rdzeń (+100)</button><div class="info-btn" onmousemove="showTip(event, 'base')" onmouseleave="hideTip()">?</div></div>
-            <div class="tool-wrapper" style="border-color: orange;"><button class="tool-btn" id="tool_thruster" onclick="setTool('thruster')" style="color:orange;">🟠 Napęd (+150)</button><div class="info-btn" onmousemove="showTip(event, 'thruster')" onmouseleave="hideTip()">?</div></div>
-            <div class="tool-wrapper" style="border-color: #888888;"><button class="tool-btn" id="tool_armor" onclick="setTool('armor')" style="color:#888888;">🛡️ Pancerz (+50)</button><div class="info-btn" onmousemove="showTip(event, 'armor')" onmouseleave="hideTip()">?</div></div>
-            <div class="tool-wrapper" style="border-color: #ff00aa;"><button class="tool-btn" id="tool_harvester" onclick="setTool('harvester')" style="color:#ff00aa;">🧲 Macek (+150)</button><div class="info-btn" onmousemove="showTip(event, 'harvester')" onmouseleave="hideTip()">?</div></div>
-            <div class="tool-wrapper" style="border-color: #ffcc00;"><button class="tool-btn" id="tool_storage" onclick="setTool('storage')" style="color:#ffcc00;">🛢️ Magazyn (+200)</button><div class="info-btn" onmousemove="showTip(event, 'storage')" onmouseleave="hideTip()">?</div></div>
-            <div class="tool-wrapper" style="border-color: cyan;"><button class="tool-btn" id="tool_shooter" onclick="setTool('shooter')" style="color:cyan;">🔵 Wieża (+250)</button><div class="info-btn" onmousemove="showTip(event, 'shooter')" onmouseleave="hideTip()">?</div></div>
-            <div class="tool-wrapper" style="border-color: #aaff00;"><button class="tool-btn" id="tool_generator" onclick="setTool('generator')" style="color:#aaff00;">🔋 Reaktor (+300)</button><div class="info-btn" onmousemove="showTip(event, 'generator')" onmouseleave="hideTip()">?</div></div>
-            <div class="tool-wrapper" style="border-color: #228B22;"><button class="tool-btn" id="tool_chloroplast" onclick="setTool('chloroplast')" style="color:#228B22;">🌱 Flora (+150)</button><div class="info-btn" onmousemove="showTip(event, 'chloroplast')" onmouseleave="hideTip()">?</div></div>
-            <div class="tool-wrapper" style="border-color: #FFFFFF;"><button class="tool-btn" id="tool_filter" onclick="setTool('filter')" style="color:#FFFFFF;">🧼 Detoks (+200)</button><div class="info-btn" onmousemove="showTip(event, 'filter')" onmouseleave="hideTip()">?</div></div>
-            <div class="tool-wrapper" style="border-color: #AAAAAA;"><button class="tool-btn" id="tool_spike" onclick="setTool('spike')" style="color:#AAAAAA;">🗡️ Kolec (+250)</button><div class="info-btn" onmousemove="showTip(event, 'spike')" onmouseleave="hideTip()">?</div></div>
-            <div class="tool-wrapper" style="border-color: #ff6666;"><button class="tool-btn" id="tool_flesh" onclick="setTool('flesh')" style="color:#ff6666;">🥩 Tkanka (+50)</button><div class="info-btn" onmousemove="showTip(event, 'flesh')" onmouseleave="hideTip()">?</div></div>
-            <div class="tool-wrapper" style="border-color: #66ccff;"><button class="tool-btn" id="tool_sensor" onclick="setTool('sensor')" style="color:#66ccff;">📡 Radar (+150)</button><div class="info-btn" onmousemove="showTip(event, 'sensor')" onmouseleave="hideTip()">?</div></div>
-            <div class="tool-wrapper" style="border-color: #d400ff; margin-left: 10px;"><button class="tool-btn" id="tool_move" onclick="setTool('move')" style="color:#d400ff;">✋ Przesuń</button><div class="info-btn" onmousemove="showTip(event, 'move')" onmouseleave="hideTip()">?</div></div>
-            <div class="tool-wrapper" style="border-color: red;"><button class="tool-btn" id="tool_delete" onclick="setTool('delete')" style="color:red;">❌ Usuń</button><div class="info-btn" onmousemove="showTip(event, 'delete')" onmouseleave="hideTip()">?</div></div>
+        <div class="tool-wrapper" style="border-color: #888888;">
+            <button class="tool-btn" id="tool_armor" onclick="setTool('armor')" style="color:#888888;">🛡️ Pancerz
+                (+50)
+            </button>
+            <div class="info-btn" onmousemove="showTip(event, 'armor')" onmouseleave="hideTip()">?</div>
         </div>
-        <canvas id="editorCanvas" width="600" height="350"></canvas>
-        <p style="font-size:11px; color:#aaa; margin: 3px;">Kółko Myszki = Zoom | Prawy Przycisk = Przesuń Kamere</p>
-        <div style="display:flex; justify-content:space-between; margin-top: 10px;">
-            <button onclick="loadEditor()" style="background: red; color: white;">Cofnij Zmiany</button>
-            <button onclick="saveOrganism()" style="background: #16ff00; color: black; font-weight:bold;">ZAPISZ I WYPŁYŃ</button>
+        <div class="tool-wrapper" style="border-color: #ff00aa;">
+            <button class="tool-btn" id="tool_harvester" onclick="setTool('harvester')" style="color:#ff00aa;">🧲 Macek
+                (+150)
+            </button>
+            <div class="info-btn" onmousemove="showTip(event, 'harvester')" onmouseleave="hideTip()">?</div>
+        </div>
+        <div class="tool-wrapper" style="border-color: #ffcc00;">
+            <button class="tool-btn" id="tool_storage" onclick="setTool('storage')" style="color:#ffcc00;">🛢️ Magazyn
+                (+200)
+            </button>
+            <div class="info-btn" onmousemove="showTip(event, 'storage')" onmouseleave="hideTip()">?</div>
+        </div>
+        <div class="tool-wrapper" style="border-color: cyan;">
+            <button class="tool-btn" id="tool_shooter" onclick="setTool('shooter')" style="color:cyan;">🔵 Wieża
+                (+250)
+            </button>
+            <div class="info-btn" onmousemove="showTip(event, 'shooter')" onmouseleave="hideTip()">?</div>
+        </div>
+        <div class="tool-wrapper" style="border-color: #aaff00;">
+            <button class="tool-btn" id="tool_generator" onclick="setTool('generator')" style="color:#aaff00;">🔋
+                Reaktor (+300)
+            </button>
+            <div class="info-btn" onmousemove="showTip(event, 'generator')" onmouseleave="hideTip()">?</div>
+        </div>
+        <div class="tool-wrapper" style="border-color: #228B22;">
+            <button class="tool-btn" id="tool_chloroplast" onclick="setTool('chloroplast')" style="color:#228B22;">🌱
+                Flora (+150)
+            </button>
+            <div class="info-btn" onmousemove="showTip(event, 'chloroplast')" onmouseleave="hideTip()">?</div>
+        </div>
+        <div class="tool-wrapper" style="border-color: #FFFFFF;">
+            <button class="tool-btn" id="tool_filter" onclick="setTool('filter')" style="color:#FFFFFF;">🧼 Detoks
+                (+200)
+            </button>
+            <div class="info-btn" onmousemove="showTip(event, 'filter')" onmouseleave="hideTip()">?</div>
+        </div>
+        <div class="tool-wrapper" style="border-color: #AAAAAA;">
+            <button class="tool-btn" id="tool_spike" onclick="setTool('spike')" style="color:#AAAAAA;">🗡️ Kolec
+                (+250)
+            </button>
+            <div class="info-btn" onmousemove="showTip(event, 'spike')" onmouseleave="hideTip()">?</div>
+        </div>
+        <div class="tool-wrapper" style="border-color: #ff6666;">
+            <button class="tool-btn" id="tool_flesh" onclick="setTool('flesh')" style="color:#ff6666;">🥩 Tkanka (+50)
+            </button>
+            <div class="info-btn" onmousemove="showTip(event, 'flesh')" onmouseleave="hideTip()">?</div>
+        </div>
+        <div class="tool-wrapper" style="border-color: #66ccff;">
+            <button class="tool-btn" id="tool_sensor" onclick="setTool('sensor')" style="color:#66ccff;">📡 Radar
+                (+150)
+            </button>
+            <div class="info-btn" onmousemove="showTip(event, 'sensor')" onmouseleave="hideTip()">?</div>
+        </div>
+        <div class="tool-wrapper" style="border-color: #d400ff; margin-left: 10px;">
+            <button class="tool-btn" id="tool_move" onclick="setTool('move')" style="color:#d400ff;">✋ Przesuń</button>
+            <div class="info-btn" onmousemove="showTip(event, 'move')" onmouseleave="hideTip()">?</div>
+        </div>
+        <div class="tool-wrapper" style="border-color: red;">
+            <button class="tool-btn" id="tool_delete" onclick="setTool('delete')" style="color:red;">❌ Usuń</button>
+            <div class="info-btn" onmousemove="showTip(event, 'delete')" onmouseleave="hideTip()">?</div>
         </div>
     </div>
+    <canvas id="editorCanvas" width="600" height="350"></canvas>
+    <p style="font-size:11px; color:#aaa; margin: 3px;">Kółko Myszki = Zoom | Prawy Przycisk = Przesuń Kamere</p>
+    <div style="display:flex; justify-content:space-between; margin-top: 10px;">
+        <button onclick="loadEditor()" style="background: red; color: white;">Cofnij Zmiany</button>
+        <button onclick="saveOrganism()" style="background: #16ff00; color: black; font-weight:bold;">ZAPISZ I WYPŁYŃ
+        </button>
+    </div>
+</div>
 
-    <canvas id="gameCanvas"></canvas>
 
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
         const tooltipsText = {
             'base': "<h3 style='color:#16ff00;'>🟢 Rdzeń (Zwykła)</h3><b>HP: 100</b><br>Podstawa. Wytwarza 0.5 siły ciągu (awaryjny napęd) i magazynuje do 2 sztuk minerałów.",
             'thruster': "<h3 style='color:orange;'>🟠 Napęd (Silnik)</h3><b>HP: 80</b><br>Potężny silnik. Generuje aż 3.0 siły ciągu! Konieczny do sprawnego poruszania.",
@@ -688,8 +872,10 @@
         }
 
         window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
-    </script>
-    <script>
+
+
+</script>
+<script>
         // 1. Mapowanie kolorów (musi być, by Canvas wiedział jakich farb użyć)
         function getCellColor(type) {
             if (type === 'shooter') return '#00ffff';
@@ -820,8 +1006,10 @@
         loadGlobalLeaderboard();
 
 
-    </script>
-    <script>
+
+
+</script>
+<script>
 
         window.cmentarz = async function() {
     const modal = document.getElementById('graveyardModal');
@@ -856,8 +1044,10 @@
         list.innerHTML = "Cmentarz jest obecnie niedostępny.";
     }
 };
-    </script>
-    <script>
+
+
+</script>
+<script>
         <!-- Nawigacja na górze mapy -->
 <div id="topNav">
     <button class="nav-btn" onclick="openModal('playersModal')">👥 GRACZE</button>
@@ -896,7 +1086,9 @@
     </div>
     <div id="graveList">Wczytywanie historii...</div>
 </div>
-    </script>
-    <script src="js/editor.js"></script>
+
+
+</script>
+<script src="js/editor.js"></script>
 </body>
 </html>
