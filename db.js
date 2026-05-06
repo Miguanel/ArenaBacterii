@@ -1,12 +1,26 @@
 const mongoose = require('mongoose');
 
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('✅ MongoDB: Połączono!'))
-  .catch(err => console.error('❌ MongoDB: Błąd połączenia:', err));
+// Wyłączamy nieskończone oczekiwanie na bazę danych!
+mongoose.set('bufferCommands', false);
+
+let isDbConnected = false;
+
+if (!process.env.MONGODB_URI) {
+    console.error("❌ BRAK ZMIENNEJ MONGODB_URI! Baza danych nie zadziała.");
+} else {
+    mongoose.connect(process.env.MONGODB_URI, {
+        serverSelectionTimeoutMS: 5000 // Max 5 sekund na połączenie
+    })
+    .then(() => {
+        console.log('✅ MongoDB: Połączono pomyślnie!');
+        isDbConnected = true;
+    })
+    .catch(err => console.error('❌ MongoDB: Błąd połączenia (sprawdź IP w Atlas):', err.message));
+}
 
 const Schema = mongoose.Schema;
 
-// Schemat Rankingu
+// --- SCHEMAT RANKINGU ---
 const scoreSchema = new Schema({
     name: { type: String, required: true, index: true },
     score: { type: Number, required: true },
@@ -14,32 +28,34 @@ const scoreSchema = new Schema({
     date: { type: Date, default: Date.now }
 });
 
-const Score = mongoose.model('Score', scoreSchema);
+// Zabezpieczenie przed nadpisywaniem modeli
+const Score = mongoose.models.Score || mongoose.model('Score', scoreSchema);
 
 async function saveHighScore(name, score, blueprint) {
-    if (!name || score <= 0) return;
+    if (!isDbConnected || !name || score <= 0) return;
     try {
         await Score.findOneAndUpdate(
             { name: name, score: { $lt: score } },
             { $set: { score: score, blueprint: blueprint, date: Date.now() } },
-            { upsert: true }
+            { upsert: true, maxTimeMS: 2000 } // Przerywa po 2 sekundach
         );
-        console.log(`[DB] Zapisano rekord: ${name} (${score} ATP)`);
+        console.log(`[DB] Zapisano rekord życiowy: ${name}`);
     } catch (err) {
         console.error("❌ Błąd zapisu rankingu:", err.message);
     }
 }
 
 async function getTopScores() {
+    if (!isDbConnected) return [];
     try {
-        // DODANO .lean() - zapobiega błędom 500 na serwerze!
-        return await Score.find().sort({ score: -1 }).limit(5).select('name score blueprint date').lean();
+        return await Score.find().sort({ score: -1 }).limit(5).select('name score blueprint date').lean().maxTimeMS(2000);
     } catch (err) {
+        console.error("❌ Błąd pobierania rankingu:", err.message);
         return [];
     }
 }
 
-// Schemat Cmentarza
+// --- SCHEMAT CMENTARZA ---
 const graveSchema = new Schema({
     name: String,
     score: Number,
@@ -48,49 +64,27 @@ const graveSchema = new Schema({
     date: { type: Date, default: Date.now }
 });
 
-const Grave = mongoose.model('Grave', graveSchema);
+const Grave = mongoose.models.Grave || mongoose.model('Grave', graveSchema);
 
-// ... (wcześniejsza część db.js, schematy itp.)
-
-// Funkcja zapisu na cmentarz (wywoływana przy każdej śmierci)
 async function buryOrganism(name, score, blueprint) {
-    // Łagodniejsza walidacja: pozwalamy na pochówek nawet z wynikiem 0
-    if (!name) {
-        console.warn("⚠️ Próba pochówku organizmu bez nazwy - zignorowano.");
-        return;
-    }
-
+    if (!isDbConnected || !name) return;
     try {
-        const deceased = new Grave({
-            name: name,
-            score: score || 0, // Zabezpieczenie
-            blueprint: blueprint
-        });
-
-        await deceased.save(); // Tworzy NOWY dokument w bazie za każdym razem
-        console.log(`[🪦 Cmentarz] Wyryto wspomnienie: ${name} (${score} ATP)`);
+        const deceased = new Grave({ name, score: score || 0, blueprint });
+        await deceased.save();
+        console.log(`[🪦 Cmentarz] Wyryto wspomnienie: ${name}`);
     } catch (err) {
-        console.error("❌ Błąd podczas tworzenia Raportu Wspomnień:", err.message);
+        console.error("❌ Błąd pochówku:", err.message);
     }
 }
 
-// Pobieranie ostatnich zgonów dla modala
 async function getRecentGraves(limit = 15) {
+    if (!isDbConnected) return [];
     try {
-        return await Grave.find()
-            .sort({ date: -1 }) // -1 = od najnowszych
-            .limit(limit)
-            .lean(); // .lean() zapobiega błędom pamięci "500 Internal Server Error"
+        return await Grave.find().sort({ date: -1 }).limit(limit).lean().maxTimeMS(2000);
     } catch (err) {
-        console.error("❌ Błąd odczytu ksiąg cmentarnych:", err.message);
+        console.error("❌ Błąd odczytu cmentarza:", err.message);
         return [];
     }
 }
 
-// KRYTYCZNE: Pamiętaj o wyeksportowaniu nowej funkcji!
-module.exports = {
-    saveHighScore,
-    getTopScores,
-    buryOrganism,
-    getRecentGraves
-};
+module.exports = { saveHighScore, getTopScores, buryOrganism, getRecentGraves };

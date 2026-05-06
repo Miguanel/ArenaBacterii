@@ -2,9 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
-const mongoose = require('mongoose');
 const gameEngine = require('./gameEngine');
-const { getTopScores, getRecentGraves } = require('./db');
+const db = require('./db');
 
 const app = express();
 const server = http.createServer(app);
@@ -12,25 +11,26 @@ const io = new Server(server);
 
 app.use(express.static('public'));
 
-// Endpoint dla Hall of Fame
+// API ENDPOINTY (MUSZĄ BYĆ PRZED server.listen)
 app.get('/api/leaderboard', async (req, res) => {
-    const { getTopScores } = require('./db');
-    const scores = await getTopScores();
-    res.json(scores);
-});
-
-// Endpoint dla Cmentarza (Raporty Wspomnień)
-app.get('/api/graveyard', async (req, res) => {
     try {
-        const { getRecentGraves } = require('./db');
-        const graves = await getRecentGraves(20); // Pobieramy 20 ostatnich wspomnień
-        res.json(graves);
-    } catch (error) {
-        console.error("Błąd API Cmentarza:", error);
-        res.status(500).json({ error: "Nie udało się połączyć z bazą Cmentarza" });
+        const scores = await db.getTopScores();
+        res.json(scores);
+    } catch (e) {
+        res.status(200).json([]); // Zwraca pusto, by nie zaciąć gry błędem
     }
 });
 
+app.get('/api/graveyard', async (req, res) => {
+    try {
+        const graves = await db.getRecentGraves(20);
+        res.json(graves);
+    } catch (e) {
+        res.status(200).json([]); // Zwraca pusto, by nie zaciąć gry błędem
+    }
+});
+
+// Uruchamiamy logikę gry
 gameEngine.init(io);
 
 const PORT = process.env.PORT || 3000;
