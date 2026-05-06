@@ -268,7 +268,7 @@ function init(io) {
         updateZones();
         updateNPCAI();
         updatePhysics(io);
-    }, 1000 / 30);
+    }, 1000 / 20);
 }
 
 function updatePhysics(io) {
