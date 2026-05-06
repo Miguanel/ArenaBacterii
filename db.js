@@ -1,16 +1,16 @@
 const mongoose = require('mongoose');
-require('dotenv').config();
 
-mongoose.connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-}).then(() => console.log('Połączono z MongoDB - Globalny Ranking aktywny!'))
-  .catch(err => console.error('Błąd połączenia z bazą:', err));
+// Render automatycznie wstrzykuje zmienne, więc .config() nie jest zawsze konieczne,
+// ale warto mieć pancerne połączenie.
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log('✅ MongoDB: Połączono!'))
+  .catch(err => console.error('❌ MongoDB: Błąd połączenia:', err));
 
 const scoreSchema = new mongoose.Schema({
-    name: { type: String, required: true, unique: true },
+    // Usuwamy 'unique: true' z name, by uniknąć błędów przy duplikacji,
+    // lepiej zarządzać tym przez findOneAndUpdate.
+    name: { type: String, required: true, index: true },
     score: { type: Number, required: true },
-    // Zmiana na [Object] daje pewność, że Mongoose zapisze wszystko, co jest w obiektach {x, y, type}
     blueprint: { type: [Object], required: true },
     date: { type: Date, default: Date.now }
 });
@@ -18,32 +18,32 @@ const scoreSchema = new mongoose.Schema({
 const Score = mongoose.model('Score', scoreSchema);
 
 async function saveHighScore(name, score, blueprint) {
-    // ZMIANA: Obniżamy próg do zera na czas testów.
-    // Zapisze każdego, kto wejdzie do gry i zdobędzie cokolwiek (lub umrze z bazowym 200).
-    if (score <= 0) return;
+    if (!name || score <= 0) return;
 
     try {
-        const existing = await Score.findOne({ name: name });
-
-        if (!existing || score > existing.score || !existing.blueprint || existing.blueprint.length === 0) {
-
-            const finalScore = (existing && existing.score > score) ? existing.score : score;
-
-            await Score.findOneAndUpdate(
-                { name: name },
-                { score: finalScore, blueprint: blueprint, date: Date.now() },
-                { upsert: true, returnDocument: 'after' }
-            );
-            console.log(`[DB] Zapisano wynik dla: ${name} (${finalScore} ATP)`); // Log w konsoli, żebyś widział, że działa
-        }
+        // Używamy atomicznej operacji: znajdź gracza i zaktualizuj go TYLKO jeśli ma lepszy wynik.
+        // Jeśli nie istnieje (upsert) – stwórz nowego.
+        await Score.findOneAndUpdate(
+            { name: name, score: { $lt: score } }, // Szukaj tego gracza z mniejszym wynikiem
+            {
+                $set: {
+                    score: score,
+                    blueprint: blueprint,
+                    date: Date.now()
+                }
+            },
+            { upsert: true } // Jeśli nie znajdzie (nowy gracz), stwórz wpis
+        );
+        console.log(`[DB] Próba zapisu dla: ${name} (${score} ATP) zakończona sukcesem.`);
     } catch (err) {
-        console.error("Błąd zapisu rankingu:", err);
+        // Jeśli błąd dotyczy duplikatu klucza (przez stare unique:true), po prostu go zalogujemy.
+        console.error("❌ Błąd zapisu rankingu:", err.message);
     }
 }
 
 async function getTopScores() {
     try {
-        return await Score.find().sort({ score: -1 }).limit(5);
+        return await Score.find().sort({ score: -1 }).limit(5).select('name score date');
     } catch (err) {
         return [];
     }

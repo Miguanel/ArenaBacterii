@@ -83,6 +83,8 @@ function spawnNPC() {
 
 function updateNPCAI() {
     let npcCount = 0;
+    // OGRANICZENIE PRZEPUSTOWOŚCI: Wysyłaj tylko to, co gracz widzi
+
     for (let id in organisms) {
         let org = organisms[id];
         if (!org.isNPC) continue;
@@ -139,6 +141,7 @@ function updateNPCAI() {
     if (npcCount < config.MAX_NPCS) {
         if (npcCount === 0 || Math.random() < 0.05) spawnNPC();
     }
+
 }
 
 function recenterBlueprint(org) {
@@ -650,8 +653,8 @@ function updatePhysics(io) {
         }
 
         if(org.nodes.length === 0 || org.atp <= 0) {
-            // --- ZMIANA: Zapisujemy organizm PRZY ŚMIERCI (używając totalAtp i bezpiecznej kopii Blueprintu) ---
             if (!org.isNPC) {
+                console.log(`[DEBUG] Próba zapisu rankingu dla ${org.species} przed usunięciem.`);
                 saveHighScore(org.species, Math.floor(org.totalAtp), org.rankingBlueprint);
                 io.to(id).emit('gameOver');
             }
@@ -666,7 +669,48 @@ function updatePhysics(io) {
 
     tickCounter++;
     if (tickCounter % 2 === 0) {
-        io.emit('updateMap', { organisms, food: glucoseParticles, minerals: mineralParticles, predators, plutoniumZone, viruses, playerPhages, leaderboard, zones: mapZones });
+        for (let id in organisms) {
+            let player = organisms[id];
+            if (player.isNPC) continue;
+
+            const visionRadius = 1200;
+
+            // Filtrowanie organizmów w pobliżu
+            const nearbyOrganisms = {};
+            for (let otherId in organisms) {
+                let other = organisms[otherId];
+                // Obliczamy dystans (bez hypot dla wydajności serwera)
+                let dx = other.x - player.x;
+                let dy = other.y - player.y;
+                if (dx*dx + dy*dy < visionRadius*visionRadius) {
+                    nearbyOrganisms[otherId] = other;
+                }
+            }
+
+            // Filtrowanie zasobów
+            const nearbyFood = glucoseParticles.filter(f => {
+                let dx = f.x - player.x; let dy = f.y - player.y;
+                return dx*dx + dy*dy < visionRadius*visionRadius;
+            });
+
+            const nearbyMinerals = mineralParticles.filter(m => {
+                let dx = m.x - player.x; let dy = m.y - player.y;
+                return dx*dx + dy*dy < visionRadius*visionRadius;
+            });
+
+            // WYSYŁKA TYLKO TUTAJ
+            io.to(id).emit('updateMap', {
+                organisms: nearbyOrganisms,
+                food: nearbyFood,
+                minerals: nearbyMinerals,
+                predators,
+                plutoniumZone,
+                viruses,
+                playerPhages,
+                leaderboard,
+                zones: mapZones
+            });
+        }
     }
 }
 
