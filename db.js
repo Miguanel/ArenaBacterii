@@ -6,11 +6,13 @@ mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('✅ MongoDB: Połączono!'))
   .catch(err => console.error('❌ MongoDB: Błąd połączenia:', err));
 
-const scoreSchema = new mongoose.Schema({
-    // Usuwamy 'unique: true' z name, by uniknąć błędów przy duplikacji,
-    // lepiej zarządzać tym przez findOneAndUpdate.
+// ROZWIĄZANIE: Definiujemy Schema, aby JavaScript wiedział co to jest
+const Schema = mongoose.Schema;
+
+const scoreSchema = new Schema({
     name: { type: String, required: true, index: true },
     score: { type: Number, required: true },
+    // Używamy Mixed, aby baza była elastyczna dla danych z Unity i WWW
     blueprint: { type: Schema.Types.Mixed, required: true },
     date: { type: Date, default: Date.now }
 });
@@ -21,10 +23,9 @@ async function saveHighScore(name, score, blueprint) {
     if (!name || score <= 0) return;
 
     try {
-        // Używamy atomicznej operacji: znajdź gracza i zaktualizuj go TYLKO jeśli ma lepszy wynik.
-        // Jeśli nie istnieje (upsert) – stwórz nowego.
+        // Atomiczna aktualizacja - zapisz tylko jeśli wynik jest lepszy
         await Score.findOneAndUpdate(
-            { name: name, score: { $lt: score } }, // Szukaj tego gracza z mniejszym wynikiem
+            { name: name, score: { $lt: score } },
             {
                 $set: {
                     score: score,
@@ -32,11 +33,10 @@ async function saveHighScore(name, score, blueprint) {
                     date: Date.now()
                 }
             },
-            { upsert: true } // Jeśli nie znajdzie (nowy gracz), stwórz wpis
+            { upsert: true }
         );
         console.log(`[DB] Próba zapisu dla: ${name} (${score} ATP) zakończona sukcesem.`);
     } catch (err) {
-        // Jeśli błąd dotyczy duplikatu klucza (przez stare unique:true), po prostu go zalogujemy.
         console.error("❌ Błąd zapisu rankingu:", err.message);
     }
 }
