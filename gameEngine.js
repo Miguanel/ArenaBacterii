@@ -257,10 +257,20 @@ function init(io) {
         socket.on('disconnect', () => {
             let org = organisms[socket.id];
             if (org && !org.isNPC) {
-                // Zapisujemy przy wyjściu z serwera
-                saveHighScore(org.species, Math.floor(org.totalAtp), org.rankingBlueprint);
+                console.log(`🔌 Gracz ${org.species} uciekł/odłączył się. Rozpad kolonii!`);
+
+                // Zamiast po prostu "usuwać" gracza z pamięci, uśmiercamy go.
+                // 1. Ustawiamy ATP na 0 (aby trafił na Cmentarz)
+                org.atp = 0;
+
+                // 2. Ustawiamy HP każdej komórki na 0 (aby pękły i wyrzuciły glukozę na mapę)
+                org.nodes.forEach(n => n.hp = 0);
+
+                // NIE UŻYWAMY: delete organisms[socket.id];
+                // Twój silnik gry (funkcja updatePhysics) w następnej klatce sam zauważy,
+                // że komórki nie żyją, wyrzuci z nich surowce, zapisze gracza do bazy
+                // i poprawnie go usunie.
             }
-            delete organisms[socket.id];
         });
     });
 
