@@ -11,26 +11,25 @@ const io = new Server(server);
 
 app.use(express.static('public'));
 
-// API ENDPOINTY (MUSZĄ BYĆ PRZED server.listen)
 app.get('/api/leaderboard', async (req, res) => {
     try {
         const scores = await db.getTopScores();
-        res.json(scores);
+        res.json(scores || []);
     } catch (e) {
-        res.status(200).json([]); // Zwraca pusto, by nie zaciąć gry błędem
+        res.json([]);
     }
 });
 
 app.get('/api/graveyard', async (req, res) => {
     try {
         const graves = await db.getRecentGraves(20);
-        res.json(graves);
+        res.json(graves || []);
     } catch (e) {
-        res.status(200).json([]); // Zwraca pusto, by nie zaciąć gry błędem
+        res.json([]);
     }
 });
 
-// Uruchamiamy logikę gry
+// Uruchamiamy silnik gry
 gameEngine.init(io);
 
 const PORT = process.env.PORT || 3000;

@@ -266,7 +266,8 @@
         const list = document.getElementById('graveList');
         list.innerHTML = "Wskrzeszanie wspomnień...";
         try {
-            const res = await fetch('/api/graveyard');
+            // DODANO cache: 'no-store'
+            const res = await fetch('/api/graveyard', { cache: 'no-store' });
             const data = await res.json();
             list.innerHTML = "";
             data.forEach((grave, idx) => {
@@ -334,7 +335,8 @@
 
     async function loadGlobalLeaderboard() {
         try {
-            const res = await fetch('/api/leaderboard');
+            // DODANO cache: 'no-store'
+            const res = await fetch('/api/leaderboard', { cache: 'no-store' });
             if(!res.ok) throw new Error('Błąd sieci');
             const data = await res.json();
             const container = document.getElementById('lbListContainer');
