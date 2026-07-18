@@ -56,15 +56,16 @@ button:hover { background: #16ff00; color: #1a1a2e; }
 }
 
 #editorCanvas {
-    max-width: 100%;
-    width: 100%;
-    height: auto;
-    aspect-ratio: 600 / 350;
+    /* Wymuszamy responsywność bez pozycji relatywnej, która psuła układ */
     display: block;
-    margin: 10px auto;
+    width: 100%;        /* Dopasuj do szerokości kontenera */
+    height: auto;       /* Utrzymuj proporcje */
+    aspect-ratio: 600 / 350; /* Zgodnie z wymiarami twojego edytora */
     border: 1px solid #444;
     background: #0a0a1a;
     cursor: crosshair;
+    margin: 10px auto;
+    box-sizing: border-box; /* Ważne, żeby border nie powiększał elementu */
 }
 
 .tools { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-bottom: 5px; }

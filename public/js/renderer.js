@@ -260,3 +260,10 @@ window.draw = function() {
 
     requestAnimationFrame(window.draw);
 };
+
+// Dodaj obsługę dotyku do poruszania kamerą w renderer.js
+canvas.addEventListener('touchmove', (e) => {
+    e.preventDefault(); // Blokuje scrollowanie strony
+    const touch = e.touches[0];
+    // Tu zaimplementuj logikę przesuwania cameraX/cameraY
+}, { passive: false });
