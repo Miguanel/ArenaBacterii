@@ -6,7 +6,10 @@ body {
     color: #16ff00;
     font-family: monospace;
     margin: 0;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
+    width: 100vw;
+    height: 100vh;
 }
 
 canvas {
@@ -59,7 +62,15 @@ button:hover { background: #16ff00; color: #1a1a2e; }
    ========================================= */
 #mutationMenu { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); background: #1a1a2e; border: 2px dashed yellow; padding: 15px; display: none; z-index: 100; pointer-events: auto; width: 850px; text-align: center;}
 #editorCanvas { position: relative; border: 1px solid #444; background: #0a0a1a; cursor: crosshair; margin: 5px auto; width: 600px; height: 350px; display: block;}
-
+#editorCanvas {
+    /* ZMIANA: Użyj max-width, żeby edytor nie wychodził poza ekran telefonu */
+    max-width: 100%;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 600 / 350;
+    display: block;
+    margin: 10px auto;
+}
 .tools { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-bottom: 5px; }
 .tool-wrapper { display: inline-flex; border: 1px solid #444; border-radius: 4px; overflow: hidden; background: #1a1a2e; }
 .tool-wrapper .tool-btn { border: none; margin: 0; border-radius: 0; font-size: 11px; padding: 6px 10px; outline: none; }
@@ -96,14 +107,30 @@ canvas.lb-canvas { position: static !important; width: 60px !important; height: 
 .nav-btn:hover { background: #16ff00; color: black; }
 
 .game-modal {
-    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    background: rgba(10, 10, 26, 0.95); border: 2px solid #16ff00; padding: 20px;
-    width: 80%; max-width: 600px; max-height: 80vh; overflow-y: auto;
-    z-index: 2500; display: none; box-shadow: 0 0 20px rgba(0, 255, 0, 0.3); pointer-events: auto;
+    position: fixed;
+    top: 0; /* Zmieniono z 50%, aby łatwiej zarządzać przewijaniem */
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(10, 10, 26, 0.98);
+    z-index: 2500;
+    display: none;
+    /* TO JEST KLUCZOWE DLA PRZEWIJANIA: */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* Płynne przewijanie na iOS/Android */
+    padding: 20px;
+    box-sizing: border-box;
 }
 .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #16ff00; margin-bottom: 15px; padding-bottom: 10px; }
 .modal-close-btn { background: #ff4444; color: white; border: none; padding: 5px 15px; cursor: pointer; }
-
+.modal-content {
+    margin: 50px auto; /* Odstęp od góry */
+    background: #1a1a2e;
+    border: 2px solid #16ff00;
+    padding: 20px;
+    max-width: 600px;
+    min-height: 90vh; /* Zmusza modal do bycia przewijalnym */
+}
 /* =========================================
    7. RESPONSYWNOŚĆ (RWD)
    ========================================= */
