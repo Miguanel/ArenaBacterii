@@ -49,23 +49,46 @@ button:hover { background: #16ff00; color: #1a1a2e; }
 /* =========================================
    4. EDYTOR I MUTACJE
    ========================================= */
+
+/* --- KONTENERY WIDOKÓW --- */
+.view-active { display: block !important; }
+.view-hidden { display: none !important; }
+
+/* --- RESPONSOWNE MENU MUTACJI --- */
+#view-editor {
+    /* Ustawia edytor jako flexbox, co centruje go idealnie na każdym ekranie */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 20px 10px;
+    box-sizing: border-box;
+}
+
 #mutationMenu {
-    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-    background: #1a1a2e; border: 2px dashed yellow; padding: 15px; display: none;
-    z-index: 100; pointer-events: auto; width: 90%; max-width: 850px; text-align: center;
+    /* Usuwamy position: absolute i sztywne 850px! */
+    position: relative;
+    background: #1a1a2e;
+    border: 2px dashed yellow;
+    padding: 15px;
+    width: 100%;
+    max-width: 650px; /* Nie pozwoli mu być szerszym niż 650px na PC */
+    text-align: center;
+    border-radius: 8px;
+    pointer-events: auto;
 }
 
 #editorCanvas {
-    /* Wymuszamy responsywność bez pozycji relatywnej, która psuła układ */
-    display: block;
-    width: 100%;        /* Dopasuj do szerokości kontenera */
-    height: auto;       /* Utrzymuj proporcje */
-    aspect-ratio: 600 / 350; /* Zgodnie z wymiarami twojego edytora */
+    /* Magia responsywności Canvasa */
+    width: 100%;
+    height: auto;
+    aspect-ratio: 600 / 350; /* Utrzymuje proporcje logiczne 600x350 */
     border: 1px solid #444;
     background: #0a0a1a;
     cursor: crosshair;
     margin: 10px auto;
-    box-sizing: border-box; /* Ważne, żeby border nie powiększał elementu */
+    display: block;
+    touch-action: none; /* Blokuje przewijanie ekranu, gdy mażemy palcem po Canvasie! */
 }
 
 .tools { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-bottom: 5px; }

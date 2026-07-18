@@ -16,6 +16,19 @@ window.cameraY = 1500;
 window.WORLD_WIDTH = 3000;
 window.WORLD_HEIGHT = 3000;
 
+window.switchView = function(viewName) {
+    const gameView = document.getElementById('view-game');
+    const editorView = document.getElementById('view-editor');
+
+    if (viewName === 'editor') {
+        gameView.style.display = 'none';
+        editorView.style.display = 'flex'; // używamy flex dla wycentrowania
+    } else {
+        gameView.style.display = 'block';
+        editorView.style.display = 'none';
+    }
+};
+
 function joinGame() {
     const name = document.getElementById('strainName').value;
     document.getElementById('loginScreen').style.display = 'none';
@@ -45,12 +58,12 @@ function joinGame() {
     });
 
     window.socket.on('enterMutationZone', () => {
-        document.getElementById('mutationMenu').style.display = 'block';
+        window.switchView('editor'); // Odpala nowy widok
         if (typeof loadEditor === 'function') loadEditor();
     });
 
     window.socket.on('blueprintSaved', () => {
-        document.getElementById('mutationMenu').style.display = 'none';
+        window.switchView('game'); // Wraca do gry
         window.socket.emit('exitZone');
     });
 
@@ -117,10 +130,10 @@ function joinGame() {
     });
 }
 
-function closeMutationMenu() {
-    document.getElementById('mutationMenu').style.display = 'none';
+window.closeMutationMenu = function() {
+    window.switchView('game'); // Wraca do gry
     if(window.socket) window.socket.emit('exitZone');
-}
+};
 
 window.isFreeCamera = false;
 let isDragging = false;

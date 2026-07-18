@@ -34,102 +34,116 @@
     </div>
 </div>
 
-<!-- INTERFEJS GRY -->
-<div id="gameUI">
-    <div id="stats">ATP: <span id="atpDisplay">0</span> | Szczep: <span id="idDisplay">Brak</span></div>
+<!-- NOWOŚĆ: Główny kontener izolujący przestrzeń roboczą aplikacji -->
+<div id="app-container" style="width: 100vw; height: 100vh; position: relative; overflow: hidden;">
 
-    <!-- Nawigacja na górze mapy -->
-    <div id="topNav">
-        <button class="nav-btn" onclick="openModal('playersModal')">👥 GRACZE</button>
-        <button class="nav-btn" onclick="openModal('mapLegendModal')">🗺️ LEGENDA</button>
-        <button class="nav-btn" onclick="window.cmentarz()">🪦 HISTORIA (CMENTARZ)</button>
-    </div>
+    <!-- ========================================== -->
+    <!-- WIDOK 1: GŁÓWNA ARENA I NAWIGACJA TAKTYCZNA -->
+    <!-- ========================================== -->
+    <div id="view-game" style="width: 100%; height: 100%; display: block; position: relative;">
 
-    <!-- Skrócony leaderboard po prawej -->
-    <div id="leaderboard"><b>🏆 TOP 3</b><div id="lbList"></div></div>
+        <canvas id="gameCanvas"></canvas>
 
-    <!-- Minimapa -->
-    <canvas id="minimapCanvas" width="150" height="150" style="position: absolute; top: 20px; right: 20px; border: 2px solid #16ff00; z-index: 11; background: black; pointer-events: auto; cursor: crosshair;"></canvas>
-    
-    <!-- Przycisk Powrotu Kamery -->
-    <button id="centerCamBtn" style="position: absolute; top: 180px; right: 20px; z-index: 11; display: none; width: 154px; font-weight: bold; background: #ffaa00; color: #000; border: 2px solid #ffaa00; padding: 10px; cursor: pointer; pointer-events: auto; border-radius: 4px;" onclick="window.resetCamera()">🎯 WYŚRODKUJ</button>
-</div>
+        <div id="gameUI">
+            <div id="stats">ATP: <span id="atpDisplay">0</span> | Szczep: <span id="idDisplay">Brak</span></div>
 
-<!-- MODALE -->
-<div id="playersModal" class="game-modal">
-    <div class="modal-header">
-        <h2>👥 AKTUALNE SZCZEPY</h2>
-        <button class="modal-close-btn" onclick="closeModal('playersModal')">X</button>
-    </div>
-    <div id="currentPlayersList">Brak danych.</div>
-</div>
+            <!-- Nawigacja na górze mapy -->
+            <div id="topNav">
+                <button class="nav-btn" onclick="openModal('playersModal')">👥 GRACZE</button>
+                <button class="nav-btn" onclick="openModal('mapLegendModal')">🗺️ LEGENDA</button>
+                <button class="nav-btn" onclick="window.cmentarz()">🪦 HISTORIA (CMENTARZ)</button>
+            </div>
 
-<div id="mapLegendModal" class="game-modal">
-    <div class="modal-header">
-        <h2>🗺️ INFORMACJE O ŚRODOWISKU</h2>
-        <button class="modal-close-btn" onclick="closeModal('mapLegendModal')">X</button>
-    </div>
-    <div style="color: #ccc; line-height: 1.6;">
-        <p><span style="color: yellow;">● Żółta Strefa:</span> Bunkier / Edytor DNA. Tu jesteś bezpieczny.</p>
-        <p><span style="color: #00ff32;">● Zielone Chmury:</span> Toksyny. Wymagają komórki Detoksu.</p>
-        <p><span style="color: #ffff64;">● Jasne Promienie:</span> Słońce. Chloroplasty generują tu ATP.</p>
-        <p><span style="color: #005096;">● Ciemne Obszary:</span> Gęsta woda. Bardzo wysokie tarcie (powolny ruch).</p>
-    </div>
-</div>
+            <!-- Skrócony leaderboard po prawej -->
+            <div id="leaderboard"><b>🏆 TOP 3</b><div id="lbList"></div></div>
 
-<div id="graveyardModal" class="game-modal">
-    <div class="modal-header">
-        <h2 style="color: #888;">🪦 CMENTARZ ZAPOMNIANYCH SZCZEPÓW</h2>
-        <button class="modal-close-btn" onclick="closeModal('graveyardModal')">X</button>
-    </div>
-    <div id="graveList">Wczytywanie historii...</div>
-</div>
+            <!-- Minimapa -->
+            <canvas id="minimapCanvas" width="150" height="150" style="position: absolute; top: 20px; right: 20px; border: 2px solid #16ff00; z-index: 11; background: black; pointer-events: auto; cursor: crosshair;"></canvas>
 
-<div id="spectatorUI">
-    <h2>💀 TWOJA KOLONIA WYGINĘŁA 💀</h2>
-    <p>Przesuwaj mapę myszką (lub palcem), aby obserwować ekosystem.</p>
-    <button onclick="location.reload()" style="background: red; color: white; border: 1px solid white;">ODRODŹ SIĘ (RESTART)</button>
-</div>
-
-<!-- EDYTOR DNA -->
-<div id="mutationMenu">
-    <h2 style="color:yellow; margin-top:0; margin-bottom: 10px;">🧬 EDYTOR DNA</h2>
-    <div style="display: flex; justify-content: center; gap: 20px; font-size: 16px; font-weight: bold; margin-bottom: 15px;">
-        <div style="color: #16ff00; border: 1px dashed #16ff00; padding: 8px 20px; background: rgba(22, 255, 0, 0.1);">
-            💼 TWOJE ATP: <span id="editorCurrentAtp">0</span>
+            <!-- Przycisk Powrotu Kamery -->
+            <button id="centerCamBtn" style="position: absolute; top: 180px; right: 20px; z-index: 11; display: none; width: 154px; font-weight: bold; background: #ffaa00; color: #000; border: 2px solid #ffaa00; padding: 10px; cursor: pointer; pointer-events: auto; border-radius: 4px;" onclick="window.resetCamera()">🎯 WYŚRODKUJ</button>
         </div>
-        <div id="costContainer" style="color: #ffaa00; border: 1px dashed #ffaa00; padding: 8px 20px; background: rgba(255, 170, 0, 0.1);">
-            📉 KOSZT ZMIAN: <span id="blueprintCost">0</span>
+
+        <!-- MODALE ARENY (Zagnieżdżone w widoku gry) -->
+        <div id="playersModal" class="game-modal">
+            <div class="modal-header">
+                <h2>👥 AKTUALNE SZCZEPY</h2>
+                <button class="modal-close-btn" onclick="closeModal('playersModal')">X</button>
+            </div>
+            <div id="currentPlayersList">Brak danych.</div>
+        </div>
+
+        <div id="mapLegendModal" class="game-modal">
+            <div class="modal-header">
+                <h2>🗺️ INFORMACJE O ŚRODOWISKU</h2>
+                <button class="modal-close-btn" onclick="closeModal('mapLegendModal')">X</button>
+            </div>
+            <div style="color: #ccc; line-height: 1.6;">
+                <p><span style="color: yellow;">● Żółta Strefa:</span> Bunkier / Edytor DNA. Tu jesteś bezpieczny.</p>
+                <p><span style="color: #00ff32;">● Zielone Chmury:</span> Toksyny. Wymagają komórki Detoksu.</p>
+                <p><span style="color: #ffff64;">● Jasne Promienie:</span> Słońce. Chloroplasty generują tu ATP.</p>
+                <p><span style="color: #005096;">● Ciemne Obszary:</span> Gęsta woda. Bardzo wysokie tarcie (powolny ruch).</p>
+            </div>
+        </div>
+
+        <div id="graveyardModal" class="game-modal">
+            <div class="modal-header">
+                <h2 style="color: #888;">🪦 CMENTARZ ZAPOMNIANYCH SZCZEPÓW</h2>
+                <button class="modal-close-btn" onclick="closeModal('graveyardModal')">X</button>
+            </div>
+            <div id="graveList">Wczytywanie historii...</div>
+        </div>
+
+        <div id="spectatorUI">
+            <h2>💀 TWOJA KOLONIA WYGINĘŁA 💀</h2>
+            <p>Przesuwaj mapę myszką (lub palcem), aby obserwować ekosystem.</p>
+            <button onclick="location.reload()" style="background: red; color: white; border: 1px solid white;">ODRODŹ SIĘ (RESTART)</button>
         </div>
     </div>
-    <div id="editorStatsBox">
-        🚀 Zwinność: <span id="statSpeed">0</span> | 🛡️ Masa: <span id="statMass">0</span> | 🔫 Broń: <span id="statFire">0</span> | 🛢️ Magazyn: <span id="statStorage">0</span>
-    </div>
-    <div class="tools">
-        <div class="tool-wrapper" style="border-color: #16ff00;"><button class="tool-btn tool-active" id="tool_base" onclick="setTool('base')" style="color:#16ff00;">🟢 Rdzeń (+100)</button><div class="info-btn" onmousemove="showTip(event, 'base')" onmouseleave="hideTip()">?</div></div>
-        <div class="tool-wrapper" style="border-color: orange;"><button class="tool-btn" id="tool_thruster" onclick="setTool('thruster')" style="color:orange;">🟠 Napęd (+150)</button><div class="info-btn" onmousemove="showTip(event, 'thruster')" onmouseleave="hideTip()">?</div></div>
-        <div class="tool-wrapper" style="border-color: #888888;"><button class="tool-btn" id="tool_armor" onclick="setTool('armor')" style="color:#888888;">🛡️ Pancerz (+50)</button><div class="info-btn" onmousemove="showTip(event, 'armor')" onmouseleave="hideTip()">?</div></div>
-        <div class="tool-wrapper" style="border-color: #ff00aa;"><button class="tool-btn" id="tool_harvester" onclick="setTool('harvester')" style="color:#ff00aa;">🧲 Macek (+150)</button><div class="info-btn" onmousemove="showTip(event, 'harvester')" onmouseleave="hideTip()">?</div></div>
-        <div class="tool-wrapper" style="border-color: #ffcc00;"><button class="tool-btn" id="tool_storage" onclick="setTool('storage')" style="color:#ffcc00;">🛢️ Magazyn (+200)</button><div class="info-btn" onmousemove="showTip(event, 'storage')" onmouseleave="hideTip()">?</div></div>
-        <div class="tool-wrapper" style="border-color: cyan;"><button class="tool-btn" id="tool_shooter" onclick="setTool('shooter')" style="color:cyan;">🔵 Wieża (+250)</button><div class="info-btn" onmousemove="showTip(event, 'shooter')" onmouseleave="hideTip()">?</div></div>
-        <div class="tool-wrapper" style="border-color: #aaff00;"><button class="tool-btn" id="tool_generator" onclick="setTool('generator')" style="color:#aaff00;">🔋 Reaktor (+300)</button><div class="info-btn" onmousemove="showTip(event, 'generator')" onmouseleave="hideTip()">?</div></div>
-        <div class="tool-wrapper" style="border-color: #228B22;"><button class="tool-btn" id="tool_chloroplast" onclick="setTool('chloroplast')" style="color:#228B22;">🌱 Flora (+150)</button><div class="info-btn" onmousemove="showTip(event, 'chloroplast')" onmouseleave="hideTip()">?</div></div>
-        <div class="tool-wrapper" style="border-color: #FFFFFF;"><button class="tool-btn" id="tool_filter" onclick="setTool('filter')" style="color:#FFFFFF;">🧼 Detoks (+200)</button><div class="info-btn" onmousemove="showTip(event, 'filter')" onmouseleave="hideTip()">?</div></div>
-        <div class="tool-wrapper" style="border-color: #AAAAAA;"><button class="tool-btn" id="tool_spike" onclick="setTool('spike')" style="color:#AAAAAA;">🗡️ Kolec (+250)</button><div class="info-btn" onmousemove="showTip(event, 'spike')" onmouseleave="hideTip()">?</div></div>
-        <div class="tool-wrapper" style="border-color: #ff6666;"><button class="tool-btn" id="tool_flesh" onclick="setTool('flesh')" style="color:#ff6666;">🥩 Tkanka (+50)</button><div class="info-btn" onmousemove="showTip(event, 'flesh')" onmouseleave="hideTip()">?</div></div>
-        <div class="tool-wrapper" style="border-color: #66ccff;"><button class="tool-btn" id="tool_sensor" onclick="setTool('sensor')" style="color:#66ccff;">📡 Radar (+150)</button><div class="info-btn" onmousemove="showTip(event, 'sensor')" onmouseleave="hideTip()">?</div></div>
-        <div class="tool-wrapper" style="border-color: #d400ff; margin-left: 10px;"><button class="tool-btn" id="tool_move" onclick="setTool('move')" style="color:#d400ff;">✋ Przesuń</button><div class="info-btn" onmousemove="showTip(event, 'move')" onmouseleave="hideTip()">?</div></div>
-        <div class="tool-wrapper" style="border-color: red;"><button class="tool-btn" id="tool_delete" onclick="setTool('delete')" style="color:red;">❌ Usuń</button><div class="info-btn" onmousemove="showTip(event, 'delete')" onmouseleave="hideTip()">?</div></div>
-    </div>
-    <canvas id="editorCanvas" width="600" height="350"></canvas>
-    <p style="font-size:11px; color:#aaa; margin: 3px;">Kółko Myszki = Zoom | Prawy Przycisk = Przesuń Kamere</p>
-    <div style="display:flex; justify-content:space-between; margin-top: 10px;">
-        <button onclick="loadEditor()" style="background: red; color: white;">Cofnij Zmiany</button>
-        <button onclick="saveOrganism()" style="background: #16ff00; color: black; font-weight:bold;">ZAPISZ I WYPŁYŃ</button>
-    </div>
-</div>
 
-<canvas id="gameCanvas"></canvas>
+    <!-- ========================================== -->
+    <!-- WIDOK 2: IZOLOWANE LABORATORIUM EDYCJI DNA -->
+    <!-- ========================================== -->
+    <div id="view-editor" style="display: none;">
+        <div id="mutationMenu">
+            <h2 style="color:yellow; margin-top:0; margin-bottom: 10px;">🧬 EDYTOR DNA</h2>
+            <div style="display: flex; justify-content: center; gap: 20px; font-size: 16px; font-weight: bold; margin-bottom: 15px;">
+                <div style="color: #16ff00; border: 1px dashed #16ff00; padding: 8px 20px; background: rgba(22, 255, 0, 0.1); white-space: nowrap;">
+                    💼 TWOJE ATP: <span id="editorCurrentAtp">0</span>
+                </div>
+                <div id="costContainer" style="color: #ffaa00; border: 1px dashed #ffaa00; padding: 8px 20px; background: rgba(255, 170, 0, 0.1); white-space: nowrap;">
+                    📉 KOSZT ZMIAN: <span id="blueprintCost">0</span>
+                </div>
+            </div>
+            <div id="editorStatsBox">
+                🚀 Zwinność: <span id="statSpeed">0</span> | 🛡️ Masa: <span id="statMass">0</span> | 🔫 Broń: <span id="statFire">0</span> | 🛢️ Magazyn: <span id="statStorage">0</span>
+            </div>
+            <div class="tools">
+                <div class="tool-wrapper" style="border-color: #16ff00;"><button class="tool-btn tool-active" id="tool_base" onclick="setTool('base')" style="color:#16ff00;">🟢 Rdzeń (+100)</button><div class="info-btn" onmousemove="showTip(event, 'base')" onmouseleave="hideTip()">?</div></div>
+                <div class="tool-wrapper" style="border-color: orange;"><button class="tool-btn" id="tool_thruster" onclick="setTool('thruster')" style="color:orange;">🟠 Napęd (+150)</button><div class="info-btn" onmousemove="showTip(event, 'thruster')" onmouseleave="hideTip()">?</div></div>
+                <div class="tool-wrapper" style="border-color: #888888;"><button class="tool-btn" id="tool_armor" onclick="setTool('armor')" style="color:#888888;">🛡️ Pancerz (+50)</button><div class="info-btn" onmousemove="showTip(event, 'armor')" onmouseleave="hideTip()">?</div></div>
+                <div class="tool-wrapper" style="border-color: #ff00aa;"><button class="tool-btn" id="tool_harvester" onclick="setTool('harvester')" style="color:#ff00aa;">🧲 Macek (+150)</button><div class="info-btn" onmousemove="showTip(event, 'harvester')" onmouseleave="hideTip()">?</div></div>
+                <div class="tool-wrapper" style="border-color: #ffcc00;"><button class="tool-btn" id="tool_storage" onclick="setTool('storage')" style="color:#ffcc00;">🛢️ Magazyn (+200)</button><div class="info-btn" onmousemove="showTip(event, 'storage')" onmouseleave="hideTip()">?</div></div>
+                <div class="tool-wrapper" style="border-color: cyan;"><button class="tool-btn" id="tool_shooter" onclick="setTool('shooter')" style="color:cyan;">🔵 Wieża (+250)</button><div class="info-btn" onmousemove="showTip(event, 'shooter')" onmouseleave="hideTip()">?</div></div>
+                <div class="tool-wrapper" style="border-color: #aaff00;"><button class="tool-btn" id="tool_generator" onclick="setTool('generator')" style="color:#aaff00;">🔋 Reaktor (+300)</button><div class="info-btn" onmousemove="showTip(event, 'generator')" onmouseleave="hideTip()">?</div></div>
+                <div class="tool-wrapper" style="border-color: #228B22;"><button class="tool-btn" id="tool_chloroplast" onclick="setTool('chloroplast')" style="color:#228B22;">🌱 Flora (+150)</button><div class="info-btn" onmousemove="showTip(event, 'chloroplast')" onmouseleave="hideTip()">?</div></div>
+                <div class="tool-wrapper" style="border-color: #FFFFFF;"><button class="tool-btn" id="tool_filter" onclick="setTool('filter')" style="color:#FFFFFF;">🧼 Detoks (+200)</button><div class="info-btn" onmousemove="showTip(event, 'filter')" onmouseleave="hideTip()">?</div></div>
+                <div class="tool-wrapper" style="border-color: #AAAAAA;"><button class="tool-btn" id="tool_spike" onclick="setTool('spike')" style="color:#AAAAAA;">🗡️ Kolec (+250)</button><div class="info-btn" onmousemove="showTip(event, 'spike')" onmouseleave="hideTip()">?</div></div>
+                <div class="tool-wrapper" style="border-color: #ff6666;"><button class="tool-btn" id="tool_flesh" onclick="setTool('flesh')" style="color:#ff6666;">🥩 Tkanka (+50)</button><div class="info-btn" onmousemove="showTip(event, 'flesh')" onmouseleave="hideTip()">?</div></div>
+                <div class="tool-wrapper" style="border-color: #66ccff;"><button class="tool-btn" id="tool_sensor" onclick="setTool('sensor')" style="color:#66ccff;">📡 Radar (+150)</button><div class="info-btn" onmousemove="showTip(event, 'sensor')" onmouseleave="hideTip()">?</div></div>
+                <div class="tool-wrapper" style="border-color: #d400ff; margin-left: 10px;"><button class="tool-btn" id="tool_move" onclick="setTool('move')" style="color:#d400ff;">✋ Przesuń</button><div class="info-btn" onmousemove="showTip(event, 'move')" onmouseleave="hideTip()">?</div></div>
+                <div class="tool-wrapper" style="border-color: red;"><button class="tool-btn" id="tool_delete" onclick="setTool('delete')" style="color:red;">❌ Usuń</button><div class="info-btn" onmousemove="showTip(event, 'delete')" onmouseleave="hideTip()">?</div></div>
+            </div>
+            <canvas id="editorCanvas" width="600" height="350"></canvas>
+            <p style="font-size:11px; color:#aaa; margin: 3px;">Kółko Myszki = Zoom | Prawy Przycisk = Przesuń Kamere</p>
+            <div style="display:flex; justify-content:space-between; margin-top: 10px; width: 100%; gap: 10px;">
+                <button onclick="loadEditor()" style="background: red; color: white; flex: 1; font-weight: bold; margin: 0;">COFNIJ ZMIANY</button>
+                <button onclick="saveOrganism()" style="background: #16ff00; color: black; font-weight:bold; flex: 2; margin: 0;">ZAPISZ I WYPŁYŃ</button>
+            </div>
+        </div>
+    </div>
+
+</div>
 
 <!-- TYLKO LOGIKA INTERFEJSU (UI) -->
 <script src="/socket.io/socket.io.js"></script>
