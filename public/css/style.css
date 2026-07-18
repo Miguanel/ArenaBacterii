@@ -23,9 +23,6 @@ canvas {
     touch-action: none; /* Kluczowe dla gier mobilnych */
 }
 
-.spectator-cursor { cursor: grab !important; }
-.spectator-cursor:active { cursor: grabbing !important; }
-
 /* =========================================
    2. EKRAN LOGOWANIA I INTRO
    ========================================= */
@@ -36,11 +33,7 @@ canvas {
 input, button { font-family: monospace; font-size: 16px; padding: 10px; margin: 5px; background: #1a1a2e; color: #16ff00; border: 1px solid #16ff00; cursor:pointer; }
 button:hover { background: #16ff00; color: #1a1a2e; }
 
-.intro-box {
-    background: rgba(10, 10, 26, 0.8); border: 1px dashed #16ff00; padding: 20px 30px;
-    margin-bottom: 25px; max-width: 550px; border-radius: 8px; color: #ccc; text-align: center;
-    box-shadow: 0px 0px 15px rgba(22, 255, 0, 0.2);
-}
+.intro-box { background: rgba(10, 10, 26, 0.8); border: 1px dashed #16ff00; padding: 20px 30px; margin-bottom: 25px; max-width: 550px; border-radius: 8px; color: #ccc; text-align: center; box-shadow: 0px 0px 15px rgba(22, 255, 0, 0.2); }
 .intro-box h3 { color: yellow; margin-top: 0; font-size: 20px;}
 .intro-box ul { text-align: left; margin-bottom: 0; padding-left: 20px; }
 .intro-box li { margin-bottom: 10px; line-height: 1.4; }
@@ -53,24 +46,27 @@ button:hover { background: #16ff00; color: #1a1a2e; }
 #leaderboard { position: absolute; top: 20px; right: 190px; background: rgba(0,0,0,0.7); padding: 15px; border: 1px solid #9600ff; min-width: 150px; }
 #minimapCanvas { position: absolute; top: 20px; right: 20px; border: 2px solid #16ff00; z-index: 11; background: black; pointer-events: auto; }
 
-#spectatorUI { position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); background: rgba(50, 0, 0, 0.8); border: 2px solid red; padding: 20px; text-align: center; display: none; z-index: 2000; pointer-events: auto; }
-#spectatorUI h2 { margin: 0 0 10px 0; color: red; text-transform: uppercase; }
-#spectatorUI p { margin: 0 0 15px 0; color: #fff; font-size: 14px; }
-
 /* =========================================
    4. EDYTOR I MUTACJE
    ========================================= */
-#mutationMenu { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); background: #1a1a2e; border: 2px dashed yellow; padding: 15px; display: none; z-index: 100; pointer-events: auto; width: 850px; text-align: center;}
-#editorCanvas { position: relative; border: 1px solid #444; background: #0a0a1a; cursor: crosshair; margin: 5px auto; width: 600px; height: 350px; display: block;}
+#mutationMenu {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    background: #1a1a2e; border: 2px dashed yellow; padding: 15px; display: none;
+    z-index: 100; pointer-events: auto; width: 90%; max-width: 850px; text-align: center;
+}
+
 #editorCanvas {
-    /* ZMIANA: Użyj max-width, żeby edytor nie wychodził poza ekran telefonu */
     max-width: 100%;
     width: 100%;
     height: auto;
     aspect-ratio: 600 / 350;
     display: block;
     margin: 10px auto;
+    border: 1px solid #444;
+    background: #0a0a1a;
+    cursor: crosshair;
 }
+
 .tools { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-bottom: 5px; }
 .tool-wrapper { display: inline-flex; border: 1px solid #444; border-radius: 4px; overflow: hidden; background: #1a1a2e; }
 .tool-wrapper .tool-btn { border: none; margin: 0; border-radius: 0; font-size: 11px; padding: 6px 10px; outline: none; }
@@ -78,7 +74,6 @@ button:hover { background: #16ff00; color: #1a1a2e; }
 .tool-wrapper .info-btn:hover { background: #16ff00; color: #000; }
 .tool-active { background: #16ff00 !important; color: black !important; font-weight: bold; }
 
-#editorStatsBox { background: rgba(0,0,0,0.8); border: 1px solid #00d4ff; padding: 10px; font-size: 14px; color: #00d4ff; margin-bottom: 10px; }
 #cellTooltip { position: fixed; background: rgba(10,10,26,0.95); border: 1px solid #16ff00; color: #ddd; padding: 12px; border-radius: 5px; width: 260px; font-size: 12px; pointer-events: none; display: none; z-index: 2000; text-align: left; line-height: 1.5; box-shadow: 2px 2px 10px rgba(0,0,0,0.8); }
 #cellTooltip h3 { margin: 0 0 5px 0; font-size: 14px; text-transform: uppercase; }
 
@@ -97,40 +92,25 @@ button:hover { background: #16ff00; color: #1a1a2e; }
 .lb-name { color: #16ff00; font-weight: bold; font-size: 14px; }
 .lb-score { color: #ffcc00; font-size: 12px; }
 
-canvas.lb-canvas { position: static !important; width: 60px !important; height: 60px !important; display: block !important; background: #050510 !important; border: 1px solid #444 !important; border-radius: 50% !important; margin: 0 15px !important; box-shadow: 0 0 10px rgba(0, 255, 0, 0.1); }
-
 /* =========================================
-   6. NAWIGACJA I MODALE
+   6. MODALE I NAWIGACJA
    ========================================= */
 #topNav { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 20; }
 .nav-btn { background: rgba(26, 26, 46, 0.8); color: #16ff00; border: 1px solid #16ff00; padding: 8px 15px; font-family: monospace; cursor: pointer; font-size: 14px; pointer-events: auto; }
 .nav-btn:hover { background: #16ff00; color: black; }
 
 .game-modal {
-    position: fixed;
-    top: 0; /* Zmieniono z 50%, aby łatwiej zarządzać przewijaniem */
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(10, 10, 26, 0.98);
-    z-index: 2500;
-    display: none;
-    /* TO JEST KLUCZOWE DLA PRZEWIJANIA: */
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch; /* Płynne przewijanie na iOS/Android */
-    padding: 20px;
-    box-sizing: border-box;
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(10, 10, 26, 0.98); z-index: 2500; display: none;
+    overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 20px; box-sizing: border-box;
+}
+.modal-content {
+    margin: 50px auto; background: #1a1a2e; border: 2px solid #16ff00; padding: 20px;
+    max-width: 600px; min-height: 90vh;
 }
 .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #16ff00; margin-bottom: 15px; padding-bottom: 10px; }
 .modal-close-btn { background: #ff4444; color: white; border: none; padding: 5px 15px; cursor: pointer; }
-.modal-content {
-    margin: 50px auto; /* Odstęp od góry */
-    background: #1a1a2e;
-    border: 2px solid #16ff00;
-    padding: 20px;
-    max-width: 600px;
-    min-height: 90vh; /* Zmusza modal do bycia przewijalnym */
-}
+
 /* =========================================
    7. RESPONSYWNOŚĆ (RWD)
    ========================================= */
