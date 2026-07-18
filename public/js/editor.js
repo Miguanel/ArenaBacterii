@@ -77,15 +77,17 @@ eCanvas.addEventListener('contextmenu', e => e.preventDefault());
 eCanvas.addEventListener('mousedown', (e) => {
     if (e.button === 2) { isPanning = true; return; }
     let rect = eCanvas.getBoundingClientRect();
-    let scaleX = 600 / rect.width;   // Oblicza rzeczywistą skalę Canvasa
+    let scaleX = 600 / rect.width;   // Magiczna liczba: Logiczna szerokość / Fizyczna szerokość
     let scaleY = 350 / rect.height;
-    // Przelicza pozycję dotyku/myszy na logiczne piksele edytora (600x350)
+
+    // Przelicza dotyk na logikę Canvasu:
     let rawX = (e.clientX - rect.left) * scaleX;
     let rawY = (e.clientY - rect.top) * scaleY;
 
-    // Uwzględnia Twoje przesuwanie i zoom:
+    // Dodaje Twoje własne systemy przesuwania w edytorze:
     let mx = (rawX - 250 - editorPanX) / editorZoom + 250;
     let my = (rawY - 175 - editorPanY) / editorZoom + 175;
+
     let clickedIdx = -1;
     for(let i=0; i<edNodes.length; i++) {
         if(Math.sqrt((mx-edNodes[i].x)**2 + (my-edNodes[i].y)**2) < 15) { clickedIdx = i; break; }

@@ -50,9 +50,6 @@ button:hover { background: #16ff00; color: #1a1a2e; }
    4. EDYTOR I MUTACJE
    ========================================= */
 
-/* --- KONTENERY WIDOKÓW --- */
-.view-active { display: block !important; }
-.view-hidden { display: none !important; }
 
 /* --- RESPONSOWNE MENU MUTACJI --- */
 #view-editor {
@@ -64,18 +61,48 @@ button:hover { background: #16ff00; color: #1a1a2e; }
     padding: 20px 10px;
     box-sizing: border-box;
 }
-
+/* --- W PEŁNI RESPONSYWNE MENU MUTACJI (Nakładka) --- */
 #mutationMenu {
-    /* Usuwamy position: absolute i sztywne 850px! */
-    position: relative;
-    background: #1a1a2e;
-    border: 2px dashed yellow;
-    padding: 15px;
+    position: fixed; /* Zawsze nad ekranem gry */
+    top: 0;
+    left: 0;
+    width: 100vw; /* 100% szerokości ekranu */
+    height: 100vh; /* 100% wysokości ekranu */
+    background: rgba(10, 10, 26, 0.85); /* 85% ciemnego tła - BĘDZIESZ WIDZIAŁ GRĘ W TLE! */
+    display: none; /* Pokażemy z JS jako "flex" */
+    z-index: 3000;
+
+    /* Elastyczny układ zawartości */
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    overflow-y: auto; /* Jeśli telefon jest mały, środek sam się przewinie */
+    box-sizing: border-box;
+    padding: 3vh 3vw; /* Marginesy reagujące na wielkość ekranu */
+}
+
+/* --- RESPONSYWNY CANVAS EDYTORA --- */
+#editorCanvas {
+    width: 100%; /* Rozciąga się do granic rodzica */
+    max-width: 600px; /* Nie pozwoli mu być gigantycznym na komputerze PC */
+    height: auto;
+    aspect-ratio: 600 / 350; /* ZAWSZE utrzymuje logikę proporcji 600x350 */
+    border: 1px solid #16ff00;
+    background: rgba(5, 5, 16, 0.9); /* Bardzo ciemne szkło */
+    cursor: crosshair;
+    margin: 2vh 0; /* Górny i dolny margines uzależniony od wysokości telefonu */
+    display: block;
+    touch-action: none; /* Ochrona przed scrollowaniem palcem po Canvasie */
+}
+
+.tools {
     width: 100%;
-    max-width: 650px; /* Nie pozwoli mu być szerszym niż 650px na PC */
-    text-align: center;
-    border-radius: 8px;
-    pointer-events: auto;
+    max-width: 800px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 2vw; /* Odstępy między przyciskami oparte na procentach ekranu! */
+    margin-bottom: 2vh;
 }
 
 #editorCanvas {

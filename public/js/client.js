@@ -58,12 +58,12 @@ function joinGame() {
     });
 
     window.socket.on('enterMutationZone', () => {
-        window.switchView('editor'); // Odpala nowy widok
-        if (typeof loadEditor === 'function') loadEditor();
+    document.getElementById('mutationMenu').style.display = 'flex'; // MUSI BYĆ FLEX, NIE BLOCK!
+    if (typeof loadEditor === 'function') loadEditor();
     });
 
     window.socket.on('blueprintSaved', () => {
-        window.switchView('game'); // Wraca do gry
+        document.getElementById('mutationMenu').style.display = 'none';
         window.socket.emit('exitZone');
     });
 
@@ -131,7 +131,7 @@ function joinGame() {
 }
 
 window.closeMutationMenu = function() {
-    window.switchView('game'); // Wraca do gry
+    document.getElementById('mutationMenu').style.display = 'none';
     if(window.socket) window.socket.emit('exitZone');
 };
 
